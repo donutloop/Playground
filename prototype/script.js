@@ -29,7 +29,6 @@ function init() {
     // Scene Setup
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1a1a2e); // Dark Blue-ish to see if renderer works
-    scene.fog = new THREE.Fog(0x1a1a2e, 10, 40);
 
     // Camera
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -43,7 +42,7 @@ function init() {
     // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
     document.body.appendChild(renderer.domElement);
 
     // Lights
@@ -52,9 +51,7 @@ function init() {
 
     dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(10, 20, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    dirLight.castShadow = false;
     scene.add(dirLight);
 
     // Groups
@@ -98,7 +95,7 @@ function createGrid() {
     });
     const floor = new THREE.Mesh(geometry, material);
     floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
+    floor.receiveShadow = false;
     groupGrid.add(floor);
 
     // Borders
@@ -150,7 +147,6 @@ function resetGame() {
     if (dirLight) dirLight.intensity = 0.8;
     if (scene) {
         scene.background.setHex(0x1a1a2e);
-        scene.fog.color.setHex(0x1a1a2e);
     }
 
     createGrid();
@@ -220,7 +216,7 @@ function spawnFoodItem() {
         roughness: 0.3
     });
     const body = new THREE.Mesh(geometry, material);
-    body.castShadow = true;
+    body.castShadow = false;
     group.add(body);
 
     // Eyes (so it looks alive!)
@@ -489,18 +485,7 @@ function moveSnake() {
         // Adjust Camera out
         zoomLevel += 1;
 
-        // Dim Lights (Scary!)
-        // Minimum 0.1
-        if (ambientLight.intensity > 0.1) ambientLight.intensity -= 0.02;
-        if (dirLight.intensity > 0.1) dirLight.intensity -= 0.02;
 
-        // Dim Background
-        const currentBg = scene.background.getHSL({});
-        if (currentBg.l > 0.05) {
-            currentBg.l -= 0.005; // Darken slowly
-            scene.background.setHSL(currentBg.h, currentBg.s, currentBg.l);
-            scene.fog.color.setHSL(currentBg.h, currentBg.s, currentBg.l);
-        }
 
     } else {
         // Remove tail
@@ -534,8 +519,8 @@ function createDragonSegment(pos, isHead, dir) {
     const geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
     const material = new THREE.MeshStandardMaterial({ color: bodyColor });
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
     group.add(mesh);
 
     if (isHead) {

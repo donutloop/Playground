@@ -57,7 +57,8 @@ canvas {
     z-index: 10;
 }
 
-#game-over {
+#game-over,
+#pause-menu {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -70,10 +71,11 @@ canvas {
 
     /* Animation */
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.3s ease-in-out;
 }
 
-#game-over:not(.hidden) {
+#game-over:not(.hidden),
+#pause-menu:not(.hidden) {
     opacity: 1;
 }
 

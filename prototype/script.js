@@ -27,6 +27,8 @@ let beams = [];
 // --- Elements ---
 const scoreEl = document.getElementById('score');
 const gameOverEl = document.getElementById('game-over');
+const pauseEl = document.getElementById('pause-menu');
+let isPaused = false;
 
 // --- Initialization ---
 function init() {
@@ -254,6 +256,14 @@ function onKeyDown(event) {
         if (event.code === 'Space') resetGame();
         return;
     }
+
+    if (event.code === 'Escape' || event.code === 'KeyP') {
+        togglePause();
+        return;
+    }
+
+    if (isPaused) return;
+
     switch (event.code) {
         case 'ArrowUp': case 'KeyW': if (direction.z !== 1) nextDirection = { x: 0, z: -1 }; break;
         case 'ArrowDown': case 'KeyS': if (direction.z !== -1) nextDirection = { x: 0, z: 1 }; break;
@@ -263,7 +273,7 @@ function onKeyDown(event) {
 }
 
 function update(time) {
-    if (isGameOver) return;
+    if (isGameOver || isPaused) return;
 
     if (time - lastMoveTime > TICK_RATE) {
         lastMoveTime = time;
@@ -527,6 +537,15 @@ function animate(time) {
 
     // Render with Effect Composer
     composer.render();
+}
+
+function togglePause() {
+    isPaused = !isPaused;
+    if (isPaused) {
+        pauseEl.classList.remove('hidden');
+    } else {
+        pauseEl.classList.add('hidden');
+    }
 }
 
 init();

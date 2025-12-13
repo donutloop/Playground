@@ -1,12 +1,25 @@
+:root {
+    --primary-color: #00f3ff;
+    /* Neon Cyan */
+    --secondary-color: #ff0055;
+    /* Neon Pink */
+    --bg-dark: #050505;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --font-main: 'Rajdhani', sans-serif;
+}
+
 body {
     margin: 0;
     overflow: hidden;
-    background-color: #111;
-    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg-dark);
+    font-family: var(--font-main);
+    color: white;
 }
 
 canvas {
     display: block;
+    outline: none;
 }
 
 #ui-container {
@@ -19,14 +32,29 @@ canvas {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 #score {
-    color: white;
-    font-size: 24px;
-    padding: 20px;
-    font-weight: bold;
-    text-shadow: 2px 2px 0 #000;
+    align-self: flex-start;
+    padding: 15px 30px;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-color);
+    z-index: 10;
 }
 
 #game-over {
@@ -35,15 +63,38 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: white;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 40px;
-    border: 2px solid #fff;
-    border-radius: 10px;
+    padding: 60px 80px;
+    pointer-events: auto;
+    /* Enable clicks if we add buttons later */
+    z-index: 20;
+
+    /* Animation */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#game-over:not(.hidden) {
+    opacity: 1;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
+}
+
+h1 {
+    font-size: 72px;
+    margin: 0 0 20px;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    text-shadow: 0 0 20px var(--secondary-color), 0 0 40px var(--secondary-color);
+    letter-spacing: 5px;
+}
+
+p {
+    font-size: 24px;
+    margin: 0;
+    color: #fff;
+    letter-spacing: 1px;
 }
 
 #loading {
@@ -51,18 +102,24 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #4CAF50;
+    color: var(--primary-color);
     font-size: 24px;
     font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    animation: pulse 1.5s infinite;
 }
 
-h1 {
-    font-size: 48px;
-    margin: 0 0 20px;
-    color: #ff3333;
-}
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
 
-p {
-    font-size: 24px;
-    margin: 0;
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
 }

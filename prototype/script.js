@@ -1,25 +1,28 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-// --- Constants ---
 // --- Constants ---
 let GRID_SIZE = 20;
 const TILE_SIZE = 1;
 const TICK_RATE = 150; // Milliseconds per move
 
 // --- State ---
-let scene, camera, renderer;
-let ambientLight, dirLight;
+let scene, camera, renderer, composer;
+let ambientLight, dirLight, pointLight;
 let snake = [];
-let foods = []; // Array of food objects
-let direction = { x: 1, z: 0 }; // Moving right initially
+let foods = [];
+let direction = { x: 1, z: 0 };
 let nextDirection = { x: 1, z: 0 };
 let lastMoveTime = 0;
 let isGameOver = false;
 let score = 0;
 let totalFoodsEaten = 0;
-let zoomLevel = 20; // Default zoom
-let groupSnake, groupFood, groupGrid, groupBlood;
+let zoomLevel = 22; // Slightly further out for dramatic angle
+let groupSnake, groupFood, groupGrid, groupBlood, groupEffects;
 let bloodParticles = [];
+let beams = [];
 
 // --- Elements ---
 const scoreEl = document.getElementById('score');
@@ -29,7 +32,8 @@ const gameOverEl = document.getElementById('game-over');
 function init() {
     // Scene Setup
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e); // Dark Blue-ish to see if renderer works
+    scene.background = new THREE.Color(0x050505); // Very dark background
+    scene.fog = new THREE.FogExp2(0x050505, 0.02); // Add fog for depth
 
     // Camera
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -41,19 +45,43 @@ function init() {
     if (loadingEl) loadingEl.style.display = 'none';
 
     // Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: false }); // Antialias off for post-processing performance usually
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = false;
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ReinhardToneMapping;
     document.body.appendChild(renderer.domElement);
 
+    // Post-Processing
+    const params = {
+        exposure: 1,
+        bloomStrength: 1.5,
+        bloomThreshold: 0,
+        bloomRadius: 0
+    };
+
+    const renderScene = new RenderPass(scene, camera);
+
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = params.bloomThreshold;
+    bloomPass.strength = params.bloomStrength;
+    bloomPass.radius = params.bloomRadius;
+
+    composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+
     // Lights
-    ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft white light
     scene.add(ambientLight);
 
-    dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
     dirLight.position.set(10, 20, 10);
-    dirLight.castShadow = false;
     scene.add(dirLight);
+
+    // Dynamic Point Light attached to "Grid Center" or similar to give life
+    pointLight = new THREE.PointLight(0x00f3ff, 1, 100);
+    pointLight.position.set(0, 10, 0);
+    scene.add(pointLight);
 
     // Groups
     groupSnake = new THREE.Group();
@@ -68,6 +96,9 @@ function init() {
     groupBlood = new THREE.Group();
     scene.add(groupBlood);
 
+    groupEffects = new THREE.Group();
+    scene.add(groupEffects);
+
     createGrid();
 
     // Event Listeners
@@ -80,44 +111,57 @@ function init() {
 }
 
 function createGrid() {
-    // Clear old grid if exists
-    if (groupGrid.children.length > 0) {
-        // Simple clear
-        while (groupGrid.children.length > 0) {
-            groupGrid.remove(groupGrid.children[0]);
-        }
+    // Clear old grid
+    while (groupGrid.children.length > 0) {
+        groupGrid.remove(groupGrid.children[0]);
     }
 
-    // Floor
-    const geometry = new THREE.PlaneGeometry(GRID_SIZE, GRID_SIZE);
+    // Floor - Reflective Tech Grid
+    const geometry = new THREE.PlaneGeometry(GRID_SIZE * 2, GRID_SIZE * 2);
+    // Using a grid texture would be nice, but procedural is safer for single file
     const material = new THREE.MeshStandardMaterial({
-        color: 0x1a1a1a,
-        roughness: 0.8
+        color: 0x0a0a0a,
+        roughness: 0.1,
+        metalness: 0.8,
     });
     const floor = new THREE.Mesh(geometry, material);
     floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = false;
+    floor.position.y = -0.1; // Slightly below zero
     groupGrid.add(floor);
 
-    // Borders
-    const borderMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
-    const borderGeoH = new THREE.BoxGeometry(GRID_SIZE + 1, 1, 0.5);
-    const borderGeoV = new THREE.BoxGeometry(0.5, 1, GRID_SIZE + 1);
+    // Grid Helper for the visual lines
+    const gridHelper = new THREE.GridHelper(GRID_SIZE, GRID_SIZE, 0x00f3ff, 0x111111);
+    groupGrid.add(gridHelper);
 
-    const wallTop = new THREE.Mesh(borderGeoH, borderMat);
-    wallTop.position.set(0, 0.5, -GRID_SIZE / 2 - 0.25);
+    // Dynamic borders - Glowing Neon Walls
+    const borderMat = new THREE.MeshStandardMaterial({
+        color: 0x00f3ff,
+        emissive: 0x00f3ff,
+        emissiveIntensity: 2
+    });
+
+    // Create a continuous railing or corner pillars for a cleaner look?
+    // Let's go with corner pillars and thin laser beams
+    const halfSize = GRID_SIZE / 2;
+
+    // Laser Beam Fences
+    const wallGeoH = new THREE.BoxGeometry(GRID_SIZE, 0.05, 0.05);
+    const wallGeoV = new THREE.BoxGeometry(0.05, 0.05, GRID_SIZE);
+
+    const wallTop = new THREE.Mesh(wallGeoH, borderMat);
+    wallTop.position.set(0, 0.5, -halfSize);
     groupGrid.add(wallTop);
 
-    const wallBottom = new THREE.Mesh(borderGeoH, borderMat);
-    wallBottom.position.set(0, 0.5, GRID_SIZE / 2 + 0.25);
+    const wallBottom = new THREE.Mesh(wallGeoH, borderMat);
+    wallBottom.position.set(0, 0.5, halfSize);
     groupGrid.add(wallBottom);
 
-    const wallLeft = new THREE.Mesh(borderGeoV, borderMat);
-    wallLeft.position.set(-GRID_SIZE / 2 - 0.25, 0.5, 0);
+    const wallLeft = new THREE.Mesh(wallGeoV, borderMat);
+    wallLeft.position.set(-halfSize, 0.5, 0);
     groupGrid.add(wallLeft);
 
-    const wallRight = new THREE.Mesh(borderGeoV, borderMat);
-    wallRight.position.set(GRID_SIZE / 2 + 0.25, 0.5, 0);
+    const wallRight = new THREE.Mesh(wallGeoV, borderMat);
+    wallRight.position.set(halfSize, 0.5, 0);
     groupGrid.add(wallRight);
 }
 
@@ -125,34 +169,22 @@ function resetGame() {
     isGameOver = false;
     score = 0;
     totalFoodsEaten = 0;
-    scoreEl.innerText = `Score: 0`;
+    scoreEl.innerText = `SCORE: 0`;
     gameOverEl.classList.add('hidden');
 
     // Clear old meshes
-    while (groupSnake.children.length > 0) {
-        groupSnake.remove(groupSnake.children[0]);
-    }
-    while (groupFood.children.length > 0) {
-        groupFood.remove(groupFood.children[0]);
-    }
-    while (groupBlood.children.length > 0) {
-        groupBlood.remove(groupBlood.children[0]);
-    }
+    [groupSnake, groupFood, groupBlood, groupEffects].forEach(g => {
+        while (g.children.length > 0) g.remove(g.children[0]);
+    });
+
     bloodParticles = [];
+    beams = [];
 
     // Reset Grid Size
     GRID_SIZE = 20;
-    zoomLevel = 20;
-
-    // Reset Lights
-    if (ambientLight) ambientLight.intensity = 0.6;
-    if (dirLight) dirLight.intensity = 0.8;
-    if (scene) {
-        scene.background.setHex(0x1a1a2e);
-    }
+    zoomLevel = 22;
 
     createGrid();
-    // Camera pos will be updated in animate
 
     // Reset Snake Data
     snake = [
@@ -161,18 +193,13 @@ function resetGame() {
         { x: -2, z: 0 }
     ];
 
-    foods = []; // Clear data
-
     direction = { x: 1, z: 0 };
     nextDirection = { x: 1, z: 0 };
+    foods = [];
 
-    // Create Initial Snake Meshes
     updateSnakeMeshes();
-
     spawnFoods(1);
 }
-
-// addSnakeSegment function removed, logic moved to createDragonSegment in updateSnakeMeshes
 
 function spawnFoods(count = 1) {
     for (let i = 0; i < count; i++) {
@@ -186,99 +213,52 @@ function spawnFoodItem(type = 'normal') {
     while (!valid) {
         x = Math.floor(Math.random() * GRID_SIZE) - GRID_SIZE / 2;
         z = Math.floor(Math.random() * GRID_SIZE) - GRID_SIZE / 2;
-
         valid = true;
-        // Check collision with snake
-        for (let segment of snake) {
-            if (segment.x === x && segment.z === z) {
-                valid = false;
-                break;
-            }
-        }
-        // Check collision with other foods
-        for (let f of foods) {
-            if (f.x === x && f.z === z) {
-                valid = false;
-                break;
-            }
-        }
+        for (let s of snake) if (s.x === x && s.z === z) valid = false;
+        for (let f of foods) if (f.x === x && f.z === z) valid = false;
     }
 
     const group = new THREE.Group();
     group.position.set(x, 0.5, z);
 
-    // Random Color
-    const randomColor = (type === 'bad') ? 0x800080 : Math.random() * 0xffffff;
+    // Enhanced Food Visuals
+    const isBad = type === 'bad';
+    const color = isBad ? 0xff0055 : 0x00ff88; // Neon Pink or Neon Green
 
-    // Body
-    const radius = (type === 'bad') ? 0.8 : 0.5;
-    const geometry = new THREE.DodecahedronGeometry(radius);
+    // Core (Glowing)
+    const geometry = new THREE.OctahedronGeometry(0.4);
     const material = new THREE.MeshStandardMaterial({
-        color: randomColor,
-        metalness: 0.7,
-        roughness: 0.3
+        color: color,
+        emissive: color,
+        emissiveIntensity: 3,
+        roughness: 0.2,
+        metalness: 0.8
     });
-    const body = new THREE.Mesh(geometry, material);
-    body.castShadow = false;
-    group.add(body);
+    const core = new THREE.Mesh(geometry, material);
+    group.add(core);
 
-    // Eyes (so it looks alive!)
-    const eyeGeo = new THREE.SphereGeometry(0.15, 8, 8);
-    const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const pupilGeo = new THREE.SphereGeometry(0.07, 8, 8);
-    const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+    // Floating Rings
+    const ringGeo = new THREE.TorusGeometry(0.6, 0.02, 8, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
 
-    const leftEye = new THREE.Group();
-    const lBall = new THREE.Mesh(eyeGeo, eyeMat);
-    const lPupil = new THREE.Mesh(pupilGeo, pupilMat);
-    lPupil.position.z = 0.12;
-    leftEye.add(lBall);
-    leftEye.add(lPupil);
-    leftEye.position.set(-0.2, 0.2, 0.4);
-    group.add(leftEye);
-
-    const rightEye = new THREE.Group();
-    const rBall = new THREE.Mesh(eyeGeo, eyeMat);
-    const rPupil = new THREE.Mesh(pupilGeo, pupilMat);
-    rPupil.position.z = 0.12;
-    rightEye.add(rBall);
-    rightEye.add(rPupil);
-    rightEye.position.set(0.2, 0.2, 0.4);
-    group.add(rightEye);
-
-    // Random Rotation
-    group.rotation.y = Math.random() * Math.PI * 2;
-
-    const f = { x, z, mesh: group, jumpCooldown: 0, id: Math.random(), type: type };
+    const f = { x, z, mesh: group, jumpCooldown: 0, id: Math.random(), type: type, preJump: false, preJumpTimer: 0 };
     foods.push(f);
     groupFood.add(group);
 }
 
 function onKeyDown(event) {
     if (isGameOver) {
-        if (event.code === 'Space') {
-            resetGame();
-        }
+        if (event.code === 'Space') resetGame();
         return;
     }
-
     switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-            if (direction.z !== 1) nextDirection = { x: 0, z: -1 };
-            break;
-        case 'ArrowDown':
-        case 'KeyS':
-            if (direction.z !== -1) nextDirection = { x: 0, z: 1 };
-            break;
-        case 'ArrowLeft':
-        case 'KeyA':
-            if (direction.x !== 1) nextDirection = { x: -1, z: 0 };
-            break;
-        case 'ArrowRight':
-        case 'KeyD':
-            if (direction.x !== -1) nextDirection = { x: 1, z: 0 };
-            break;
+        case 'ArrowUp': case 'KeyW': if (direction.z !== 1) nextDirection = { x: 0, z: -1 }; break;
+        case 'ArrowDown': case 'KeyS': if (direction.z !== -1) nextDirection = { x: 0, z: 1 }; break;
+        case 'ArrowLeft': case 'KeyA': if (direction.x !== 1) nextDirection = { x: -1, z: 0 }; break;
+        case 'ArrowRight': case 'KeyD': if (direction.x !== -1) nextDirection = { x: 1, z: 0 }; break;
     }
 }
 
@@ -289,176 +269,141 @@ function update(time) {
         lastMoveTime = time;
         moveSnake();
     }
-
     updateFoodBehavior(time);
 }
 
 function updateFoodBehavior(time) {
     if (isGameOver) return;
-
-    // Iterate backwards so we can modify if needed (though we aren't deleting here)
     for (let f of foods) {
-        updateSingleFoodBehavior(f, time);
-    }
-}
+        if (!f || !f.mesh) continue;
 
-function updateSingleFoodBehavior(foodItem, time) {
-    if (!foodItem || !foodItem.mesh) return;
+        // Rotate rings
+        f.mesh.children[1].rotation.x += 0.05;
+        f.mesh.children[1].rotation.y += 0.05;
 
-    // Cooldown check
-    if (foodItem.jumpCooldown > 0) {
-        foodItem.jumpCooldown -= 16;
-        return;
-    }
+        // Jump logic check (simplified for visual consistency)
+        if (f.jumpCooldown > 0) {
+            f.jumpCooldown -= 16;
+            continue;
+        }
 
-    const head = snake[0];
-    const dist = Math.sqrt(Math.pow(head.x - foodItem.x, 2) + Math.pow(head.z - foodItem.z, 2));
+        const head = snake[0];
+        const dist = Math.sqrt(Math.pow(head.x - f.x, 2) + Math.pow(head.z - f.z, 2));
 
-    // Field of View Check
-    if (dist < 5) {
-        // Calculate vector to snake
-        const toSnake = { x: head.x - foodItem.x, z: head.z - foodItem.z };
-        const len = Math.sqrt(toSnake.x * toSnake.x + toSnake.z * toSnake.z);
-        if (len === 0) return; // on top of it
-
-        // Normalize
-        toSnake.x /= len;
-        toSnake.z /= len;
-
-        // Get Forward vector of Food (Z axis rotated)
-        const rot = foodItem.mesh.rotation.y;
-        const forward = {
-            x: Math.sin(rot),
-            z: Math.cos(rot)
-        };
-
-        // Dot Product
-        const dot = forward.x * toSnake.x + forward.z * toSnake.z;
-
-        // If Dot > 0.5 (approx 60 degree cone to each side), it sees the snake
-        if (dot > 0.5) {
-            // SPOTTED!
-            foodItem.mesh.lookAt(head.x, 0.5, head.z);
-
-            // JUMP THIS SPECIFIC FOOD
-            jumpFood(foodItem);
+        if (dist < 4) {
+            if (f.preJump) {
+                f.preJumpTimer -= 16;
+                if (f.preJumpTimer <= 0) {
+                    jumpFood(f);
+                    f.preJump = false;
+                }
+            } else if (Math.random() < 0.02) { // Random chance to start jump if close, instead of vector math for now per frame
+                f.preJump = true;
+                f.preJumpTimer = 400;
+                spawnBeam(f.x, f.z);
+            }
         }
     }
 }
 
 function jumpFood(foodItem) {
-    // Remove old mesh from group temporarily or just move it?
-    // We need new coords.
-
-    let x, z;
-    let valid = false;
+    let x, z, valid = false;
     while (!valid) {
         x = Math.floor(Math.random() * GRID_SIZE) - GRID_SIZE / 2;
         z = Math.floor(Math.random() * GRID_SIZE) - GRID_SIZE / 2;
         valid = true;
-        // Check snake
-        for (let segment of snake) {
-            if (segment.x === x && segment.z === z) { valid = false; break; }
-        }
-        // Check other foods
-        for (let f of foods) {
-            if (f !== foodItem && f.x === x && f.z === z) { valid = false; break; }
-        }
+        for (let s of snake) if (s.x === x && s.z === z) valid = false;
+        for (let f of foods) if (f !== foodItem && f.x === x && f.z === z) valid = false;
     }
-
-    // Update Data
     foodItem.x = x;
     foodItem.z = z;
-
-    // Update Mesh Position
     foodItem.mesh.position.set(x, 0.5, z);
-
-    // Randomize rotation again?
-    foodItem.mesh.rotation.y = Math.random() * Math.PI * 2;
-
-    // Cooldown
     foodItem.jumpCooldown = 2000;
 }
 
-function spawnBlood(x, z) {
-    const particleCount = 20;
+function spawnBloods(x, z) {
+    // Neon Explosion
+    const particleCount = 15;
     for (let i = 0; i < particleCount; i++) {
-        const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-        const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00f3ff }); // Cyan sparks
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.set(x, 0.5, z);
 
-        // Random Velocity
         const velocity = {
-            x: (Math.random() - 0.5) * 0.4,
+            x: (Math.random() - 0.5) * 0.5,
             y: Math.random() * 0.5 + 0.2,
-            z: (Math.random() - 0.5) * 0.4
+            z: (Math.random() - 0.5) * 0.5
         };
-
-        const particle = { mesh, velocity, life: 1.0 };
         groupBlood.add(mesh);
-        bloodParticles.push(particle);
+        bloodParticles.push({ mesh, velocity, life: 1.0 });
     }
 }
 
 function updateBlood() {
     for (let i = bloodParticles.length - 1; i >= 0; i--) {
         const p = bloodParticles[i];
-        p.life -= 0.02;
-
+        p.life -= 0.03;
         if (p.life <= 0) {
             groupBlood.remove(p.mesh);
             bloodParticles.splice(i, 1);
             continue;
         }
-
-        p.velocity.y -= 0.02; // Gravity
-        p.mesh.position.x += p.velocity.x;
-        p.mesh.position.y += p.velocity.y;
-        p.mesh.position.z += p.velocity.z;
-
-        // Floor collision
-        if (p.mesh.position.y < 0.1) {
-            p.mesh.position.y = 0.1;
-            p.velocity.y *= -0.5; // Bounce
-            p.velocity.x *= 0.8; // Friction
-            p.velocity.z *= 0.8;
-        }
-
+        p.velocity.y -= 0.02;
+        p.mesh.position.add(p.velocity);
+        // Fade out
+        // Note: MeshBasicMaterial doesn't support alpha easily without transparent:true, 
+        // but shrinking scale works well for sparks
         p.mesh.scale.setScalar(p.life);
-        p.mesh.rotation.x += p.velocity.z;
-        p.mesh.rotation.z -= p.velocity.x;
+
+        if (p.mesh.position.y < 0) {
+            p.velocity.y *= -0.5;
+            p.mesh.position.y = 0;
+        }
+    }
+}
+
+function spawnBeam(x, z) {
+    const geometry = new THREE.CylinderGeometry(0.05, 0.05, 20, 8);
+    const material = new THREE.MeshBasicMaterial({
+        color: 0xff0055, // Warning Red
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, 10, z);
+    groupEffects.add(mesh);
+    beams.push({ mesh, life: 1.0 });
+}
+
+function updateBeams() {
+    for (let i = beams.length - 1; i >= 0; i--) {
+        const b = beams[i];
+        b.life -= 0.05;
+        if (b.life <= 0) {
+            groupEffects.remove(b.mesh);
+            beams.splice(i, 1);
+        } else {
+            b.mesh.material.opacity = b.life;
+        }
     }
 }
 
 function moveSnake() {
     direction = nextDirection;
-
-    // Calculate new head position
     const head = snake[0];
-    const newHead = {
-        x: Math.round(head.x + direction.x), // Round to keep it integer-aligned
-        z: Math.round(head.z + direction.z)
-    };
+    const newHead = { x: Math.round(head.x + direction.x), z: Math.round(head.z + direction.z) };
 
-    // Check Wall Collision
     const limit = GRID_SIZE / 2;
     if (newHead.x < -limit || newHead.x >= limit || newHead.z < -limit || newHead.z >= limit) {
         gameOver();
         return;
     }
+    for (let s of snake) if (newHead.x === s.x && newHead.z === s.z) { gameOver(); return; }
 
-    // Check Self Collision
-    for (let segment of snake) {
-        if (newHead.x === segment.x && newHead.z === segment.z) {
-            gameOver();
-            return;
-        }
-    }
+    snake.unshift(newHead);
 
-    snake.unshift(newHead); // Add new head
-
-    // Check Food Collision
     let eatenIndex = -1;
     for (let i = 0; i < foods.length; i++) {
         if (newHead.x === foods[i].x && newHead.z === foods[i].z) {
@@ -469,125 +414,82 @@ function moveSnake() {
 
     if (eatenIndex !== -1) {
         const eatenFood = foods[eatenIndex];
-
-        // Remove eaten food visual
-        spawnBlood(eatenFood.x, eatenFood.z);
+        spawnBloods(eatenFood.x, eatenFood.z);
         groupFood.remove(eatenFood.mesh);
         foods.splice(eatenIndex, 1);
 
         if (eatenFood.type === 'bad') {
-            // Bad Food Logic
-            score -= 1;
-            scoreEl.innerText = `Score: ${score}`;
-            // Snake does NOT grow, so we do nothing here, let the else block run?
-            // Actually, code structure is if(eaten) { ... } else { pop }.
-            // If we eat bad food, we DON'T grow, so we MUST pop.
-            snake.pop();
+            score -= 5;
+            scoreEl.innerText = `SCORE: ${score}`;
+            snake.pop(); // Eat bad food -> shrink
         } else {
-            // Normal Food Logic
             score += 10;
-            scoreEl.innerText = `Score: ${score}`;
+            scoreEl.innerText = `SCORE: ${score}`;
             totalFoodsEaten++;
-
-            // HYDRA LOGIC: Spawn 2 new ones
             spawnFoods(2);
-
-            // EXPANSION LOGIC: Increase Grid
             GRID_SIZE += 2;
-            createGrid(); // Rebuild grid
-
-            // Adjust Camera out
-            zoomLevel += 1;
-
-            // Check for Big Ball Spawn
-            if (totalFoodsEaten % 10 === 0) {
-                spawnFoodItem('bad');
-            }
+            createGrid();
+            zoomLevel += 0.5;
+            if (totalFoodsEaten % 5 === 0) spawnFoodItem('bad');
         }
-
-    } else { // Remove tail
+    } else {
         snake.pop();
     }
-
-    // Sync Meshes with Data
     updateSnakeMeshes();
 }
 
 function updateSnakeMeshes() {
-    // Rebuild visual representation every frame to handle Head vs Body switching easily
-    // Clear old
-    while (groupSnake.children.length > 0) {
-        groupSnake.remove(groupSnake.children[0]);
-    }
+    while (groupSnake.children.length > 0) groupSnake.remove(groupSnake.children[0]);
 
     for (let i = 0; i < snake.length; i++) {
         const seg = snake[i];
         const isHead = (i === 0);
-        createDragonSegment(seg, isHead, direction);
+
+        const group = new THREE.Group();
+        group.position.set(seg.x, 0.5, seg.z);
+
+        // Cyber-Snake Aesthetic
+        const geo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+        const mat = new THREE.MeshStandardMaterial({
+            color: isHead ? 0xffffff : 0x00f3ff,
+            emissive: isHead ? 0xffffff : 0x0088ff,
+            emissiveIntensity: isHead ? 0.5 : 0.2,
+            roughness: 0.1,
+            metalness: 0.9
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        group.add(mesh);
+
+        // Inner glowing core
+        const coreGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        group.add(core);
+
+        if (isHead) {
+            // High-tech Visor Eyes
+            const visorGeo = new THREE.BoxGeometry(0.95, 0.3, 0.5);
+            const visorMat = new THREE.MeshBasicMaterial({ color: 0xff0055 }); // Red Visor
+            const visor = new THREE.Mesh(visorGeo, visorMat);
+
+            // Orient Visor
+            visor.position.y = 0.2;
+            if (direction.x !== 0) {
+                visor.position.x = direction.x * 0.2;
+                visor.scale.set(0.1, 1, 1);
+            } else {
+                visor.position.z = direction.z * 0.2;
+                visor.scale.set(1, 1, 0.1);
+            }
+            group.add(visor);
+        }
+
+        groupSnake.add(group);
     }
-}
-
-function createDragonSegment(pos, isHead, dir) {
-    const group = new THREE.Group();
-    group.position.set(pos.x, 0.5, pos.z);
-
-    // Main Body Block
-    const bodyColor = isHead ? 0xcc0000 : 0xaa0000; // Red Dragon
-    const geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
-    const material = new THREE.MeshStandardMaterial({ color: bodyColor });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = false;
-    mesh.receiveShadow = false;
-    group.add(mesh);
-
-    if (isHead) {
-        // Snout
-        const snoutGeo = new THREE.BoxGeometry(0.7, 0.5, 0.5);
-        const snoutMat = new THREE.MeshStandardMaterial({ color: 0xaa0000 });
-        const snout = new THREE.Mesh(snoutGeo, snoutMat);
-
-        // Position snout based on direction
-        // If dir.x = 1 (Right), Snout at +0.6 x
-        snout.position.set(dir.x * 0.6, 0, dir.z * 0.6);
-        // Rotate if moving Z
-        if (dir.z !== 0) snout.rotation.y = Math.PI / 2;
-        group.add(snout);
-
-        // Eyes
-        const eyeGeo = new THREE.BoxGeometry(0.15, 0.15, 0.15);
-        const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffff00 }); // Yellow Eyes
-
-        const eye1 = new THREE.Mesh(eyeGeo, eyeMat);
-        const eye2 = new THREE.Mesh(eyeGeo, eyeMat);
-
-        // Position relative to snout/head direction
-        // Simple: Top of head?
-        eye1.position.set(0.2, 0.5, 0.2);
-        eye2.position.set(0.2, 0.5, -0.2);
-
-        // Adjust for direction... this is getting complex for simple logic
-        // Let's just put them on top near front
-        eye1.position.set(dir.x * 0.3 + dir.z * 0.2, 0.5, dir.z * 0.3 + dir.x * 0.2);
-        eye2.position.set(dir.x * 0.3 - dir.z * 0.2, 0.5, dir.z * 0.3 - dir.x * 0.2);
-
-        group.add(eye1);
-        group.add(eye2);
-
-    } else {
-        // Body Spikes
-        const spikeGeo = new THREE.ConeGeometry(0.2, 0.5, 8);
-        const spikeMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 }); // Gold spikes
-        const spike = new THREE.Mesh(spikeGeo, spikeMat);
-        spike.position.set(0, 0.6, 0);
-        group.add(spike);
-    }
-
-    groupSnake.add(group);
 }
 
 function gameOver() {
     isGameOver = true;
-
     gameOverEl.classList.remove('hidden');
 }
 
@@ -595,32 +497,36 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate(time) {
     requestAnimationFrame(animate);
     update(time);
     updateBlood();
+    updateBeams();
 
-    // Food animation
+    // Animate Food Float
     for (let f of foods) {
         if (f.mesh) {
-            f.mesh.position.y = 0.5 + Math.sin(time / 200 + f.id) * 0.1;
+            f.mesh.position.y = 0.5 + Math.sin(time / 500 + f.id * 10) * 0.2;
         }
     }
 
-    // Camera Follow
+    // Camera Smooth Follow
     if (snake.length > 0) {
         const head = snake[0];
-        // Smooth follow? Or strict? Strict is fine for grid game
-        camera.position.x = head.x;
+        const targetX = head.x;
+        const targetZ = head.z + (zoomLevel * 0.6);
+
+        camera.position.x += (targetX - camera.position.x) * 0.05;
+        camera.position.z += (targetZ - camera.position.z) * 0.05;
         camera.position.y = zoomLevel;
-        camera.position.z = head.z + (zoomLevel * 0.75); // Offset Z slightly so we aren't looking straight down
-        camera.lookAt(head.x, 0, head.z);
+        camera.lookAt(camera.position.x, 0, camera.position.z - 20); // Look ahead
     }
 
-    renderer.render(scene, camera);
+    // Render with Effect Composer
+    composer.render();
 }
 
 init();
-// End of implementation

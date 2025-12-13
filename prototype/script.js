@@ -16,6 +16,7 @@ let nextDirection = { x: 1, z: 0 };
 let lastMoveTime = 0;
 let isGameOver = false;
 let score = 0;
+let totalFoodsEaten = 0;
 let zoomLevel = 20; // Default zoom
 let groupSnake, groupFood, groupGrid, groupBlood;
 let bloodParticles = [];
@@ -123,6 +124,7 @@ function createGrid() {
 function resetGame() {
     isGameOver = false;
     score = 0;
+    totalFoodsEaten = 0;
     scoreEl.innerText = `Score: 0`;
     gameOverEl.classList.add('hidden');
 
@@ -178,7 +180,7 @@ function spawnFoods(count = 1) {
     }
 }
 
-function spawnFoodItem() {
+function spawnFoodItem(type = 'normal') {
     let x, z;
     let valid = false;
     while (!valid) {
@@ -206,10 +208,11 @@ function spawnFoodItem() {
     group.position.set(x, 0.5, z);
 
     // Random Color
-    const randomColor = Math.random() * 0xffffff;
+    const randomColor = (type === 'bad') ? 0x800080 : Math.random() * 0xffffff;
 
     // Body
-    const geometry = new THREE.DodecahedronGeometry(0.5);
+    const radius = (type === 'bad') ? 0.8 : 0.5;
+    const geometry = new THREE.DodecahedronGeometry(radius);
     const material = new THREE.MeshStandardMaterial({
         color: randomColor,
         metalness: 0.7,
@@ -246,7 +249,7 @@ function spawnFoodItem() {
     // Random Rotation
     group.rotation.y = Math.random() * Math.PI * 2;
 
-    const f = { x, z, mesh: group, jumpCooldown: 0, id: Math.random() };
+    const f = { x, z, mesh: group, jumpCooldown: 0, id: Math.random(), type: type };
     foods.push(f);
     groupFood.add(group);
 }
@@ -465,30 +468,44 @@ function moveSnake() {
     }
 
     if (eatenIndex !== -1) {
-        // Eat food
-        score += 10;
-        scoreEl.innerText = `Score: ${score}`;
+        const eatenFood = foods[eatenIndex];
 
         // Remove eaten food visual
-        const eatenFood = foods[eatenIndex];
         spawnBlood(eatenFood.x, eatenFood.z);
         groupFood.remove(eatenFood.mesh);
         foods.splice(eatenIndex, 1);
 
-        // HYDRA LOGIC: Spawn 2 new ones
-        spawnFoods(2);
+        if (eatenFood.type === 'bad') {
+            // Bad Food Logic
+            score -= 1;
+            scoreEl.innerText = `Score: ${score}`;
+            // Snake does NOT grow, so we do nothing here, let the else block run?
+            // Actually, code structure is if(eaten) { ... } else { pop }.
+            // If we eat bad food, we DON'T grow, so we MUST pop.
+            snake.pop();
+        } else {
+            // Normal Food Logic
+            score += 10;
+            scoreEl.innerText = `Score: ${score}`;
+            totalFoodsEaten++;
 
-        // EXPANSION LOGIC: Increase Grid
-        GRID_SIZE += 2;
-        createGrid(); // Rebuild grid
+            // HYDRA LOGIC: Spawn 2 new ones
+            spawnFoods(2);
 
-        // Adjust Camera out
-        zoomLevel += 1;
+            // EXPANSION LOGIC: Increase Grid
+            GRID_SIZE += 2;
+            createGrid(); // Rebuild grid
 
+            // Adjust Camera out
+            zoomLevel += 1;
 
+            // Check for Big Ball Spawn
+            if (totalFoodsEaten % 10 === 0) {
+                spawnFoodItem('bad');
+            }
+        }
 
-    } else {
-        // Remove tail
+    } else { // Remove tail
         snake.pop();
     }
 

@@ -8,6 +8,7 @@ const TICK_RATE = 150; // Milliseconds per move
 
 // --- State ---
 let scene, camera, renderer;
+let ambientLight, dirLight;
 let snake = [];
 let foods = []; // Array of food objects
 let direction = { x: 1, z: 0 }; // Moving right initially
@@ -15,7 +16,9 @@ let nextDirection = { x: 1, z: 0 };
 let lastMoveTime = 0;
 let isGameOver = false;
 let score = 0;
-let groupSnake, groupFood, groupGrid;
+let zoomLevel = 20; // Default zoom
+let groupSnake, groupFood, groupGrid, groupBlood;
+let bloodParticles = [];
 
 // --- Elements ---
 const scoreEl = document.getElementById('score');
@@ -44,10 +47,10 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(10, 20, 10);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
@@ -63,6 +66,9 @@ function init() {
 
     groupGrid = new THREE.Group();
     scene.add(groupGrid);
+
+    groupBlood = new THREE.Group();
+    scene.add(groupBlood);
 
     createGrid();
 
@@ -130,12 +136,25 @@ function resetGame() {
     while (groupFood.children.length > 0) {
         groupFood.remove(groupFood.children[0]);
     }
+    while (groupBlood.children.length > 0) {
+        groupBlood.remove(groupBlood.children[0]);
+    }
+    bloodParticles = [];
 
     // Reset Grid Size
     GRID_SIZE = 20;
+    zoomLevel = 20;
+
+    // Reset Lights
+    if (ambientLight) ambientLight.intensity = 0.6;
+    if (dirLight) dirLight.intensity = 0.8;
+    if (scene) {
+        scene.background.setHex(0x1a1a2e);
+        scene.fog.color.setHex(0x1a1a2e);
+    }
+
     createGrid();
-    camera.position.set(0, 20, 15);
-    camera.lookAt(0, 0, 0);
+    // Camera pos will be updated in animate
 
     // Reset Snake Data
     snake = [
@@ -362,6 +381,57 @@ function jumpFood(foodItem) {
     foodItem.jumpCooldown = 2000;
 }
 
+function spawnBlood(x, z) {
+    const particleCount = 20;
+    for (let i = 0; i < particleCount; i++) {
+        const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+        const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(x, 0.5, z);
+
+        // Random Velocity
+        const velocity = {
+            x: (Math.random() - 0.5) * 0.4,
+            y: Math.random() * 0.5 + 0.2,
+            z: (Math.random() - 0.5) * 0.4
+        };
+
+        const particle = { mesh, velocity, life: 1.0 };
+        groupBlood.add(mesh);
+        bloodParticles.push(particle);
+    }
+}
+
+function updateBlood() {
+    for (let i = bloodParticles.length - 1; i >= 0; i--) {
+        const p = bloodParticles[i];
+        p.life -= 0.02;
+
+        if (p.life <= 0) {
+            groupBlood.remove(p.mesh);
+            bloodParticles.splice(i, 1);
+            continue;
+        }
+
+        p.velocity.y -= 0.02; // Gravity
+        p.mesh.position.x += p.velocity.x;
+        p.mesh.position.y += p.velocity.y;
+        p.mesh.position.z += p.velocity.z;
+
+        // Floor collision
+        if (p.mesh.position.y < 0.1) {
+            p.mesh.position.y = 0.1;
+            p.velocity.y *= -0.5; // Bounce
+            p.velocity.x *= 0.8; // Friction
+            p.velocity.z *= 0.8;
+        }
+
+        p.mesh.scale.setScalar(p.life);
+        p.mesh.rotation.x += p.velocity.z;
+        p.mesh.rotation.z -= p.velocity.x;
+    }
+}
+
 function moveSnake() {
     direction = nextDirection;
 
@@ -405,6 +475,7 @@ function moveSnake() {
 
         // Remove eaten food visual
         const eatenFood = foods[eatenIndex];
+        spawnBlood(eatenFood.x, eatenFood.z);
         groupFood.remove(eatenFood.mesh);
         foods.splice(eatenIndex, 1);
 
@@ -416,8 +487,20 @@ function moveSnake() {
         createGrid(); // Rebuild grid
 
         // Adjust Camera out
-        camera.position.y += 1;
-        camera.position.z += 1;
+        zoomLevel += 1;
+
+        // Dim Lights (Scary!)
+        // Minimum 0.1
+        if (ambientLight.intensity > 0.1) ambientLight.intensity -= 0.02;
+        if (dirLight.intensity > 0.1) dirLight.intensity -= 0.02;
+
+        // Dim Background
+        const currentBg = scene.background.getHSL({});
+        if (currentBg.l > 0.05) {
+            currentBg.l -= 0.005; // Darken slowly
+            scene.background.setHSL(currentBg.h, currentBg.s, currentBg.l);
+            scene.fog.color.setHSL(currentBg.h, currentBg.s, currentBg.l);
+        }
 
     } else {
         // Remove tail
@@ -515,6 +598,7 @@ function onWindowResize() {
 function animate(time) {
     requestAnimationFrame(animate);
     update(time);
+    updateBlood();
 
     // Food animation
     for (let f of foods) {
@@ -523,7 +607,18 @@ function animate(time) {
         }
     }
 
+    // Camera Follow
+    if (snake.length > 0) {
+        const head = snake[0];
+        // Smooth follow? Or strict? Strict is fine for grid game
+        camera.position.x = head.x;
+        camera.position.y = zoomLevel;
+        camera.position.z = head.z + (zoomLevel * 0.75); // Offset Z slightly so we aren't looking straight down
+        camera.lookAt(head.x, 0, head.z);
+    }
+
     renderer.render(scene, camera);
 }
 
 init();
+// End of implementation

@@ -1,11 +1,13 @@
 import * as THREE from 'three';
+console.log('Main.js loading...'); // Debug
 import { initScene, animate } from './scene.js';
 import { createWorld } from './world.js';
-import { Player } from './player.js?v=27';
-import { TrafficSystem } from './traffic.js?v=26';
-import { WeatherSystem } from './weather.js?v=28';
+import { Player } from './player.js';
+import { TrafficSystem } from './traffic.js';
+import { WeatherSystem } from './weather.js';
 import { PedestrianSystem } from './pedestrians.js';
-import { ParkingSystem } from './parking.js?v=27';
+import { ParkingSystem } from './parking.js';
+import { AirplaneSystem } from './airplanes.js';
 
 let player;
 let prevTime = performance.now();
@@ -16,6 +18,7 @@ let trafficSystem;
 let weatherSystem;
 let pedestrianSystem;
 let parkingSystem;
+let airplaneSystem;
 
 function initScore() {
     scoreElement = document.createElement('div');
@@ -60,6 +63,10 @@ async function init() {
 
         parkingSystem = new ParkingSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
 
+        airplaneSystem = new AirplaneSystem(scene, worldData.citySize);
+        window.airplaneSystem = airplaneSystem; // Debug: Expose to console
+        console.log('AirplaneSystem initialized', airplaneSystem);
+
         // Add parked cars to static colliders
         parkingSystem.cars.forEach(car => {
             const box = new THREE.Box3().setFromObject(car);
@@ -97,6 +104,7 @@ async function init() {
             if (trafficSystem) trafficSystem.update(delta);
             if (weatherSystem) weatherSystem.update(delta);
             if (pedestrianSystem) pedestrianSystem.update(delta);
+            if (airplaneSystem) airplaneSystem.update(delta);
 
             // Simple collision detection
             if (player && cubes.length > 0) {

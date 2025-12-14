@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { deformMesh } from './deformation.js';
 
 export class Player {
     constructor(camera, domElement, colliders = [], trafficSystem = null, parkingSystem = null, effectSystem = null) {
@@ -20,7 +21,13 @@ export class Player {
         this.isDriving = false;
         this.currentCar = null;
         this.carVelocity = 0;
+        this.currentCar = null;
+        this.carVelocity = 0;
         this.carSteering = 0;
+
+        // Crash Physics State
+        this.spinVelocity = 0;
+        this.shakeIntensity = 0;
 
         this.velocity = new THREE.Vector3();
         this.direction = new THREE.Vector3();
@@ -253,6 +260,12 @@ export class Player {
         // Initial parameters
         this.carVelocity = 0;
         this.carSteering = 0;
+        this.spinVelocity = 0;
+        if (this.currentCar.health === undefined) {
+            this.currentCar.health = 100;
+        }
+
+        console.log("Entered car. Health:", this.currentCar.health);
 
         console.log("Entered car");
     }
@@ -287,24 +300,62 @@ export class Player {
         const friction = 10;
         const turnSpeed = 2.0;
 
-        // Acceleration
-        if (this.moveForward) {
-            this.carVelocity += acceleration * delta;
-        } else if (this.moveBackward) {
-            this.carVelocity -= acceleration * delta;
-        } else {
-            // Drag
-            if (this.carVelocity > 0) this.carVelocity -= friction * delta;
-            if (this.carVelocity < 0) this.carVelocity += friction * delta;
-            // Stop creeping
-            if (Math.abs(this.carVelocity) < 0.1) this.carVelocity = 0;
+        // 0. Apply Crash Physics (Spin)
+        if (Math.abs(this.spinVelocity) > 0.1) {
+            this.currentCar.mesh.rotation.y += this.spinVelocity * delta;
+            this.spinVelocity *= 0.95; // Decay
+            // Loss of control: ignore input if spinning fast
+            if (Math.abs(this.spinVelocity) > 2) {
+                this.carVelocity *= 0.98; // Slow down faster
+                // Skip normal steering/accel
+            }
+        }
+
+        // DAMAGE: Engine Failure and Fire
+        if (this.currentCar.health <= 0) {
+            // Dead car
+            this.carVelocity *= 0.95; // Rapid deceleration
+            if (this.effectSystem && Math.random() < 0.2) {
+                this.effectSystem.createFireEffect(this.currentCar.mesh);
+            }
+        } else if (this.currentCar.health < 20) {
+            // Critical: One fire emitter occasionally
+            if (this.effectSystem && Math.random() < 0.05) {
+                this.effectSystem.createFireEffect(this.currentCar.mesh);
+            }
+        } else if (this.currentCar.health < 50) {
+            // Smoking
+            if (this.effectSystem && Math.random() < 0.05) {
+                this.effectSystem.createSmokeEffect(this.currentCar.mesh);
+            }
+        }
+
+        // Decay Shake
+        if (this.shakeIntensity > 0) {
+            this.shakeIntensity -= 5 * delta;
+            if (this.shakeIntensity < 0) this.shakeIntensity = 0;
+        }
+
+        // Acceleration (Only if control is regained AND engine works)
+        if (Math.abs(this.spinVelocity) < 5 && this.currentCar.health > 0) {
+            if (this.moveForward) {
+                this.carVelocity += acceleration * delta;
+            } else if (this.moveBackward) {
+                this.carVelocity -= acceleration * delta;
+            } else {
+                // Drag
+                if (this.carVelocity > 0) this.carVelocity -= friction * delta;
+                if (this.carVelocity < 0) this.carVelocity += friction * delta;
+                // Stop creeping
+                if (Math.abs(this.carVelocity) < 0.1) this.carVelocity = 0;
+            }
         }
 
         // Clamp speed
         this.carVelocity = Math.max(-maxSpeed / 2, Math.min(maxSpeed, this.carVelocity));
 
         // Steering
-        if (Math.abs(this.carVelocity) > 0.1) {
+        if (Math.abs(this.carVelocity) > 0.1 && Math.abs(this.spinVelocity) < 5) {
             if (this.moveLeft) {
                 this.currentCar.mesh.rotation.y += turnSpeed * delta * Math.sign(this.carVelocity); // Reverse steering when reversing
             }
@@ -316,17 +367,11 @@ export class Player {
         // Apply Velocity
         const forward = new THREE.Vector3(0, 0, 1); // Assuming cars face +Z or +X initially? 
         // Traffic cars: axis 'x' -> rotated Y by +/- PI/2. axis 'z' -> Y 0 or PI.
-        // Standard Model Front: Usually +Z or -Z. 
-        // Let's assume +Z is forward for the logic, but we need to check the model.
-        // Actually, let's just use use local Z axis.
-        forward.applyEuler(this.currentCar.mesh.rotation);
-
-        // If the car model was built facing +X (as usually done in typical ThreeJS tutorials?)
-        // Let's check traffic.js:
-        // if axis='x', rotation is PI/2 (+X facing if 0 is +Z?). 
         // Wait, if rotation 0 is +Z, then PI/2 is +X.
         // So yes, forward vector (0,0,1) rotated by PI/2 is (1,0,0).
         // So standard forward is (0,0,1).
+
+        forward.applyEuler(this.currentCar.mesh.rotation);
 
         this.currentCar.mesh.position.add(forward.multiplyScalar(this.carVelocity * delta));
 
@@ -334,24 +379,58 @@ export class Player {
         const crash = this.checkCarCollision();
         if (crash) {
             // Collision response
-            // 1. Move back
+
+            // 1. Move back to un-clip
             this.currentCar.mesh.position.add(forward.multiplyScalar(-this.carVelocity * delta));
 
-            // 2. Trigger Effect
-            if (this.effectSystem) {
+            // 2. Calculate Intensity based on speed
+            const speed = Math.abs(this.carVelocity);
+            const intensity = Math.min(speed / 40, 1.0); // 0 to 1
+
+            // 3. Trigger Visual/Audio Effects
+            if (this.effectSystem && speed > 5) {
                 // Approximate contact point (front of car)
                 const contactPoint = this.currentCar.mesh.position.clone().add(forward.multiplyScalar(2));
                 this.effectSystem.createCrashEffect(contactPoint);
+
+                // DEFORMATION
+                // Deform chassis or cabin
+                this.currentCar.mesh.children.forEach(child => {
+                    deformMesh(child, contactPoint, 1.5, intensity * 0.5);
+                });
+
+                // DAMAGE CALCULATION
+                // Reduce health
+                const damage = speed * 0.5; // e.g. 40 speed = 20 damage. 5 hits to kill.
+                this.currentCar.health -= damage;
+                console.log(`Crash! Speed: ${speed.toFixed(1)}, Damage: ${damage.toFixed(1)}, Health: ${this.currentCar.health.toFixed(1)}`);
+
+                // 4. Set Physics State after crash
+                if (speed > 10) {
+                    // Spin out
+                    this.spinVelocity = (Math.random() - 0.5) * 20 * intensity;
+                    this.shakeIntensity = 1.0 * intensity; // Max shake
+
+                    // Bounce back hard if fast
+                    this.carVelocity = -this.carVelocity * 0.5;
+                } else {
+                    // Just a bump
+                    this.carVelocity = 0;
+                    this.shakeIntensity = 0.2;
+                }
             }
-
-            // 3. Stop or Bounce
-            this.carVelocity = -this.carVelocity * 0.5; // Bounce back at half speed
         }
-
         // Update Camera to follow car
         // Third person view
         const camOffset = new THREE.Vector3(0, 5, -10); // Behind and up
         camOffset.applyEuler(this.currentCar.mesh.rotation);
+
+        // Apply Shake Offset
+        if (this.shakeIntensity > 0) {
+            camOffset.x += (Math.random() - 0.5) * this.shakeIntensity;
+            camOffset.y += (Math.random() - 0.5) * this.shakeIntensity;
+            camOffset.z += (Math.random() - 0.5) * this.shakeIntensity;
+        }
 
         const targetPos = this.currentCar.mesh.position.clone().add(camOffset);
 

@@ -94,6 +94,8 @@ export class TrafficSystem {
         const bound = (this.citySize * (this.blockSize + this.roadWidth)) / 2;
 
         this.cars.forEach(car => {
+            if (car.isPlayerDriven) return; // Skip update if player is driving
+
             const move = car.direction * this.carSpeed * delta;
 
             if (car.axis === 'x') {

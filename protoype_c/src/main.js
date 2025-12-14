@@ -72,7 +72,7 @@ async function init() {
             worldData.colliders.push(box);
         });
 
-        player = new Player(camera, renderer.domElement, worldData.colliders, trafficSystem);
+        player = new Player(camera, renderer.domElement, worldData.colliders, trafficSystem, parkingSystem);
         // Start player on the road to avoid being stuck in an alley
         player.camera.position.set(12, 2, 12);
 

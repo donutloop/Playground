@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 export class Player {
-    constructor(camera, domElement, colliders = [], trafficSystem = null) {
+    constructor(camera, domElement, colliders = [], trafficSystem = null, parkingSystem = null) {
         this.camera = camera;
         this.domElement = domElement;
         this.colliders = colliders;
         this.trafficSystem = trafficSystem;
+        this.parkingSystem = parkingSystem;
         this.controls = new PointerLockControls(camera, domElement);
 
         this.moveForward = false;
@@ -14,6 +15,11 @@ export class Player {
         this.moveLeft = false;
         this.moveRight = false;
         this.canJump = false;
+
+        this.isDriving = false;
+        this.currentCar = null;
+        this.carVelocity = 0;
+        this.carSteering = 0;
 
         this.velocity = new THREE.Vector3();
         this.direction = new THREE.Vector3();
@@ -109,6 +115,13 @@ export class Player {
             case 'KeyD':
                 this.moveRight = true;
                 break;
+            case 'KeyE':
+                if (this.isDriving) {
+                    this.exitCar();
+                } else {
+                    this.tryEnterCar();
+                }
+                break;
             case 'Space':
                 if (this.canJump === true) this.velocity.y += 20; // Jump force
                 this.canJump = false;
@@ -139,6 +152,11 @@ export class Player {
 
     update(delta) {
         if (this.controls.isLocked === true) {
+            if (this.isDriving && this.currentCar) {
+                this.updateCarPhysics(delta);
+                return;
+            }
+
             this.velocity.x -= this.velocity.x * 10.0 * delta;
             this.velocity.z -= this.velocity.z * 10.0 * delta;
             this.velocity.y -= 9.8 * 5.0 * delta; // Gravity - tweaked for feel
@@ -176,6 +194,135 @@ export class Player {
                 this.canJump = true;
             }
         }
+    }
+
+    tryEnterCar() {
+        const playerPos = this.camera.position;
+        let closestCar = null;
+        let minDistance = 5; // Interaction range
+
+        // Check Traffic
+        if (this.trafficSystem) {
+            for (const car of this.trafficSystem.cars) {
+                const dist = playerPos.distanceTo(car.mesh.position);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closestCar = car;
+                }
+            }
+        }
+
+        // Check Parked Cars
+        if (this.parkingSystem) {
+            for (const carMesh of this.parkingSystem.cars) {
+                const dist = playerPos.distanceTo(carMesh.position);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    // Wrap parked car in similar object structure if needed
+                    closestCar = { mesh: carMesh, isParked: true };
+                }
+            }
+        }
+
+        if (closestCar) {
+            this.enterCar(closestCar);
+        }
+    }
+
+    enterCar(car) {
+        this.isDriving = true;
+        this.currentCar = car;
+        car.isPlayerDriven = true; // Flag for traffic system
+
+        // Snap camera to car
+        // We'll attach the camera to the car mesh so it follows automatically
+        // But Three.js camera management with PointerLock can be tricky if we enforce hierarchy.
+        // Simpler approach: In each update, force camera position relative to car.
+
+        // Initial parameters
+        this.carVelocity = 0;
+        this.carSteering = 0;
+
+        console.log("Entered car");
+    }
+
+    exitCar() {
+        if (!this.currentCar) return;
+
+        this.currentCar.isPlayerDriven = false;
+        this.isDriving = false;
+
+        // Place player slightly to the side
+        const offset = new THREE.Vector3(3, 0, 0);
+        offset.applyEuler(this.currentCar.mesh.rotation);
+        this.camera.position.copy(this.currentCar.mesh.position).add(offset);
+        this.camera.position.y = 2; // Reset height
+
+        this.currentCar = null;
+        console.log("Exited car");
+    }
+
+    updateCarPhysics(delta) {
+        if (!this.currentCar) return;
+
+        const maxSpeed = 40;
+        const acceleration = 30;
+        const friction = 10;
+        const turnSpeed = 2.0;
+
+        // Acceleration
+        if (this.moveForward) {
+            this.carVelocity += acceleration * delta;
+        } else if (this.moveBackward) {
+            this.carVelocity -= acceleration * delta;
+        } else {
+            // Drag
+            if (this.carVelocity > 0) this.carVelocity -= friction * delta;
+            if (this.carVelocity < 0) this.carVelocity += friction * delta;
+            // Stop creeping
+            if (Math.abs(this.carVelocity) < 0.1) this.carVelocity = 0;
+        }
+
+        // Clamp speed
+        this.carVelocity = Math.max(-maxSpeed / 2, Math.min(maxSpeed, this.carVelocity));
+
+        // Steering
+        if (Math.abs(this.carVelocity) > 0.1) {
+            if (this.moveLeft) {
+                this.currentCar.mesh.rotation.y += turnSpeed * delta * Math.sign(this.carVelocity); // Reverse steering when reversing
+            }
+            if (this.moveRight) {
+                this.currentCar.mesh.rotation.y -= turnSpeed * delta * Math.sign(this.carVelocity);
+            }
+        }
+
+        // Apply Velocity
+        const forward = new THREE.Vector3(0, 0, 1); // Assuming cars face +Z or +X initially? 
+        // Traffic cars: axis 'x' -> rotated Y by +/- PI/2. axis 'z' -> Y 0 or PI.
+        // Standard Model Front: Usually +Z or -Z. 
+        // Let's assume +Z is forward for the logic, but we need to check the model.
+        // Actually, let's just use use local Z axis.
+        forward.applyEuler(this.currentCar.mesh.rotation);
+
+        // If the car model was built facing +X (as usually done in typical ThreeJS tutorials?)
+        // Let's check traffic.js:
+        // if axis='x', rotation is PI/2 (+X facing if 0 is +Z?). 
+        // Wait, if rotation 0 is +Z, then PI/2 is +X.
+        // So yes, forward vector (0,0,1) rotated by PI/2 is (1,0,0).
+        // So standard forward is (0,0,1).
+
+        this.currentCar.mesh.position.add(forward.multiplyScalar(this.carVelocity * delta));
+
+        // Update Camera to follow car
+        // Third person view
+        const camOffset = new THREE.Vector3(0, 5, -10); // Behind and up
+        camOffset.applyEuler(this.currentCar.mesh.rotation);
+
+        const targetPos = this.currentCar.mesh.position.clone().add(camOffset);
+
+        // Smooth follow
+        this.camera.position.lerp(targetPos, 5 * delta);
+        this.camera.lookAt(this.currentCar.mesh.position);
     }
 
     checkCollision() {

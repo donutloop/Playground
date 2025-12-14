@@ -7,8 +7,8 @@ export class AirplaneSystem {
         this.airplane = null;
         // Spawn timer: start immediately for testing
         this.spawnTimer = 0;
-        this.flightSpeed = 15;
-        this.flightHeight = 20; // Lower flight height for better visibility
+        this.flightSpeed = 40; // Faster
+        this.flightHeight = 50; // Taller
     }
 
     update(delta) {
@@ -26,10 +26,8 @@ export class AirplaneSystem {
         // Create mesh
         this.airplane = this.createAirplaneMesh();
 
-        // Decide start and end points
-        // Ensure it flies over the city
-        const range = this.citySize * 20; // Approx city width in units
-        const spawnDistance = range / 1.5;
+        // Visual Range (independent of huge CitySize)
+        const spawnDistance = 300;
 
         // Randomly choose axis: X or Z
         const axis = Math.random() > 0.5 ? 'x' : 'z';
@@ -38,12 +36,11 @@ export class AirplaneSystem {
         this.currentFlightData = {
             axis,
             direction,
-            limit: spawnDistance
+            limit: spawnDistance + 50 // Despawn slightly after spawn point
         };
 
         // Position
-        // If axis X, fly along X. Z should be random but within city bounds.
-        // If axis Z, fly along Z. X should be random but within city bounds.
+        const range = 100; // Crosstrack variance
         const randomCrosstrack = (Math.random() - 0.5) * range;
 
         if (axis === 'x') {
@@ -52,8 +49,6 @@ export class AirplaneSystem {
                 this.flightHeight,
                 randomCrosstrack
             );
-            // Rotate to face direction
-            // Default model faces +Z or +X? Let's assume we build it facing +X
             this.airplane.rotation.y = direction > 0 ? 0 : Math.PI;
         } else {
             this.airplane.position.set(
@@ -61,11 +56,10 @@ export class AirplaneSystem {
                 this.flightHeight,
                 -direction * spawnDistance
             );
-            // Rotate to face direction
             this.airplane.rotation.y = direction > 0 ? -Math.PI / 2 : Math.PI / 2;
         }
 
-        console.log('Spawning airplane at', this.airplane.position); // Debug
+        // console.log('Spawning airplane at', this.airplane.position); // Debug
         this.scene.add(this.airplane);
     }
 
@@ -95,8 +89,8 @@ export class AirplaneSystem {
             this.scene.remove(this.airplane);
             this.airplane = null;
         }
-        // Reset timer for next plane: 15 to 30 seconds
-        this.spawnTimer = 15 + Math.random() * 15;
+        // Reset timer for next plane: 15 to 20 seconds
+        this.spawnTimer = 15 + Math.random() * 5;
     }
 
     createAirplaneMesh() {

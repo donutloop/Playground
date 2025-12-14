@@ -123,7 +123,7 @@ async function init() {
         verDiv.style.background = 'rgba(0,0,0,0.5)';
         verDiv.style.padding = '5px';
         verDiv.style.fontFamily = 'monospace';
-        verDiv.innerHTML = 'v4.2 - AIR TRAFFIC CONTROL';
+        verDiv.innerHTML = 'v4.3 - NYC STYLE CITY';
         document.body.appendChild(verDiv);
 
         animate(() => {

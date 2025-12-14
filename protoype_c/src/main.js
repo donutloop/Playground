@@ -7,6 +7,7 @@ import { WeatherSystem } from './weather.js';
 import { PedestrianSystem } from './pedestrians.js';
 import { ParkingSystem } from './parking.js';
 import { AirplaneSystem } from './airplanes.js';
+import { EffectSystem } from './effects.js';
 
 let player;
 let prevTime = performance.now();
@@ -18,6 +19,7 @@ let weatherSystem;
 let pedestrianSystem;
 let parkingSystem;
 let airplaneSystem;
+let effectSystem;
 
 function initScore() {
     scoreElement = document.createElement('div');
@@ -66,13 +68,15 @@ async function init() {
         window.airplaneSystem = airplaneSystem; // Debug: Expose to console
         console.log('AirplaneSystem initialized', airplaneSystem);
 
+        effectSystem = new EffectSystem(scene);
+
         // Add parked cars to static colliders
         parkingSystem.cars.forEach(car => {
             const box = new THREE.Box3().setFromObject(car);
             worldData.colliders.push(box);
         });
 
-        player = new Player(camera, renderer.domElement, worldData.colliders, trafficSystem, parkingSystem);
+        player = new Player(camera, renderer.domElement, worldData.colliders, trafficSystem, parkingSystem, effectSystem);
         // Start player on the road to avoid being stuck in an alley
         player.camera.position.set(12, 2, 12);
 
@@ -104,6 +108,7 @@ async function init() {
             if (weatherSystem) weatherSystem.update(delta);
             if (pedestrianSystem) pedestrianSystem.update(delta);
             if (airplaneSystem) airplaneSystem.update(delta);
+            if (effectSystem) effectSystem.update(delta); // Update effects
 
             // Simple collision detection
             if (player && cubes.length > 0) {
@@ -138,5 +143,4 @@ async function init() {
         throw err;
     }
 }
-
 init();

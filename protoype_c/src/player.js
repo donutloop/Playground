@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 export class Player {
-    constructor(camera, domElement, colliders = [], trafficSystem = null, parkingSystem = null) {
+    constructor(camera, domElement, colliders = [], trafficSystem = null, parkingSystem = null, effectSystem = null) {
         this.camera = camera;
         this.domElement = domElement;
         this.colliders = colliders;
         this.trafficSystem = trafficSystem;
         this.parkingSystem = parkingSystem;
+        this.effectSystem = effectSystem;
         this.controls = new PointerLockControls(camera, domElement);
 
         this.moveForward = false;
@@ -234,10 +235,20 @@ export class Player {
         this.currentCar = car;
         car.isPlayerDriven = true; // Flag for traffic system
 
-        // Snap camera to car
-        // We'll attach the camera to the car mesh so it follows automatically
-        // But Three.js camera management with PointerLock can be tricky if we enforce hierarchy.
-        // Simpler approach: In each update, force camera position relative to car.
+        // If it's a parked car, we must remove its static collider from the world
+        // otherwise we will immediately collide with it.
+        if (car.isParked) {
+            const carBox = new THREE.Box3().setFromObject(car.mesh);
+            // Find matching box in colliders
+            // We use a small epsilon for float comparison or just 'intersects' and verify size
+            const index = this.colliders.findIndex(box => {
+                return box.intersectsBox(carBox) && box.containsBox(carBox);
+            });
+
+            if (index !== -1) {
+                this.colliders.splice(index, 1);
+            }
+        }
 
         // Initial parameters
         this.carVelocity = 0;
@@ -251,6 +262,12 @@ export class Player {
 
         this.currentCar.isPlayerDriven = false;
         this.isDriving = false;
+
+        // If it was a parked car, re-add its collider at the new position
+        if (this.currentCar.isParked) {
+            const newBox = new THREE.Box3().setFromObject(this.currentCar.mesh);
+            this.colliders.push(newBox);
+        }
 
         // Place player slightly to the side
         const offset = new THREE.Vector3(3, 0, 0);
@@ -313,6 +330,24 @@ export class Player {
 
         this.currentCar.mesh.position.add(forward.multiplyScalar(this.carVelocity * delta));
 
+        // Check for collisions after moving
+        const crash = this.checkCarCollision();
+        if (crash) {
+            // Collision response
+            // 1. Move back
+            this.currentCar.mesh.position.add(forward.multiplyScalar(-this.carVelocity * delta));
+
+            // 2. Trigger Effect
+            if (this.effectSystem) {
+                // Approximate contact point (front of car)
+                const contactPoint = this.currentCar.mesh.position.clone().add(forward.multiplyScalar(2));
+                this.effectSystem.createCrashEffect(contactPoint);
+            }
+
+            // 3. Stop or Bounce
+            this.carVelocity = -this.carVelocity * 0.5; // Bounce back at half speed
+        }
+
         // Update Camera to follow car
         // Third person view
         const camOffset = new THREE.Vector3(0, 5, -10); // Behind and up
@@ -323,6 +358,46 @@ export class Player {
         // Smooth follow
         this.camera.position.lerp(targetPos, 5 * delta);
         this.camera.lookAt(this.currentCar.mesh.position);
+    }
+
+    checkCarCollision() {
+        if (!this.currentCar) return false;
+
+        const carBox = new THREE.Box3().setFromObject(this.currentCar.mesh);
+        // Shrink slightly to avoid colliding with itself or weird ground issues
+        carBox.expandByScalar(-0.2);
+
+        // 1. Check Buildings (Static Colliders)
+        if (this.colliders) {
+            for (const box of this.colliders) {
+                if (carBox.intersectsBox(box)) return true;
+            }
+        }
+
+        // 2. Check Traffic
+        if (this.trafficSystem) {
+            for (const otherCar of this.trafficSystem.cars) {
+                if (otherCar === this.currentCar) continue;
+                // Simple distance check first optimization
+                if (otherCar.mesh.position.distanceTo(this.currentCar.mesh.position) > 10) continue;
+
+                const otherBox = new THREE.Box3().setFromObject(otherCar.mesh);
+                if (carBox.intersectsBox(otherBox)) return true;
+            }
+        }
+
+        // 3. Check Parked Cars
+        if (this.parkingSystem) {
+            for (const otherCar of this.parkingSystem.cars) {
+                if (this.currentCar.mesh === otherCar) continue; // if we are driving a parked car
+                if (otherCar.position.distanceTo(this.currentCar.mesh.position) > 10) continue;
+
+                const otherBox = new THREE.Box3().setFromObject(otherCar);
+                if (carBox.intersectsBox(otherBox)) return true;
+            }
+        }
+
+        return false;
     }
 
     checkCollision() {

@@ -43,7 +43,12 @@ export class PedestrianSystem {
                 chunkX: xOffset,
                 chunkZ: zOffset,
                 direction: state.direction,
-                bounds: { minX: state.minX, maxX: state.maxX, minZ: state.minZ, maxZ: state.maxZ },
+                bounds: {
+                    minX: state.minX, maxX: state.maxX, minZ: state.minZ, maxZ: state.maxZ,
+                    buildingCenterX: state.buildingCenterX,
+                    buildingCenterZ: state.buildingCenterZ,
+                    buildingHalfWidth: state.buildingHalfWidth
+                },
                 legAnimTimer: Math.random() * 10,
                 leftLeg: group.children[2], // Hacky index access, but fast
                 rightLeg: group.children[3],
@@ -105,14 +110,42 @@ export class PedestrianSystem {
         ];
         const sign = signs[cornerIdx];
 
-        // Random position within this corner
-        // Range 7 to 17. Center 12. Width 10.
-        // Random -5 to 5 offset from 12.
-        const offsetX = (Math.random() - 0.5) * 8; // Keep slightly inside
-        const offsetZ = (Math.random() - 0.5) * 8;
+        // Building Info (Matches world.js logic)
+        // cornerSize = (34 - 14) / 2 = 10.
+        // Building width = 10 - 4 = 6.
+        // Building center = +/- 12.
+        const buildingCenterX = 12 * sign.x;
+        const buildingCenterZ = 12 * sign.z;
+        const buildingHalfWidth = 3.2; // 3.0 actual, 3.2 for safety margin
 
-        const localX = (12 + offsetX) * sign.x;
-        const localZ = (12 + offsetZ) * sign.z;
+        // Spawn logic: Try to find a spot OUTSIDE the building box
+        let localX, localZ;
+        let safe = false;
+
+        for (let i = 0; i < 10; i++) {
+            // Random pos within corner (7 to 17) -> Center +/- 5
+            // 12 +/- 5
+            const lx = 12 + (Math.random() - 0.5) * 10;
+            const lz = 12 + (Math.random() - 0.5) * 10;
+
+            // Check against building hole
+            const distBx = Math.abs(lx - 12);
+            const distBz = Math.abs(lz - 12);
+
+            // If NOT inside building (inside = both < 3)
+            if (!(distBx < 3.5 && distBz < 3.5)) {
+                localX = lx * sign.x;
+                localZ = lz * sign.z;
+                safe = true;
+                break;
+            }
+        }
+
+        if (!safe) {
+            // Fallback: spawn on the outer rim (e.g. 16)
+            localX = 16 * sign.x;
+            localZ = 16 * sign.z;
+        }
 
         group.position.set(chunkX + localX, 0, chunkZ + localZ);
 
@@ -126,7 +159,11 @@ export class PedestrianSystem {
             minX: sign.x > 0 ? 7 : -17,
             maxX: sign.x > 0 ? 17 : -7,
             minZ: sign.z > 0 ? 7 : -17,
-            maxZ: sign.z > 0 ? 17 : -7
+            maxZ: sign.z > 0 ? 17 : -7,
+            // Building collision data
+            buildingCenterX,
+            buildingCenterZ,
+            buildingHalfWidth
         };
     }
 
@@ -140,24 +177,29 @@ export class PedestrianSystem {
                 // Check bounds (local coords)
                 const localX = ped.mesh.position.x - ped.chunkX;
                 const localZ = ped.mesh.position.z - ped.chunkZ;
-
                 let turned = false;
 
+                // 1. Check Outer Bounds (Sidewalk Edges)
                 if (localX < ped.bounds.minX || localX > ped.bounds.maxX ||
                     localZ < ped.bounds.minZ || localZ > ped.bounds.maxZ) {
 
-                    // Turn around (simple bounce)
-                    ped.direction.negate();
-
-                    // Turn random amount to avoid sticking to lines
-                    const randomTurn = (Math.random() - 0.5) * 1.0;
-                    ped.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), randomTurn);
-
-                    // Clamp position back
-                    ped.mesh.position.x = Math.max(ped.bounds.minX, Math.min(ped.bounds.maxX, localX)) + ped.chunkX;
-                    ped.mesh.position.z = Math.max(ped.bounds.minZ, Math.min(ped.bounds.maxZ, localZ)) + ped.chunkZ;
-
+                    this.reflect(ped);
+                    this.clamp(ped, localX, localZ);
                     turned = true;
+                }
+
+                // 2. Check Inner Building Collision (The Hole)
+                if (!turned && ped.bounds.buildingCenterX !== undefined) {
+                    const dx = Math.abs(localX - ped.bounds.buildingCenterX);
+                    const dz = Math.abs(localZ - ped.bounds.buildingCenterZ);
+
+                    if (dx < ped.bounds.buildingHalfWidth && dz < ped.bounds.buildingHalfWidth) {
+                        // Inside building -> Turn around
+                        this.reflect(ped);
+                        // Push out slightly to avoid sticking
+                        // Ideally push along the axis of penetration, but simple bounce works for now
+                        turned = true;
+                    }
                 }
 
                 // Random wandering turn
@@ -174,5 +216,18 @@ export class PedestrianSystem {
                 ped.rightLeg.rotation.x = Math.sin(ped.legAnimTimer + Math.PI) * 0.5;
             });
         }
+    }
+
+    reflect(ped) {
+        ped.direction.negate();
+        const randomTurn = (Math.random() - 0.5) * 1.0;
+        ped.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), randomTurn);
+    }
+
+    clamp(ped, lx, lz) {
+        const cx = Math.max(ped.bounds.minX, Math.min(ped.bounds.maxX, lx));
+        const cz = Math.max(ped.bounds.minZ, Math.min(ped.bounds.maxZ, lz));
+        ped.mesh.position.x = ped.chunkX + cx;
+        ped.mesh.position.z = ped.chunkZ + cz;
     }
 }

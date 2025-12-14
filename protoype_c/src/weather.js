@@ -11,9 +11,17 @@ export class WeatherSystem {
         this.particleCount = 15000;
         this.particleSystem = null;
 
+        // Sky Elements
+        this.sun = null;
+        this.clouds = null;
+
         this.currentWeather = 'sunny';
 
         this.initParticles();
+        this.initSky();
+
+        // Apply default
+        this.setSunny();
     }
 
     initParticles() {
@@ -47,6 +55,58 @@ export class WeatherSystem {
         this.particles = geometry;
     }
 
+    initSky() {
+        // Sun
+        const sunGeom = new THREE.SphereGeometry(10, 32, 32);
+        const sunMat = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // Bright Yellow
+        this.sun = new THREE.Mesh(sunGeom, sunMat);
+        // Align with initial lighting
+        this.sun.position.set(50, 100, 50);
+        this.scene.add(this.sun);
+
+        // Clouds
+        this.clouds = new THREE.Group();
+        const cloudGeom = new THREE.BoxGeometry(1, 1, 1);
+        const cloudMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.9,
+            flatShading: true,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        const numClouds = 20;
+        for (let i = 0; i < numClouds; i++) {
+            const cloud = new THREE.Group();
+
+            // Compose a cloud from cubes
+            const blobs = Math.floor(Math.random() * 5) + 3;
+            for (let b = 0; b < blobs; b++) {
+                const mesh = new THREE.Mesh(cloudGeom, cloudMat);
+                mesh.position.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 6
+                );
+                mesh.scale.set(
+                    Math.random() * 5 + 2,
+                    Math.random() * 3 + 2,
+                    Math.random() * 4 + 2
+                );
+                cloud.add(mesh);
+            }
+
+            cloud.position.set(
+                (Math.random() - 0.5) * 400,
+                50 + Math.random() * 30,
+                (Math.random() - 0.5) * 400
+            );
+
+            this.clouds.add(cloud);
+        }
+        this.scene.add(this.clouds);
+    }
+
     setSunny() {
         console.log('Weather: Sunny');
         this.currentWeather = 'sunny';
@@ -54,19 +114,25 @@ export class WeatherSystem {
         // Lighting
         this.directionalLight.intensity = 2;
         this.directionalLight.color.setHex(0xffffff);
-        this.ambientLight.intensity = 0.5;
+        this.ambientLight.intensity = 0.6;
         this.ambientLight.color.setHex(0xffffff);
 
-        // Fog
-        this.scene.fog = new THREE.FogExp2(0x111111, 0.005);
-        this.scene.background = new THREE.Color(0x111111);
+        // Fog & Sky
+        const skyColor = 0x87CEEB;
+        this.scene.fog = new THREE.FogExp2(skyColor, 0.002);
+        this.scene.background = new THREE.Color(skyColor);
+
+        // Sky Elements
+        this.sun.visible = true;
+        this.clouds.visible = true;
+        this.clouds.children.forEach(c => c.children.forEach(m => m.material.color.setHex(0xffffff)));
 
         // Particles
         this.particleSystem.visible = false;
 
         // Materials
         this.materials.road.roughness = 0.9;
-        this.materials.road.color.setHex(0x111111);
+        this.materials.road.color.setHex(0x222222); // Fixed: Dark Grey, NOT Black (prevents hovering bug)
         this.materials.sidewalk.color.setHex(0x444444);
     }
 
@@ -80,9 +146,15 @@ export class WeatherSystem {
         this.ambientLight.intensity = 0.2;
         this.ambientLight.color.setHex(0x222233);
 
-        // Fog
-        this.scene.fog = new THREE.FogExp2(0x050510, 0.02);
-        this.scene.background = new THREE.Color(0x050510);
+        // Fog & Sky
+        const rainColor = 0x050510;
+        this.scene.fog = new THREE.FogExp2(rainColor, 0.02);
+        this.scene.background = new THREE.Color(rainColor);
+
+        // Sky Elements
+        this.sun.visible = false;
+        this.clouds.visible = true; // Dark rain clouds?
+        this.clouds.children.forEach(c => c.children.forEach(m => m.material.color.setHex(0x333344))); // Dark Grey clouds
 
         // Particles
         this.particleSystem.visible = true;
@@ -92,7 +164,7 @@ export class WeatherSystem {
 
         // Materials (Wet look)
         this.materials.road.roughness = 0.1; // Glossy
-        this.materials.road.color.setHex(0x050505);
+        this.materials.road.color.setHex(0x050505); // Wet asphalt is very dark
         this.materials.sidewalk.color.setHex(0x333333);
     }
 
@@ -106,9 +178,14 @@ export class WeatherSystem {
         this.ambientLight.intensity = 0.8;
         this.ambientLight.color.setHex(0xeeeeee);
 
-        // Fog
-        this.scene.fog = new THREE.FogExp2(0xeeeeee, 0.03);
-        this.scene.background = new THREE.Color(0xeeeeee);
+        // Fog & Sky
+        const snowColor = 0xeeeeee;
+        this.scene.fog = new THREE.FogExp2(snowColor, 0.03);
+        this.scene.background = new THREE.Color(snowColor);
+
+        // Sky Elements
+        this.sun.visible = false; // Overcast
+        this.clouds.visible = false; // Hidden in fog/whiteout
 
         // Particles
         this.particleSystem.visible = true;
@@ -123,6 +200,14 @@ export class WeatherSystem {
     }
 
     update(delta) {
+        // Move clouds
+        if (this.clouds && this.clouds.visible) {
+            this.clouds.children.forEach(cloud => {
+                cloud.position.x += delta * 2;
+                if (cloud.position.x > 200) cloud.position.x = -200;
+            });
+        }
+
         if (!this.particleSystem.visible) return;
 
         const positions = this.particles.attributes.position.array;

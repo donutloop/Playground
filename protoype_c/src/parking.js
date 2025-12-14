@@ -7,6 +7,7 @@ export class ParkingSystem {
         this.citySize = citySize;
         this.blockSize = blockSize;
         this.roadWidth = roadWidth;
+        this.cars = [];
 
         this.init();
     }
@@ -130,6 +131,7 @@ export class ParkingSystem {
                 car.rotation.y = Math.random() > 0.5 ? 0 : Math.PI; // Face north or south
             }
 
+            this.cars.push(car);
             this.scene.add(car);
         }
     }

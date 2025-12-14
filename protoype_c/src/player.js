@@ -2,10 +2,11 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 export class Player {
-    constructor(camera, domElement, colliders = []) {
+    constructor(camera, domElement, colliders = [], trafficSystem = null) {
         this.camera = camera;
         this.domElement = domElement;
         this.colliders = colliders;
+        this.trafficSystem = trafficSystem;
         this.controls = new PointerLockControls(camera, domElement);
 
         this.moveForward = false;
@@ -191,6 +192,21 @@ export class Player {
                 return true;
             }
         }
+
+        if (this.trafficSystem) {
+            const carBox = new THREE.Box3();
+            for (const car of this.trafficSystem.cars) {
+                // Moving cars need dynamic box update
+                carBox.setFromObject(car.mesh);
+                // Expand slightly for safety
+                carBox.expandByScalar(0.2);
+
+                if (playerBox.intersectsBox(carBox)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 }

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { initScene, animate } from './scene.js';
 import { createWorld } from './world.js';
-import { Player } from './player.js';
+import { Player } from './player.js?v=27';
 import { TrafficSystem } from './traffic.js?v=26';
-import { WeatherSystem } from './weather.js';
+import { WeatherSystem } from './weather.js?v=28';
 import { PedestrianSystem } from './pedestrians.js';
 import { ParkingSystem } from './parking.js?v=27';
 
@@ -60,7 +60,13 @@ async function init() {
 
         parkingSystem = new ParkingSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
 
-        player = new Player(camera, renderer.domElement, worldData.colliders);
+        // Add parked cars to static colliders
+        parkingSystem.cars.forEach(car => {
+            const box = new THREE.Box3().setFromObject(car);
+            worldData.colliders.push(box);
+        });
+
+        player = new Player(camera, renderer.domElement, worldData.colliders, trafficSystem);
         // Start player on the road to avoid being stuck in an alley
         player.camera.position.set(12, 2, 12);
 

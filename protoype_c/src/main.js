@@ -5,7 +5,7 @@ import { Player } from './player.js';
 import { TrafficSystem } from './traffic.js?v=26';
 import { WeatherSystem } from './weather.js';
 import { PedestrianSystem } from './pedestrians.js';
-import { ParkingSystem } from './parking.js?v=26';
+import { ParkingSystem } from './parking.js?v=27';
 
 let player;
 let prevTime = performance.now();

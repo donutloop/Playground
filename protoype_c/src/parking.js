@@ -79,20 +79,48 @@ export class ParkingSystem {
 
     spawnRow(xCoord, zCoord, isXRow) {
         // Try to spawn 2-3 cars along the block length
-        // Block is 20 units long.
-        // Avoid corners (intersections).
-        const validRange = this.blockSize - 8; // Leave 4 units empty on corners
+        const validRangeSize = this.blockSize - 8; // Leave 4 units empty on corners
+        const occupiedRanges = []; // {start, end} relative to center of block
+        const maxCars = 3;
+        const attempts = 10;
 
-        const count = 2;
+        let spawnedCount = 0;
 
-        for (let i = 0; i < count; i++) {
-            if (Math.random() > 0.4) continue; // 60% empty spots
+        for (let i = 0; i < attempts; i++) {
+            if (spawnedCount >= maxCars) break;
 
             const type = ['sedan', 'suv', 'truck', 'sport'][Math.floor(Math.random() * 4)];
-            const car = createCarMesh(type);
+            let carLength = 4.0;
+            if (type === 'truck') carLength = 5.0;
+            else if (type === 'suv') carLength = 4.5;
+            else if (type === 'sport') carLength = 4.2;
+
+            // Half length + 0.5m padding on each side = 1m total gap between defined regions
+            const halfLen = carLength / 2;
+            const padding = 0.5;
 
             // Random offset along the lane
-            const offset = (Math.random() - 0.5) * validRange;
+            const offset = (Math.random() - 0.5) * validRangeSize;
+
+            const start = offset - halfLen - padding;
+            const end = offset + halfLen + padding;
+
+            // Check overlap
+            let overlap = false;
+            for (const range of occupiedRanges) {
+                if (start < range.end && end > range.start) {
+                    overlap = true;
+                    break;
+                }
+            }
+
+            if (overlap) continue;
+
+            // Valid spot
+            occupiedRanges.push({ start, end });
+            spawnedCount++;
+
+            const car = createCarMesh(type);
 
             if (isXRow) { // Road runs X, car aligns X
                 car.position.set(xCoord + offset, 0, zCoord);

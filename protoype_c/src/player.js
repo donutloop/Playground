@@ -261,11 +261,11 @@ export class Player {
         this.carVelocity = 0;
         this.carSteering = 0;
         this.spinVelocity = 0;
-        if (this.currentCar.health === undefined) {
-            this.currentCar.health = 100;
+        if (this.currentCar.mesh.userData.health === undefined) {
+            this.currentCar.mesh.userData.health = 100;
         }
 
-        console.log("Entered car. Health:", this.currentCar.health);
+        console.log("Entered car. Health:", this.currentCar.mesh.userData.health);
 
         console.log("Entered car");
     }
@@ -312,21 +312,24 @@ export class Player {
         }
 
         // DAMAGE: Engine Failure and Fire
-        if (this.currentCar.health <= 0) {
+        const health = this.currentCar.mesh.userData.health;
+
+        if (health <= 0) {
             // Dead car
             this.carVelocity *= 0.95; // Rapid deceleration
-            if (this.effectSystem && Math.random() < 0.2) {
-                this.effectSystem.createFireEffect(this.currentCar.mesh);
+            if (this.effectSystem) {
+                this.effectSystem.addEmitter(this.currentCar.mesh, 'fire');
+                this.effectSystem.addEmitter(this.currentCar.mesh, 'smoke');
             }
-        } else if (this.currentCar.health < 20) {
-            // Critical: One fire emitter occasionally
-            if (this.effectSystem && Math.random() < 0.05) {
-                this.effectSystem.createFireEffect(this.currentCar.mesh);
+        } else if (health < 20) {
+            // Critical
+            if (this.effectSystem) {
+                this.effectSystem.addEmitter(this.currentCar.mesh, 'fire');
             }
-        } else if (this.currentCar.health < 50) {
+        } else if (health < 50) {
             // Smoking
-            if (this.effectSystem && Math.random() < 0.05) {
-                this.effectSystem.createSmokeEffect(this.currentCar.mesh);
+            if (this.effectSystem) {
+                this.effectSystem.addEmitter(this.currentCar.mesh, 'smoke');
             }
         }
 
@@ -337,7 +340,7 @@ export class Player {
         }
 
         // Acceleration (Only if control is regained AND engine works)
-        if (Math.abs(this.spinVelocity) < 5 && this.currentCar.health > 0) {
+        if (Math.abs(this.spinVelocity) < 5 && health > 0) {
             if (this.moveForward) {
                 this.carVelocity += acceleration * delta;
             } else if (this.moveBackward) {
@@ -402,8 +405,8 @@ export class Player {
                 // DAMAGE CALCULATION
                 // Reduce health
                 const damage = speed * 0.5; // e.g. 40 speed = 20 damage. 5 hits to kill.
-                this.currentCar.health -= damage;
-                console.log(`Crash! Speed: ${speed.toFixed(1)}, Damage: ${damage.toFixed(1)}, Health: ${this.currentCar.health.toFixed(1)}`);
+                this.currentCar.mesh.userData.health -= damage;
+                console.log(`Crash! Speed: ${speed.toFixed(1)}, Damage: ${damage.toFixed(1)}, Health: ${this.currentCar.mesh.userData.health.toFixed(1)}`);
 
                 // 4. Set Physics State after crash
                 if (speed > 10) {

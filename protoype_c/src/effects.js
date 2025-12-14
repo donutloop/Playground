@@ -4,6 +4,19 @@ export class EffectSystem {
     constructor(scene) {
         this.scene = scene;
         this.particles = [];
+        this.emitters = [];
+    }
+
+    addEmitter(object, type) {
+        // Check if emitter already exists
+        const exists = this.emitters.find(e => e.object === object && e.type === type);
+        if (exists) return;
+
+        this.emitters.push({
+            object: object,
+            type: type,
+            timer: 0
+        });
     }
 
     createCrashEffect(position) {
@@ -75,6 +88,20 @@ export class EffectSystem {
     }
 
     update(delta) {
+        // Update Emitters
+        for (const emitter of this.emitters) {
+            emitter.timer -= delta;
+            if (emitter.timer <= 0) {
+                if (emitter.type === 'fire') {
+                    this.createFireEffect(emitter.object);
+                    emitter.timer = 0.1; // Spawn every 0.1s
+                } else if (emitter.type === 'smoke') {
+                    this.createSmokeEffect(emitter.object);
+                    emitter.timer = 0.2; // Spawn every 0.2s
+                }
+            }
+        }
+
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
             p.life -= delta;

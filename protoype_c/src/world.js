@@ -16,10 +16,10 @@ export async function createWorld(scene) {
     directionalLight.shadow.mapSize.height = 4096;
     directionalLight.shadow.camera.near = 0.5;
     directionalLight.shadow.camera.far = 500;
-    directionalLight.shadow.camera.left = -150;
-    directionalLight.shadow.camera.right = 150;
-    directionalLight.shadow.camera.top = 150;
-    directionalLight.shadow.camera.bottom = -150;
+    directionalLight.shadow.camera.left = -250;
+    directionalLight.shadow.camera.right = 250;
+    directionalLight.shadow.camera.top = 250;
+    directionalLight.shadow.camera.bottom = -250;
     scene.add(directionalLight);
 
     // City Group
@@ -27,7 +27,7 @@ export async function createWorld(scene) {
     scene.add(city);
 
     // Materials
-    const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
     const sidewalkMaterial = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8 });
     const buildingMaterial = new THREE.MeshStandardMaterial({
         color: 0x222222,

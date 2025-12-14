@@ -95,10 +95,10 @@ export class ParkingSystem {
             const offset = (Math.random() - 0.5) * validRange;
 
             if (isXRow) { // Road runs X, car aligns X
-                car.position.set(xCoord + offset, 0.75, zCoord);
+                car.position.set(xCoord + offset, 0, zCoord);
                 car.rotation.y = Math.random() > 0.5 ? Math.PI / 2 : -Math.PI / 2; // Face east or west
             } else { // Road runs Z, car aligns Z
-                car.position.set(xCoord, 0.75, zCoord + offset);
+                car.position.set(xCoord, 0, zCoord + offset);
                 car.rotation.y = Math.random() > 0.5 ? 0 : Math.PI; // Face north or south
             }
 

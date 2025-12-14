@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { initScene, animate } from './scene.js';
 import { createWorld } from './world.js';
 import { Player } from './player.js';
-import { TrafficSystem } from './traffic.js';
+import { TrafficSystem } from './traffic.js?v=26';
 import { WeatherSystem } from './weather.js';
 import { PedestrianSystem } from './pedestrians.js';
-import { ParkingSystem } from './parking.js';
+import { ParkingSystem } from './parking.js?v=26';
 
 let player;
 let prevTime = performance.now();

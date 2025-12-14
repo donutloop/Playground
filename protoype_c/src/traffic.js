@@ -69,7 +69,7 @@ export class TrafficSystem {
 
             car.position.set(
                 (Math.random() - 0.5) * this.citySize * tileSize, // Random position along road
-                0.75,
+                0,
                 roadCenter + laneOffset
             );
             car.rotation.y = direction > 0 ? Math.PI / 2 : -Math.PI / 2;
@@ -81,7 +81,7 @@ export class TrafficSystem {
 
             car.position.set(
                 roadCenter + laneOffset,
-                0.75,
+                0,
                 (Math.random() - 0.5) * this.citySize * tileSize
             );
             car.rotation.y = direction > 0 ? 0 : Math.PI;

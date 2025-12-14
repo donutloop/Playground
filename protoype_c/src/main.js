@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-console.log('Main.js loading...'); // Debug
 import { initScene, animate } from './scene.js';
 import { createWorld } from './world.js';
 import { Player } from './player.js';

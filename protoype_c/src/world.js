@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const CITY_SIZE = 10; // 10x10 blocks
 const BLOCK_SIZE = 20;
-const ROAD_WIDTH = 10;
+const ROAD_WIDTH = 14;
 
 export async function createWorld(scene) {
     // Lighting

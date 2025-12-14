@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createCarMesh } from './car_models.js';
 
 export class TrafficSystem {
     constructor(scene, citySize, blockSize, roadWidth) {
@@ -13,54 +14,13 @@ export class TrafficSystem {
     }
 
     init() {
-        const carGeometry = new THREE.BoxGeometry(2, 1, 4);
-        const carMaterial = new THREE.MeshStandardMaterial({
-            color: 0xff0000,
-            roughness: 0.2,
-            metalness: 0.8
-        });
-
-        const headlightGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xffffcc });
-
         // Create a pool of cars
-        const numCars = 20; // Reduced for performance
+        const numCars = 20;
+        const carTypes = ['sedan', 'suv', 'truck', 'sport'];
+
         for (let i = 0; i < numCars; i++) {
-            const carGroup = new THREE.Group();
-
-            const body = new THREE.Mesh(carGeometry, carMaterial.clone());
-            body.material.color.setHex(Math.random() * 0xffffff);
-            body.castShadow = true;
-            carGroup.add(body);
-
-            // Headlights
-            const headlightMat = new THREE.MeshBasicMaterial({ color: 0xffffcc });
-            const leftLight = new THREE.Mesh(headlightGeometry, headlightMat);
-            leftLight.position.set(-0.6, 0, 1.8);
-            carGroup.add(leftLight);
-
-            const rightLight = new THREE.Mesh(headlightGeometry, headlightMat);
-            rightLight.position.set(0.6, 0, 1.8);
-            carGroup.add(rightLight);
-
-            // Tail lights
-            const tailLightMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            const leftTail = new THREE.Mesh(headlightGeometry, tailLightMat);
-            leftTail.position.set(-0.6, 0, -1.8);
-            carGroup.add(leftTail);
-
-            const rightTail = new THREE.Mesh(headlightGeometry, tailLightMat);
-            rightTail.position.set(0.6, 0, -1.8);
-            carGroup.add(rightTail);
-
-            // Remove real lights for performance - 50 spotlights is too much
-            /* 
-            const spotLight = new THREE.SpotLight(0xffffcc, 10, 20, 0.5, 0.5, 1);
-            spotLight.position.set(0, 2, 2);
-            spotLight.target.position.set(0, 0, 10);
-            carGroup.add(spotLight);
-            carGroup.add(spotLight.target);
-            */
+            const type = carTypes[Math.floor(Math.random() * carTypes.length)];
+            const carGroup = createCarMesh(type); // Use new helper
 
             // Position randomly on roads
             const state = this.respawnCar(carGroup);

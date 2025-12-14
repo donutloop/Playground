@@ -5,6 +5,7 @@ import { Player } from './player.js';
 import { TrafficSystem } from './traffic.js';
 import { WeatherSystem } from './weather.js';
 import { PedestrianSystem } from './pedestrians.js';
+import { ParkingSystem } from './parking.js';
 
 let player;
 let prevTime = performance.now();
@@ -14,6 +15,7 @@ let scoreElement;
 let trafficSystem;
 let weatherSystem;
 let pedestrianSystem;
+let parkingSystem;
 
 function initScore() {
     scoreElement = document.createElement('div');
@@ -55,6 +57,8 @@ async function init() {
         weatherSystem = new WeatherSystem(scene, worldData.directionalLight, worldData.ambientLight, worldData.materials);
 
         pedestrianSystem = new PedestrianSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
+
+        parkingSystem = new ParkingSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
 
         player = new Player(camera, renderer.domElement, worldData.colliders);
         // Start player on the road to avoid being stuck in an alley

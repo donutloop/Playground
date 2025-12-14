@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createCarMesh } from './car_models.js';
+import { disposeCar } from './utils.js';
 
 export class ParkingSystem {
     constructor(scene, citySize, blockSize, roadWidth) {
@@ -59,6 +60,7 @@ export class ParkingSystem {
             const cars = this.chunkCars.get(key);
             cars.forEach(car => {
                 this.scene.remove(car);
+                disposeCar(car); // Dispose resources
 
                 // Remove from flat list
                 const idx = this.cars.indexOf(car);
@@ -73,7 +75,9 @@ export class ParkingSystem {
         const colliders = [];
         for (const cars of this.chunkCars.values()) {
             cars.forEach(car => {
-                colliders.push(new THREE.Box3().setFromObject(car));
+                if (!car.isPlayerDriven) { // Skip if player is driving this car
+                    colliders.push(new THREE.Box3().setFromObject(car));
+                }
             });
         }
         return colliders;

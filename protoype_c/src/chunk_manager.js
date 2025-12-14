@@ -12,7 +12,7 @@ export class ChunkManager {
         this.pedestrianSystem = pedestrianSystem;
 
         this.chunks = new Map(); // "x,z" -> chunkData
-        this.chunkSize = 34; // 20 block + 14 road
+        this.chunkSize = worldData.blockSize + worldData.roadWidth; // Should be 20 + 14 = 34
         this.renderDistance = 4; // chunks radius
 
         // Seed randomness
@@ -38,6 +38,7 @@ export class ChunkManager {
 
                 if (!this.chunks.has(id)) {
                     this.loadChunk(cx, cz);
+                    return; // Throttle: Load only 1 chunk per frame
                 }
             }
         }
@@ -58,7 +59,8 @@ export class ChunkManager {
         // Center (0,0) is always city
         // Center (0,0) is always city
         const dist = Math.sqrt(cx * cx + cz * cz);
-        const isCity = dist < 2 || noiseVal > 0.6;
+        // Strict City Limit: Radius 6 (approx 200m). No noise-based random cities to avoid "wasteland" confusion.
+        const isCity = dist < 6;
 
         // Offset position
         const xPos = cx * this.chunkSize;
@@ -117,6 +119,10 @@ export class ChunkManager {
         if (this.parkingSystem) {
             const parkingColliders = this.parkingSystem.getColliders();
             allColliders = allColliders.concat(parkingColliders);
+        }
+        if (this.trafficSystem) {
+            const trafficColliders = this.trafficSystem.getColliders();
+            allColliders = allColliders.concat(trafficColliders);
         }
 
         return allColliders;

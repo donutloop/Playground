@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createCarMesh } from './car_models.js';
+import { disposeCar } from './utils.js';
 
 export class TrafficSystem {
     constructor(scene, citySize, blockSize, roadWidth) {
@@ -62,6 +63,7 @@ export class TrafficSystem {
             const chunkCars = this.chunkCars.get(key);
             chunkCars.forEach(car => {
                 this.scene.remove(car.mesh);
+                disposeCar(car.mesh); // Dispose resources
                 // Remove from flat list
                 const idx = this.cars.indexOf(car);
                 if (idx > -1) this.cars.splice(idx, 1);
@@ -124,6 +126,7 @@ export class TrafficSystem {
         // Update all active chunks
         for (const cars of this.chunkCars.values()) {
             cars.forEach(car => {
+                if (car.isPlayerDriven) return;
                 // Move
                 const move = car.direction * this.carSpeed * delta;
 
@@ -144,5 +147,17 @@ export class TrafficSystem {
                 }
             });
         }
+    }
+
+    getColliders() {
+        const colliders = [];
+        for (const cars of this.chunkCars.values()) {
+            cars.forEach(car => {
+                if (!car.isPlayerDriven) {
+                    colliders.push(new THREE.Box3().setFromObject(car.mesh));
+                }
+            });
+        }
+        return colliders;
     }
 }

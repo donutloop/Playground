@@ -139,8 +139,8 @@ export async function createWorld(scene) {
     const directionalLight = new THREE.DirectionalLight(0xaaccff, 0.5);
     directionalLight.position.set(50, 100, 50);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 4096;
-    directionalLight.shadow.mapSize.height = 4096;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.near = 0.5;
     directionalLight.shadow.camera.far = 500;
     directionalLight.shadow.camera.left = -250;
@@ -152,7 +152,7 @@ export async function createWorld(scene) {
     // We return empty world data, main.js will use ChunkManager
     return {
         citySize: 1000, // Virtual size
-        blockSize: 34,
+        blockSize: 20, // Was 34 (Incorrect, 34 is total size)
         roadWidth: 14,
         colliders: [], // No static colliders upfront
         cubes: [], // Empty for now, NMS world doesn't have static collectibles yet

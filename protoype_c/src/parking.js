@@ -7,136 +7,124 @@ export class ParkingSystem {
         this.citySize = citySize;
         this.blockSize = blockSize;
         this.roadWidth = roadWidth;
+        this.chunkCars = new Map(); // "cx,cz" -> Array of car meshes (or objects)
         this.cars = [];
-
-        this.init();
+        // No init loop
     }
 
-    init() {
-        const carTypes = ['sedan', 'suv', 'truck', 'sport'];
+    loadChunk(cx, cz) {
+        // Spawn parked cars for this chunk
+        // Reuse logic but applied to single chunk
+
+        const carsList = [];
+
         const tileSize = this.blockSize + this.roadWidth;
-        // Padding from block edge to parking lane center
-        // Block edge is at +/- blockSize/2
-        // Road edge is at +/- (blockSize/2 + roadWidth/2)
-        // Parking lane should be next to sidewalk.
-        // Sidewalk ends at blockSize/2.
-        // Car width is ~2.
-        // So parking lane center is blockSize/2 + 1.5 (approx).
+        const xPos = cx * tileSize;
+        const zPos = cz * tileSize;
 
-        const parkingOffset = this.blockSize / 2 + 1.5;
+        // Logic from before:
+        // Park on the +X side of this block (Road running along Z)
+        // Park on the +Z side of this block (Road running along X)
 
-        for (let x = -this.citySize / 2; x < this.citySize / 2; x++) {
-            for (let z = -this.citySize / 2; z < this.citySize / 2; z++) {
+        // Note: Creating chunks based on center xPos, zPos which is the "Block" center?
+        // createCityChunk (world.js) treats xPos, zPos as center of tile.
+        // So xPos, zPos is center of block.
 
-                const xPos = x * tileSize;
-                const zPos = z * tileSize;
+        // +X Axis Road (Horizontal)
+        // Road runs along X.
+        this.spawnRowInChunk(
+            xPos, zPos,
+            true, // isXRow
+            carsList,
+            tileSize
+        );
 
-                // For each block, try to park cars on the 4 road segments surrounding it?
-                // Actually, roads are shared. It's easier to iterate the grid.
-                // Let's park on the +X and +Z sides of the block, similar to how we generate roads.
-                // Or better: Just go through the road centers.
+        // +Z Axis Road (Vertical)
+        // Road runs along Z.
+        this.spawnRowInChunk(
+            xPos, zPos,
+            false, // isXRow
+            carsList,
+            tileSize
+        );
 
-                // Let's iterate intersections.
-                // Actually, just placing cars RELATIVE to the block is easiest.
+        this.chunkCars.set(`${cx},${cz}`, carsList);
+        // Sync flat list
+        carsList.forEach(c => this.cars.push(c));
+    }
 
-                // Park on the +X side of this block (Road running along Z)
-                // Road center is xPos + tileSize/2
-                // Sidewalk edge is xPos + blockSize/2
-                // We want to park at xPos + blockSize/2 + 1.5
+    unloadChunk(cx, cz) {
+        const key = `${cx},${cz}`;
+        if (this.chunkCars.has(key)) {
+            const cars = this.chunkCars.get(key);
+            cars.forEach(car => {
+                this.scene.remove(car);
 
-                // But we should only park if we aren't at the city edge? 
-                // Checks are fine.
-
-                // +X Side (Road runs Z)
-                if (x < this.citySize / 2 - 1) {
-                    this.spawnRow(
-                        xPos + this.blockSize / 2 + 1.5, // X
-                        zPos, // Z center
-                        false // isXAxis (Cars align with Z)
-                    );
-                    // Also park on the other side of that same road?
-                    // That would be xPos + tileSize - (blockSize/2 + 1.5)
-                    // = xPos + blockSize + 14 - 10 - 1.5 = wait.
-                    // Tile = 20+14 = 34.
-                    // Road starts at 10. Road width 14.
-                    // Road center = 17.
-                    // Correct.
-
-                    // Let's just do "Right side of the block" and "Top side of the block".
-                    // And maybe "Left" and "Bottom" if it's the edge of the city.
-                }
-
-                // +Z Side (Road runs X)
-                if (z < this.citySize / 2 - 1) {
-                    this.spawnRow(
-                        xPos, // X center
-                        zPos + this.blockSize / 2 + 1.5, // Z
-                        true // isXAxis (Cars align with X)
-                    );
-                }
-            }
+                // Remove from flat list
+                const idx = this.cars.indexOf(car);
+                if (idx > -1) this.cars.splice(idx, 1);
+            });
+            this.chunkCars.delete(key);
         }
     }
 
-    spawnRow(xCoord, zCoord, isXRow) {
-        // Try to spawn 2-3 cars along the block length
-        const validRangeSize = this.blockSize - 8; // Leave 4 units empty on corners
-        const occupiedRanges = []; // {start, end} relative to center of block
-        const maxCars = 3;
-        const attempts = 10;
+    // Helper to get all parking colliders for active chunks
+    getColliders() {
+        const colliders = [];
+        for (const cars of this.chunkCars.values()) {
+            cars.forEach(car => {
+                colliders.push(new THREE.Box3().setFromObject(car));
+            });
+        }
+        return colliders;
+    }
 
-        let spawnedCount = 0;
+    spawnRowInChunk(chunkX, chunkZ, isXRow, list, size) {
+        // Safe zones relative to center: [-17, -8] and [8, 17]
+        // Intersection is roughly [-7, 7].
+        // We will try to spawn 1 car in each valid zone per side if possible.
 
-        for (let i = 0; i < attempts; i++) {
-            if (spawnedCount >= maxCars) break;
+        const safeZones = [
+            { start: -15, end: -9 },
+            { start: 9, end: 15 }
+        ];
+
+        safeZones.forEach(zone => {
+            if (Math.random() < 0.4) return; // 60% chance to spawn in a zone
 
             const type = ['sedan', 'suv', 'truck', 'sport'][Math.floor(Math.random() * 4)];
-            let carLength = 4.0;
-            if (type === 'truck') carLength = 5.0;
-            else if (type === 'suv') carLength = 4.5;
-            else if (type === 'sport') carLength = 4.2;
-
-            // Half length + 0.5m padding on each side = 1m total gap between defined regions
-            const halfLen = carLength / 2;
-            const padding = 0.5;
-
-            // Random offset along the lane
-            const offset = (Math.random() - 0.5) * validRangeSize;
-
-            const start = offset - halfLen - padding;
-            const end = offset + halfLen + padding;
-
-            // Check overlap
-            let overlap = false;
-            for (const range of occupiedRanges) {
-                if (start < range.end && end > range.start) {
-                    overlap = true;
-                    break;
-                }
-            }
-
-            if (overlap) continue;
-
-            // Valid spot
-            occupiedRanges.push({ start, end });
-            spawnedCount++;
-
             const car = createCarMesh(type);
 
-            if (isXRow) { // Road runs X, car aligns X
-                car.position.set(xCoord + offset, 0, zCoord);
-                car.rotation.y = Math.random() > 0.5 ? Math.PI / 2 : -Math.PI / 2; // Face east or west
-            } else { // Road runs Z, car aligns Z
-                car.position.set(xCoord, 0, zCoord + offset);
-                car.rotation.y = Math.random() > 0.5 ? 0 : Math.PI; // Face north or south
+            // Random pos within zone
+            const offsetAlongRoad = zone.start + Math.random() * (zone.end - zone.start);
+
+            // Parking offset from center line (Curb is at 7)
+            // Park at +/- 6.0 (flush with sidewalk edge 7 - 1.0 width)
+            const sideOffset = Math.random() > 0.5 ? 6.0 : -6.0;
+
+            if (isXRow) {
+                // Road runs along X axis.
+                // Car main axis is Z. To align with X road, rotate 90 deg (PI/2).
+                // Wait, car model forward is -Z? Or Z?
+                // Usually cars are long along Z.
+                // If I want it parallel to X axis, I need to rotate 90.
+
+                car.position.set(chunkX + offsetAlongRoad, 0, chunkZ + sideOffset);
+                car.rotation.y = Math.random() > 0.5 ? Math.PI / 2 : -Math.PI / 2;
+            } else {
+                // Road runs along Z axis.
+                // Car is Z aligned. So 0 or PI is parallel to Z axis.
+
+                car.position.set(chunkX + sideOffset, 0, chunkZ + offsetAlongRoad);
+                car.rotation.y = Math.random() > 0.5 ? 0 : Math.PI;
             }
 
-            this.cars.push(car);
             this.scene.add(car);
-        }
+            list.push(car);
+        });
     }
 
     update(delta) {
-        // Static cars don't update
+        // Static
     }
 }

@@ -408,109 +408,111 @@ export class Player {
                 this.currentCar.mesh.userData.health -= damage;
                 console.log(`Crash! Speed: ${speed.toFixed(1)}, Damage: ${damage.toFixed(1)}, Health: ${this.currentCar.mesh.userData.health.toFixed(1)}`);
 
-                // 4. Set Physics State after crash
+                // physics effect
                 if (speed > 10) {
-                    // Spin out
                     this.spinVelocity = (Math.random() - 0.5) * 20 * intensity;
-                    this.shakeIntensity = 1.0 * intensity; // Max shake
-
-                    // Bounce back hard if fast
+                    this.shakeIntensity = 1.0 * intensity;
                     this.carVelocity = -this.carVelocity * 0.5;
                 } else {
-                    // Just a bump
                     this.carVelocity = 0;
-                    this.shakeIntensity = 0.2;
                 }
+
+            } else {
+                // Just a bump
+                this.carVelocity = 0;
+                this.shakeIntensity = 0.2;
             }
-        }
-        // Update Camera to follow car
-        // Third person view
-        const camOffset = new THREE.Vector3(0, 5, -10); // Behind and up
-        camOffset.applyEuler(this.currentCar.mesh.rotation);
+        } // Close if(crash)
+    }
+}
+// Update Camera to follow car
+// Third person view
+const camOffset = new THREE.Vector3(0, 5, -10); // Behind and up
+camOffset.applyEuler(this.currentCar.mesh.rotation);
 
-        // Apply Shake Offset
-        if (this.shakeIntensity > 0) {
-            camOffset.x += (Math.random() - 0.5) * this.shakeIntensity;
-            camOffset.y += (Math.random() - 0.5) * this.shakeIntensity;
-            camOffset.z += (Math.random() - 0.5) * this.shakeIntensity;
-        }
+// Apply Shake Offset
+if (this.shakeIntensity > 0) {
+    camOffset.x += (Math.random() - 0.5) * this.shakeIntensity;
+    camOffset.y += (Math.random() - 0.5) * this.shakeIntensity;
+    camOffset.z += (Math.random() - 0.5) * this.shakeIntensity;
+}
 
-        const targetPos = this.currentCar.mesh.position.clone().add(camOffset);
+const targetPos = this.currentCar.mesh.position.clone().add(camOffset);
 
-        // Smooth follow
-        this.camera.position.lerp(targetPos, 5 * delta);
-        this.camera.lookAt(this.currentCar.mesh.position);
+// Smooth follow
+this.camera.position.lerp(targetPos, 5 * delta);
+this.camera.lookAt(this.currentCar.mesh.position);
     }
 
-    checkCarCollision() {
-        if (!this.currentCar) return false;
+checkCarCollision() {
+    if (!this.currentCar) return false;
 
-        const carBox = new THREE.Box3().setFromObject(this.currentCar.mesh);
-        // Shrink slightly to avoid colliding with itself or weird ground issues
-        carBox.expandByScalar(-0.2);
+    const carBox = new THREE.Box3().setFromObject(this.currentCar.mesh);
+    // Shrink slightly to avoid colliding with itself or weird ground issues
+    carBox.expandByScalar(-0.2);
 
-        // 1. Check Buildings (Static Colliders)
-        if (this.colliders) {
-            for (const box of this.colliders) {
-                if (carBox.intersectsBox(box)) return true;
-            }
+    // 1. Check Buildings (Static Colliders)
+    if (this.colliders) {
+        for (const box of this.colliders) {
+            if (carBox.intersectsBox(box)) return true;
         }
-
-        // 2. Check Traffic
-        if (this.trafficSystem) {
-            for (const otherCar of this.trafficSystem.cars) {
-                if (otherCar === this.currentCar) continue;
-                // Simple distance check first optimization
-                if (otherCar.mesh.position.distanceTo(this.currentCar.mesh.position) > 10) continue;
-
-                const otherBox = new THREE.Box3().setFromObject(otherCar.mesh);
-                if (carBox.intersectsBox(otherBox)) return true;
-            }
-        }
-
-        // 3. Check Parked Cars
-        if (this.parkingSystem) {
-            for (const otherCar of this.parkingSystem.cars) {
-                if (this.currentCar.mesh === otherCar) continue; // if we are driving a parked car
-                if (otherCar.position.distanceTo(this.currentCar.mesh.position) > 10) continue;
-
-                const otherBox = new THREE.Box3().setFromObject(otherCar);
-                if (carBox.intersectsBox(otherBox)) return true;
-            }
-        }
-
-        return false;
     }
 
-    checkCollision() {
-        if (!this.colliders) return false;
+    // 2. Check Traffic
+    if (this.trafficSystem) {
+        for (const otherCar of this.trafficSystem.cars) {
+            if (otherCar === this.currentCar) continue;
+            // Simple distance check first optimization
+            if (otherCar.mesh.position.distanceTo(this.currentCar.mesh.position) > 10) continue;
 
-        const playerBox = new THREE.Box3();
-        const position = this.camera.position.clone();
-        // Player radius reduced to 0.2 for easier movement
-        playerBox.min.set(position.x - 0.2, position.y - 0.5, position.z - 0.2);
-        playerBox.max.set(position.x + 0.2, position.y + 0.5, position.z + 0.2);
+            const otherBox = new THREE.Box3().setFromObject(otherCar.mesh);
+            if (carBox.intersectsBox(otherBox)) return true;
+        }
+    }
 
-        for (const collider of this.colliders) {
-            if (playerBox.intersectsBox(collider)) {
+    // 3. Check Parked Cars
+    if (this.parkingSystem) {
+        for (const otherCar of this.parkingSystem.cars) {
+            if (this.currentCar.mesh === otherCar) continue; // if we are driving a parked car
+            if (otherCar.position.distanceTo(this.currentCar.mesh.position) > 10) continue;
+
+            const otherBox = new THREE.Box3().setFromObject(otherCar);
+            if (carBox.intersectsBox(otherBox)) return true;
+        }
+    }
+
+    return false;
+}
+
+checkCollision() {
+    if (!this.colliders) return false;
+
+    const playerBox = new THREE.Box3();
+    const position = this.camera.position.clone();
+    // Player radius reduced to 0.2 for easier movement
+    playerBox.min.set(position.x - 0.2, position.y - 0.5, position.z - 0.2);
+    playerBox.max.set(position.x + 0.2, position.y + 0.5, position.z + 0.2);
+
+    for (const collider of this.colliders) {
+        if (playerBox.intersectsBox(collider)) {
+            return true;
+        }
+    }
+
+    if (this.trafficSystem) {
+        const carBox = new THREE.Box3();
+        for (const car of this.trafficSystem.cars) {
+            // Moving cars need dynamic box update
+            carBox.setFromObject(car.mesh);
+            // Expand slightly for safety
+            carBox.expandByScalar(0.2);
+
+            if (playerBox.intersectsBox(carBox)) {
                 return true;
             }
         }
-
-        if (this.trafficSystem) {
-            const carBox = new THREE.Box3();
-            for (const car of this.trafficSystem.cars) {
-                // Moving cars need dynamic box update
-                carBox.setFromObject(car.mesh);
-                // Expand slightly for safety
-                carBox.expandByScalar(0.2);
-
-                if (playerBox.intersectsBox(carBox)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
+
+    return false;
+}
 }

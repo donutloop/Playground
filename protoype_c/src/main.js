@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { initScene, animate } from './scene.js';
-import { createWorld } from './world.js';
-import { Player } from './player.js';
-import { TrafficSystem } from './traffic.js';
-import { WeatherSystem } from './weather.js';
-import { PedestrianSystem } from './pedestrians.js';
-import { ParkingSystem } from './parking.js';
+import { createWorld } from './world.js?v=102';
+import { Player } from './player.js?v=100';
+import { TrafficSystem } from './traffic.js?v=102';
+import { WeatherSystem } from './weather.js?v=100';
+import { PedestrianSystem } from './pedestrians.js?v=100';
+import { ParkingSystem } from './parking.js?v=102';
 import { AirplaneSystem } from './airplanes.js';
 import { EffectSystem } from './effects.js';
+import { ChunkManager } from './chunk_manager.js';
 
 let player;
 let prevTime = performance.now();
@@ -20,6 +21,7 @@ let pedestrianSystem;
 let parkingSystem;
 let airplaneSystem;
 let effectSystem;
+let chunkManager; // [NEW]
 
 function initScore() {
     scoreElement = document.createElement('div');
@@ -47,38 +49,51 @@ window.addEventListener('error', (e) => {
 
 async function init() {
     initScore();
+    // document.body.style.background = 'red'; // DEBUG: Verify JS runs
     try {
         const { scene, camera, renderer } = initScene();
 
-        // Setup Fog for atmosphere
-        scene.fog = new THREE.FogExp2(0x111111, 0.01);
-
+        // Create World (Just lighting and metadata now)
         const worldData = await createWorld(scene);
-        cubes = worldData.cubes;
 
-        trafficSystem = new TrafficSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
-
-        weatherSystem = new WeatherSystem(scene, worldData.directionalLight, worldData.ambientLight, worldData.materials);
-
-        pedestrianSystem = new PedestrianSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
-
-        parkingSystem = new ParkingSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
-
-        airplaneSystem = new AirplaneSystem(scene, worldData.citySize);
-        window.airplaneSystem = airplaneSystem; // Debug: Expose to console
-        console.log('AirplaneSystem initialized', airplaneSystem);
-
+        // Effect System
         effectSystem = new EffectSystem(scene);
 
-        // Add parked cars to static colliders
-        parkingSystem.cars.forEach(car => {
-            const box = new THREE.Box3().setFromObject(car);
-            worldData.colliders.push(box);
-        });
+        // Initialize Systems (Chunk-Aware, so they don't auto-spawn globally)
+        trafficSystem = new TrafficSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
+        parkingSystem = new ParkingSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
+        pedestrianSystem = new PedestrianSystem(scene, worldData.citySize, worldData.blockSize, worldData.roadWidth);
 
-        player = new Player(camera, renderer.domElement, worldData.colliders, trafficSystem, parkingSystem, effectSystem);
-        // Start player on the road to avoid being stuck in an alley
-        player.camera.position.set(12, 2, 12);
+        // Create Player
+        player = new Player(camera, document.body, [], null, null, effectSystem);
+
+        // Chunk Manager (Infinite World)
+        // Pass systems so ChunkManager can trigger spawning per chunk
+        chunkManager = new ChunkManager(
+            scene,
+            player,
+            worldData,
+            trafficSystem,
+            parkingSystem,
+            pedestrianSystem
+        );
+        chunkManager.update(); // Initial load
+
+        // Update player colliders immediately
+        player.colliders = chunkManager.getColliders();
+
+        // Pass systems to Player (for interaction/collision logic)
+        player.trafficSystem = trafficSystem;
+        player.parkingSystem = parkingSystem;
+
+        // Weather
+        weatherSystem = new WeatherSystem(scene, worldData.directionalLight, worldData.ambientLight, worldData.materials);
+
+        // Airplanes
+        airplaneSystem = new AirplaneSystem(scene, worldData.citySize);
+        window.airplaneSystem = airplaneSystem; // Debug: Expose to console
+
+        console.log('Game Initialized with Infinite World + Populated Chunks');
 
         // Weather Controls
         window.addEventListener('keydown', (e) => {
@@ -99,6 +114,18 @@ async function init() {
         weatherInfo.innerHTML = '[1] Sunny [2] Rain [3] Snow';
         document.body.appendChild(weatherInfo);
 
+        // Version Indicator to debug cache issues
+        const verDiv = document.createElement('div');
+        verDiv.style.position = 'absolute';
+        verDiv.style.top = '10px';
+        verDiv.style.right = '10px';
+        verDiv.style.color = 'white';
+        verDiv.style.background = 'rgba(0,0,0,0.5)';
+        verDiv.style.padding = '5px';
+        verDiv.style.fontFamily = 'monospace';
+        verDiv.innerHTML = 'v3.3 - Cities & Wastelands';
+        document.body.appendChild(verDiv);
+
         animate(() => {
             const time = performance.now();
             const delta = (time - prevTime) / 1000;
@@ -108,7 +135,17 @@ async function init() {
             if (weatherSystem) weatherSystem.update(delta);
             if (pedestrianSystem) pedestrianSystem.update(delta);
             if (airplaneSystem) airplaneSystem.update(delta);
-            if (effectSystem) effectSystem.update(delta); // Update effects
+
+            if (chunkManager) {
+                chunkManager.update();
+                // Update player colliders continuously as chunks load/unload
+                if (player) {
+                    player.colliders = chunkManager.getColliders();
+                }
+            }
+
+            // Update Effects
+            if (player && player.effectSystem) player.effectSystem.update(delta); // Update effects
 
             // Simple collision detection
             if (player && cubes.length > 0) {
@@ -131,9 +168,11 @@ async function init() {
                 }
             }
 
-            if (cubes.length === 0) {
-                scoreElement.innerHTML = `You Win! Final Score: ${score}`;
-                scoreElement.style.color = '#00ff00';
+            if (cubes.length === 0 && score > 0) {
+                // Only show win if we actually played and cleared cubes
+                // For infinite world, we might never "win"
+                // scoreElement.innerHTML = `You Win! Final Score: ${score}`;
+                // scoreElement.style.color = '#00ff00';
             }
 
             prevTime = time;

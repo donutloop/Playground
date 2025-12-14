@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 const buildingGeom = new THREE.BoxGeometry(1, 1, 1);
 const windowGeom = new THREE.PlaneGeometry(0.2, 0.4);
 const sidewalkGeom = new THREE.BoxGeometry(1, 0.2, 1); // Normalized size for scaling
@@ -19,7 +17,8 @@ export function createCityChunk(xPos, zPos, size) {
     const chunkGroup = new THREE.Group();
     const colliders = [];
 
-    // 1. Road (Ground) - Base layer
+    // 1. Road (Ground)
+    // One big road tile for the block
     const road = new THREE.Mesh(roadGeom, matCache.road);
     road.position.set(xPos, 0, zPos);
     road.rotation.x = -Math.PI / 2;
@@ -27,7 +26,7 @@ export function createCityChunk(xPos, zPos, size) {
     road.receiveShadow = true;
     chunkGroup.add(road);
 
-    // 2. Markings (Cross at center)
+    // 2. Markings (Simple cross)
     const laneH = new THREE.Mesh(roadGeom, matCache.lane);
     laneH.position.set(xPos, 0.02, zPos);
     laneH.rotation.x = -Math.PI / 2;
@@ -40,59 +39,48 @@ export function createCityChunk(xPos, zPos, size) {
     laneV.scale.set(0.5, size, 1);
     chunkGroup.add(laneV);
 
-    // 3. Sidewalks (4 Corners)
-    // Size = 34, RoadWidth ~ 14. Corner Block ~ 10x10.
-    const cornerSize = (size - 14) / 2; // ~10
-    const offset = 7 + cornerSize / 2; // 7 + 5 = 12
+    // 3. Sidewalk
+    const sidewalkWidth = size - 14;
+    const sidewalk = new THREE.Mesh(sidewalkGeom, matCache.sidewalk);
+    sidewalk.position.set(xPos, 0.1, zPos);
+    sidewalk.scale.set(sidewalkWidth, 1, sidewalkWidth);
+    sidewalk.receiveShadow = true;
+    chunkGroup.add(sidewalk);
 
-    const corners = [
-        { x: -offset, z: -offset },
-        { x: offset, z: -offset },
-        { x: offset, z: offset },
-        { x: -offset, z: offset }
-    ];
+    // 4. Buildings
+    if (Math.random() > 0.2) {
+        const height = Math.random() * 20 + 5;
+        const width = sidewalkWidth - 2;
 
-    corners.forEach(corner => {
-        const sw = new THREE.Mesh(sidewalkGeom, matCache.sidewalk);
-        sw.position.set(xPos + corner.x, 0.1, zPos + corner.z);
-        sw.scale.set(cornerSize, 1, cornerSize);
-        sw.receiveShadow = true;
-        chunkGroup.add(sw);
+        const building = new THREE.Mesh(buildingGeom, matCache.building);
+        building.position.set(xPos, height / 2 + 0.1, zPos);
+        building.scale.set(width, height, width);
+        building.castShadow = true;
+        building.receiveShadow = true;
+        chunkGroup.add(building);
 
-        // 4. Buildings (One per corner, maybe?)
-        if (Math.random() > 0.3) { // 70% chance of building
-            const height = Math.random() * 20 + 5;
-            const width = cornerSize - 4; // Leave 2m rim on sidewalk stride
+        // Collider
+        const box = new THREE.Box3();
+        box.min.set(xPos - width / 2, 0, zPos - width / 2);
+        box.max.set(xPos + width / 2, height, zPos + width / 2);
+        colliders.push(box);
 
-            const building = new THREE.Mesh(buildingGeom, matCache.building);
-            building.position.set(xPos + corner.x, height / 2 + 0.1, zPos + corner.z);
-            building.scale.set(width, height, width);
-            building.castShadow = true;
-            building.receiveShadow = true;
-            chunkGroup.add(building);
+        // Windows (Simplified: few random quads on surface)
+        for (let i = 0; i < 4; i++) {
+            const win = new THREE.Mesh(windowGeom, matCache.window);
+            // Random side
+            const side = Math.floor(Math.random() * 4);
+            win.position.copy(building.position);
+            win.position.y = Math.random() * height * 0.8 + 2;
 
-            // Collider
-            const box = new THREE.Box3();
-            box.min.set(xPos + corner.x - width / 2, 0, zPos + corner.z - width / 2);
-            box.max.set(xPos + corner.x + width / 2, height, zPos + corner.z + width / 2);
-            colliders.push(box);
+            if (side === 0) win.position.z += width / 2 + 0.05;
+            else if (side === 1) win.position.z -= width / 2 + 0.05;
+            else if (side === 2) { win.position.x += width / 2 + 0.05; win.rotation.y = Math.PI / 2; }
+            else { win.position.x -= width / 2 + 0.05; win.rotation.y = Math.PI / 2; }
 
-            // Windows
-            for (let i = 0; i < 4; i++) {
-                const win = new THREE.Mesh(windowGeom, matCache.window);
-                const side = Math.floor(Math.random() * 4);
-                win.position.copy(building.position);
-                win.position.y = Math.random() * height * 0.8 + 2;
-
-                if (side === 0) win.position.z += width / 2 + 0.05;
-                else if (side === 1) win.position.z -= width / 2 + 0.05;
-                else if (side === 2) { win.position.x += width / 2 + 0.05; win.rotation.y = Math.PI / 2; }
-                else { win.position.x -= width / 2 + 0.05; win.rotation.y = Math.PI / 2; }
-
-                chunkGroup.add(win);
-            }
+            chunkGroup.add(win);
         }
-    });
+    }
 
     return { mesh: chunkGroup, colliders: colliders };
 }
@@ -156,8 +144,6 @@ export async function createWorld(scene) {
         roadWidth: 14,
         colliders: [], // No static colliders upfront
         cubes: [], // Empty for now, NMS world doesn't have static collectibles yet
-        materials: matCache,
-        directionalLight,
-        ambientLight
+        materials: matCache
     };
 }

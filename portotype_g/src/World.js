@@ -3,7 +3,7 @@ import { ModernGlassTower } from './ModernGlassTower.js';
 import { UrbanHighrise } from './UrbanHighrise.js';
 import { NYArtDecoTower } from './NYArtDecoTower.js';
 import { NYChryslerTower } from './NYChryslerTower.js';
-import { TheNeedle } from './TheNeedle.js';
+import { HyperRealisticTower } from './HyperRealisticTower.js';
 
 export class World {
     constructor(scene) {
@@ -25,9 +25,9 @@ export class World {
         this.chrysler.visual.position.set(30, 0, -20); // Back Right
         this.scene.add(this.chrysler.visual);
 
-        this.needle = new TheNeedle();
-        this.needle.visual.position.set(-35, 0, -30); // Back Left, towering over
-        this.scene.add(this.needle.visual);
+        this.hyper = new HyperRealisticTower();
+        this.hyper.visual.position.set(-35, 0, -30); // Back Left
+        this.scene.add(this.hyper.visual);
 
         // Ground plane
         const planeGeometry = new THREE.PlaneGeometry(200, 200);

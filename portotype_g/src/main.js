@@ -9,6 +9,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { World } from './World.js';
 import { SunSystem } from './SunSystem.js';
 import { MoonSystem } from './MoonSystem.js';
+import { StarField } from './StarField.js';
 
 class App {
     constructor() {
@@ -37,7 +38,7 @@ class App {
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.autoRotate = true;
-        this.controls.autoRotateSpeed = 0.2;
+        this.controls.autoRotateSpeed = 0.1; // Slower rotation to admire stars
 
         this.clock = new THREE.Clock(); // Added Clock
 
@@ -55,13 +56,17 @@ class App {
         this.moonSystem = new MoonSystem(this.scene);
 
         // Manually reposition Moon to opposite side
-        // Note: MoonSystem defaults to (0, 150, -200) same as Sun currently. 
-        // We need to move it.
         const moonPos = new THREE.Vector3(0, 150, 200);
         this.moonSystem.group.position.copy(moonPos);
-        this.moonSystem.mainLight.position.copy(moonPos);
-        // Reduce Moon Light intensity since we have Sun
+
+        // Re-apply light offset for phase/shadows relative to new position
+        const lightPos = moonPos.clone().add(new THREE.Vector3(100, 50, 0));
+        this.moonSystem.mainLight.position.copy(lightPos);
+
         this.moonSystem.mainLight.intensity = 0.5;
+
+        // 3. Star Field
+        this.starField = new StarField(this.scene);
 
         this.world = new World(this.scene);
 
@@ -104,6 +109,7 @@ class App {
         const delta = this.clock.getDelta();
         this.sunSystem.update(delta);
         this.moonSystem.update(delta);
+        this.starField.update(delta);
 
         this.controls.update();
         this.composer.render();

@@ -315,7 +315,7 @@ function initSharedResources() {
     sharedResources.loaded = true;
 }
 
-export class Building {
+export class UrbanHighrise {
     constructor() {
         initSharedResources();
         this.visual = new THREE.Group();

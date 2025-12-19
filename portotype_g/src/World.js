@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { Building } from './Building.js';
+import { UrbanHighrise } from './UrbanHighrise.js';
 
 export class World {
     constructor(scene) {
         this.scene = scene;
-        this.building = new Building();
+        this.building = new UrbanHighrise();
         this.scene.add(this.building.visual);
 
         // Ground plane

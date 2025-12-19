@@ -12,6 +12,8 @@ export class Building {
         const depth = 12;
         const floorHeight = 3.5;
         const numFloors = 10;
+        const groundFloorHeight = 4.5;
+        const roofY = groundFloorHeight + (numFloors * floorHeight); // MOVED HERE FOR SCOPE VISIBILITY
 
         // ==========================================
         // 1. IMPROVED TEXTURE GENERATION
@@ -251,12 +253,146 @@ export class Building {
         let balIdx = 0;
         const tempObj = new THREE.Object3D();
 
-        const groundFloorHeight = 4.5;
-        const groundGeo = new THREE.BoxGeometry(width, groundFloorHeight, depth);
-        const groundMesh = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 1.0 }));
+        // ==========================================
+        // 6. WALL DETAILS (RUSTICATION & QUOINS)
+        // ==========================================
+
+        // --- A. GROUND FLOOR RUSTICATION TEXTURE ---
+        const stoneCanvas = document.createElement('canvas');
+        stoneCanvas.width = 512; stoneCanvas.height = 512;
+        const sCtx = stoneCanvas.getContext('2d');
+
+        // Base Stone
+        sCtx.fillStyle = '#55504d'; // Dark Grey Stone
+        sCtx.fillRect(0, 0, 512, 512);
+
+        // Blocks (Large, Rusticated)
+        const sBlockH = 64;
+        const sBlockW = 128;
+        const sGap = 4;
+
+        for (let y = 0; y < 512; y += sBlockH) {
+            const rowOff = (y / sBlockH) % 2 === 0 ? 0 : sBlockW / 2;
+            for (let x = -sBlockW; x < 512; x += sBlockW) {
+                // Block Face (Lighter center)
+                const bHue = 30 + Math.random() * 5;
+                const bLit = 35 + Math.random() * 10;
+                sCtx.fillStyle = `hsl(${bHue}, 10%, ${bLit}%)`;
+                sCtx.fillRect(x + rowOff, y, sBlockW - sGap, sBlockH - sGap);
+
+                // Deep Groove Highlight
+                sCtx.fillStyle = 'rgba(0,0,0,0.5)';
+                sCtx.fillRect(x + rowOff, y, sBlockW - sGap, 2); // Top Shadow
+                sCtx.fillRect(x + rowOff, y, 2, sBlockH - sGap); // Left Shadow
+            }
+        }
+        // Noise
+        for (let i = 0; i < 10000; i++) {
+            sCtx.fillStyle = `rgba(0,0,0, ${Math.random() * 0.2})`;
+            sCtx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+        }
+
+        const stoneTex = new THREE.CanvasTexture(stoneCanvas);
+        stoneTex.wrapS = THREE.RepeatWrapping;
+        stoneTex.wrapT = THREE.RepeatWrapping;
+        stoneTex.repeat.set(4, 2);
+        stoneTex.colorSpace = THREE.SRGBColorSpace;
+
+        const stoneMat = new THREE.MeshStandardMaterial({
+            map: stoneTex,
+            roughness: 0.9,
+            bumpMap: stoneTex,
+            bumpScale: 0.05
+        });
+
+        // REPLACEMENT GROUND MESH
+        const groundGeo = new THREE.BoxGeometry(width + 0.2, groundFloorHeight, depth + 0.2); // Slightly wider for base feel
+        const groundMesh = new THREE.Mesh(groundGeo, stoneMat);
         groundMesh.position.y = groundFloorHeight / 2;
         groundMesh.receiveShadow = true;
         this.visual.add(groundMesh);
+
+        // --- B. BELT COURSE (Separation) ---
+        const beltGeo = new THREE.BoxGeometry(width + 0.4, 0.4, depth + 0.4);
+        const belt = new THREE.Mesh(beltGeo, decorMat);
+        belt.position.set(0, groundFloorHeight, 0); // Top of ground floor
+        belt.castShadow = true; belt.receiveShadow = true;
+        this.visual.add(belt);
+
+        // --- C. CORNER QUOINS (Instanced) ---
+        // Alternating blocks: Large (Long) and Small (Short)
+        const qLargeGeo = new THREE.BoxGeometry(0.5, 0.6, 1.0); // Long on Z
+        const qSmallGeo = new THREE.BoxGeometry(0.5, 0.6, 0.6); // Square-ish
+
+        const quoinMat = decorMat;
+        const qMesh = new THREE.InstancedMesh(qLargeGeo, quoinMat, 200); // Re-use one geo or... 
+        // Actually, classic Quoins alternate orientation. 
+        // Let's make a merged "Quoin Unit" (2 blocks high) to simplify? 
+        // Or just place 2 different meshes.
+        // Let's use 1 Mesh and scale/rotate it. A specific block shape.
+
+        // Quoin Block Geometry
+        const qBlock = new THREE.BoxGeometry(0.6, 0.5, 0.3); // 0.3 depth, 0.6 width, 0.5 height
+        // We need them to wrap around the corner.
+        // Usually it's "Long-Short" pattern on one face, and "Short-Long" on the other.
+        // Implementation: Just put blocks on the corners.
+
+        const qCount = numFloors * 40; // Increased buffer: ~64 blocks/col * 4 cols = ~256. 400 is safe.
+        const quoinInst = new THREE.InstancedMesh(qBlock, decorMat, qCount);
+        quoinInst.castShadow = true; quoinInst.receiveShadow = true;
+
+        let qIdx = 0;
+
+        const placeQuoinColumn = (cX, cZ, rotY) => {
+            // Go up the building
+            const startY = groundFloorHeight + 0.25;
+            const endY = roofY;
+            let toggle = false;
+            for (let h = startY; h < endY; h += 0.55) { // 0.5 height + gap
+                toggle = !toggle;
+
+                // Wrapper 1 (One side of corner)
+                const qLen1 = toggle ? 0.8 : 0.4;
+                tempObj.scale.set(qLen1 / 0.6, 1, 1);
+                // Center position: Corner is at +/- width/2. 
+                // If cX is positive, we are at right. Block should stick out leftwards? No, flush with corner.
+
+                // Let's try a simpler procedural placement:
+                // Block A: Face X. Block B: Face Z.
+
+                if (toggle) {
+                    // Block 1: Long along X (Face X)
+                    tempObj.rotation.set(0, 0, 0);
+                    tempObj.scale.set(1.5, 1, 1); // 0.9m long (X), 0.6m wide (unscaled), 0.3m depth (Z)
+                    // Geo is 0.6 width, 0.5 height, 0.3 depth.
+                    // Scaled X by 1.5 -> 0.9 width.
+                    // We want it flush with the corner at cX.
+                    // So center X = cX - sign(cX) * (0.9/2)
+                    tempObj.position.set(cX - (cX > 0 ? 0.45 : -0.45), h, cZ);
+                } else {
+                    // Block 2: Long along Z (Face Z)
+                    tempObj.rotation.set(0, Math.PI / 2, 0);
+                    tempObj.scale.set(1.5, 1, 1); // 0.9m long (Z because rotated), 0.3m depth (X)
+                    // We want it flush with the corner at cZ.
+                    // So center Z = cZ - sign(cZ) * (0.9/2)
+                    tempObj.position.set(cX, h, cZ - (cZ > 0 ? 0.45 : -0.45));
+                }
+
+                tempObj.updateMatrix();
+                quoinInst.setMatrixAt(qIdx++, tempObj.matrix);
+            }
+        };
+
+        const w2 = (width * 0.95) / 2;
+        const d2 = (depth * 0.95) / 2;
+
+        placeQuoinColumn(-w2, -d2, 0); // Back Left
+        placeQuoinColumn(w2, -d2, 0);  // Back Right
+        placeQuoinColumn(-w2, d2, 0);  // Front Left
+        placeQuoinColumn(w2, d2, 0);   // Front Right
+
+        quoinInst.count = qIdx;
+        this.visual.add(quoinInst);
 
         // ==========================================
         // 4. GRAND ENTRANCE (Geometry)
@@ -511,7 +647,7 @@ export class Building {
         this.visual.add(balRailMesh);
         this.visual.add(balStoneMesh);
 
-        const roofY = groundFloorHeight + (numFloors * floorHeight);
+
         const corniceGeo = new THREE.BoxGeometry(width + 1, 0.8, depth + 1);
         const corniceMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
         const cornice = new THREE.Mesh(corniceGeo, corniceMat);

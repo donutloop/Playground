@@ -290,11 +290,124 @@ export class Building {
         steps.receiveShadow = true;
         this.visual.add(steps);
 
-        // Entrance Door Frame (Simple)
-        const doorFrameGeo = new THREE.BoxGeometry(3, 4, 0.5);
-        const doorFrame = new THREE.Mesh(doorFrameGeo, frameMat);
-        doorFrame.position.set(0, 2, depth / 2 + 0.25);
-        this.visual.add(doorFrame);
+        // ==========================================
+        // 5. DETAILED ENTRANCE DOOR
+        // ==========================================
+
+        // Materials
+        const brassMat = new THREE.MeshStandardMaterial({
+            color: 0xffaa00,
+            metalness: 1.0,
+            roughness: 0.2
+        });
+
+        const doorFrameMat = new THREE.MeshStandardMaterial({
+            color: 0x0f0f0f, // Almost black
+            roughness: 0.8
+        });
+
+        const doorZ = depth / 2 + 0.25;
+
+        // --- A. MAIN FRAME ---
+        const dFrameGeos = [];
+        // Side Posts
+        const dPostL = new THREE.BoxGeometry(0.2, 4, 0.4);
+        dPostL.translate(-1.6, 2, 0);
+        dFrameGeos.push(dPostL);
+        const dPostR = new THREE.BoxGeometry(0.2, 4, 0.4);
+        dPostR.translate(1.6, 2, 0);
+        dFrameGeos.push(dPostR);
+        // Top Header
+        const dHead = new THREE.BoxGeometry(3.4, 0.2, 0.4);
+        dHead.translate(0, 4.1, 0);
+        dFrameGeos.push(dHead);
+        // Transom Bar (Horizontal divider)
+        const dTransom = new THREE.BoxGeometry(3.4, 0.15, 0.4);
+        dTransom.translate(0, 3.2, 0); // @ 3.2m height
+        dFrameGeos.push(dTransom);
+
+        const mergedDoorFrame = mergeGeometries(dFrameGeos);
+        const doorFrameMesh = new THREE.Mesh(mergedDoorFrame, doorFrameMat);
+        doorFrameMesh.position.set(0, 0, doorZ);
+        doorFrameMesh.castShadow = true; doorFrameMesh.receiveShadow = true;
+        this.visual.add(doorFrameMesh);
+
+        // --- B. TRANSOM WINDOW (Above) ---
+        const transomGlass = new THREE.PlaneGeometry(3.2, 0.8);
+        const tGlassMesh = new THREE.Mesh(transomGlass, glassMat);
+        tGlassMesh.position.set(0, 3.65, doorZ + 0.05);
+        this.visual.add(tGlassMesh);
+        // Grid for Transom
+        const tGridGeo = new THREE.BoxGeometry(0.05, 0.8, 0.1);
+        const tGridMesh = new THREE.Mesh(tGridGeo, doorFrameMat);
+        tGridMesh.position.set(0, 3.65, doorZ + 0.05);
+        this.visual.add(tGridMesh);
+
+        // --- C. DOUBLE DOORS ---
+        const leafWidth = 1.45;
+        const leafHeight = 3.2;
+
+        // Helper to create one leaf
+        const createLeaf = (xPos, isRight) => {
+            const grp = new THREE.Group();
+            grp.position.set(xPos, 0, doorZ);
+
+            // 1. Stile & Rail Structure (Frame of the door leaf)
+            const railGeos = [];
+            // Stiles (Sides)
+            const stileGeo = new THREE.BoxGeometry(0.15, leafHeight, 0.15);
+            const sL = stileGeo.clone(); sL.translate(-leafWidth / 2 + 0.075, leafHeight / 2, 0);
+            const sR = stileGeo.clone(); sR.translate(leafWidth / 2 - 0.075, leafHeight / 2, 0);
+            railGeos.push(sL, sR);
+            // Rails (Top/Bot/Mid)
+            const railGeo = new THREE.BoxGeometry(leafWidth, 0.15, 0.15);
+            const rTop = railGeo.clone(); rTop.translate(0, leafHeight - 0.075, 0);
+            const rBot = railGeo.clone(); rBot.translate(0, 0.075, 0);
+            const rMid = railGeo.clone(); rMid.translate(0, 1.2, 0); // Divider
+            railGeos.push(rTop, rBot, rMid);
+
+            const leafFrame = new THREE.Mesh(mergeGeometries(railGeos), doorFrameMat);
+            grp.add(leafFrame);
+
+            // 2. Bottom Panel (Recessed)
+            const panelGeo = new THREE.BoxGeometry(leafWidth - 0.3, 1.05, 0.05);
+            const panel = new THREE.Mesh(panelGeo, doorFrameMat);
+            panel.position.set(0, 0.6, 0);
+            grp.add(panel);
+
+            // 3. Top Glass
+            const leafGlassGeo = new THREE.PlaneGeometry(leafWidth - 0.3, 1.85);
+            const lGlass = new THREE.Mesh(leafGlassGeo, glassMat);
+            lGlass.position.set(0, 1.2 + 0.075 + 1.85 / 2, 0);
+            grp.add(lGlass);
+
+            // 4. Brass Kickplate
+            const kickGeo = new THREE.PlaneGeometry(leafWidth - 0.05, 0.25);
+            const kick = new THREE.Mesh(kickGeo, brassMat);
+            kick.position.set(0, 0.13, 0.08); // Slightly front
+            grp.add(kick);
+
+            // 5. Brass Handle
+            const handleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
+            const handle = new THREE.Mesh(handleGeo, brassMat);
+            const hX = isRight ? -leafWidth / 2 + 0.25 : leafWidth / 2 - 0.25;
+            handle.position.set(hX, 1.6, 0.15);
+            grp.add(handle);
+            // Handle brackets
+            const brackGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8);
+            const brackTop = new THREE.Mesh(brackGeo, brassMat);
+            brackTop.rotation.x = Math.PI / 2;
+            brackTop.position.set(hX, 1.8, 0.1);
+            grp.add(brackTop);
+            const brackBot = brackTop.clone();
+            brackBot.position.set(hX, 1.4, 0.1);
+            grp.add(brackBot);
+
+            this.visual.add(grp);
+        };
+
+        createLeaf(-leafWidth / 2 - 0.02, false); // Left Door
+        createLeaf(leafWidth / 2 + 0.02, true);  // Right Door
 
         // Entrance Railings (Iron)
         const entRailGeo = new THREE.BoxGeometry(0.1, 1.5, 3); // Simple side rails

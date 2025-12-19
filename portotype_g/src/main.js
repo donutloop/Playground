@@ -7,6 +7,7 @@ import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { World } from './World.js';
+import { SunSystem } from './SunSystem.js';
 
 class App {
     constructor() {
@@ -14,34 +15,36 @@ class App {
         document.body.appendChild(this.container);
 
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x4c5c68); // Urban grey-blue
-        this.scene.fog = new THREE.Fog(0x4c5c68, 10, 100);
+        this.scene.background = new THREE.Color(0x101520); // Darker space/sky for contrast
+        this.scene.fog = new THREE.FogExp2(0x101520, 0.002); // Atmospheric haze
 
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(20, 20, 20);
+        this.camera.position.set(40, 30, 40);
 
         // OPTIMIZATION: High-performance mode
         this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Cap pixel ratio
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.renderer.shadowMap.autoUpdate = false; // STATIC SHADOWS (Huge optimization)
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.0;
+        this.renderer.toneMappingExposure = 0.8; // Lower exposure to handle bright sun
         this.container.appendChild(this.renderer.domElement);
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
-        this.controls.autoRotate = false; // Disable auto-rotate
-        this.controls.autoRotateSpeed = 0.5;
+        this.controls.autoRotate = true;
+        this.controls.autoRotateSpeed = 0.2;
+
+        this.clock = new THREE.Clock();
 
         // Environment
         const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
         this.scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
-        this.setupLights();
+        // Custom Sun System
+        this.sunSystem = new SunSystem(this.scene);
 
         this.world = new World(this.scene);
 
@@ -52,14 +55,14 @@ class App {
         this.composer.addPass(renderPass);
 
         const ssaoPass = new SSAOPass(this.scene, this.camera, window.innerWidth, window.innerHeight);
-        ssaoPass.kernelRadius = 8; // Optimized radius
+        ssaoPass.kernelRadius = 8;
         ssaoPass.minDistance = 0.005;
         ssaoPass.maxDistance = 0.1;
         this.composer.addPass(ssaoPass);
 
         const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.threshold = 0.7;
-        bloomPass.strength = 0.3; // Less aggressive glow
+        bloomPass.threshold = 0.8; // Only very bright things (Sun, LEDs)
+        bloomPass.strength = 0.6; // Increased glow
         bloomPass.radius = 0.5;
         this.composer.addPass(bloomPass);
 
@@ -68,24 +71,7 @@ class App {
 
         window.addEventListener('resize', this.onWindowResize.bind(this));
 
-        this.renderer.shadowMap.needsUpdate = true; // Initial shadow render
-
         this.animate();
-    }
-
-    setupLights() {
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-        this.scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        dirLight.position.set(50, 100, 50);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 2048; // Optimized from 4096
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.near = 0.5;
-        dirLight.shadow.camera.far = 500;
-        dirLight.shadow.bias = -0.0001;
-        this.scene.add(dirLight);
     }
 
     onWindowResize() {
@@ -93,13 +79,15 @@ class App {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.composer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.shadowMap.needsUpdate = true; // Re-render shadows on resize
     }
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
+
+        const delta = this.clock.getDelta();
+        this.sunSystem.update(delta);
+
         this.controls.update();
-        // this.world.update(); 
         this.composer.render();
     }
 }

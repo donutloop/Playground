@@ -8,6 +8,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { World } from './World.js';
 import { SunSystem } from './SunSystem.js';
+import { MoonSystem } from './MoonSystem.js';
 
 class App {
     constructor() {
@@ -15,8 +16,9 @@ class App {
         document.body.appendChild(this.container);
 
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x101520); // Darker space/sky for contrast
-        this.scene.fog = new THREE.FogExp2(0x101520, 0.002); // Atmospheric haze
+        // Twilight / Alien Sky (Mixing Day and Night colors)
+        this.scene.background = new THREE.Color(0x1a2030);
+        this.scene.fog = new THREE.FogExp2(0x1a2030, 0.002);
 
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.set(40, 30, 40);
@@ -28,7 +30,7 @@ class App {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 0.8; // Lower exposure to handle bright sun
+        this.renderer.toneMappingExposure = 1.0;
         this.container.appendChild(this.renderer.domElement);
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -37,14 +39,29 @@ class App {
         this.controls.autoRotate = true;
         this.controls.autoRotateSpeed = 0.2;
 
-        this.clock = new THREE.Clock();
+        this.clock = new THREE.Clock(); // Added Clock
 
         // Environment
         const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
         this.scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+        this.scene.environmentIntensity = 0.5;
 
-        // Custom Sun System
+        // --- DUAL CELESTIAL SYSTEMS ---
+
+        // 1. Sun System (Front: Z = -200)
         this.sunSystem = new SunSystem(this.scene);
+
+        // 2. Moon System (Back: Z = 200)
+        this.moonSystem = new MoonSystem(this.scene);
+
+        // Manually reposition Moon to opposite side
+        // Note: MoonSystem defaults to (0, 150, -200) same as Sun currently. 
+        // We need to move it.
+        const moonPos = new THREE.Vector3(0, 150, 200);
+        this.moonSystem.group.position.copy(moonPos);
+        this.moonSystem.mainLight.position.copy(moonPos);
+        // Reduce Moon Light intensity since we have Sun
+        this.moonSystem.mainLight.intensity = 0.5;
 
         this.world = new World(this.scene);
 
@@ -61,8 +78,8 @@ class App {
         this.composer.addPass(ssaoPass);
 
         const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.threshold = 0.8; // Only very bright things (Sun, LEDs)
-        bloomPass.strength = 0.6; // Increased glow
+        bloomPass.threshold = 0.7;
+        bloomPass.strength = 0.5;
         bloomPass.radius = 0.5;
         this.composer.addPass(bloomPass);
 
@@ -86,6 +103,7 @@ class App {
 
         const delta = this.clock.getDelta();
         this.sunSystem.update(delta);
+        this.moonSystem.update(delta);
 
         this.controls.update();
         this.composer.render();

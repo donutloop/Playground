@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-// --- SHADERS (Currently Unused in Debug Mode) ---
+// --- SHADERS ---
 
 const vertexShader = `
 varying vec2 vUv;
@@ -19,7 +19,8 @@ uniform float time;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPos;
-// Simplex Noise (Minimal)
+
+// Simplex Noise
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 float snoise(vec2 v){
   const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
@@ -42,14 +43,18 @@ float snoise(vec2 v){
   g.yz = a0.yz * x12.xz + h.yz * x12.yw;
   return 130.0 * dot(m, g);
 }
+
 void main() {
     float noise1 = snoise(vUv * 10.0 + time * 0.2);
     float noise2 = snoise(vUv * 25.0 - time * 0.5);
     float intensity = (noise1 * 0.7 + noise2 * 0.3); 
     intensity = intensity * 0.5 + 0.5; 
+    
     vec3 brightColor = vec3(1.0, 0.9, 0.5); 
     vec3 darkColor = vec3(1.0, 0.3, 0.0);   
     vec3 surfaceColor = mix(darkColor, brightColor, intensity);
+    
+    // Boost brightness for Bloom
     gl_FragColor = vec4(surfaceColor * 5.0, 1.0); 
 }
 `;
@@ -64,26 +69,44 @@ export class SunSystem {
     }
 
     initSun() {
-        // DEBUG: Position closer and center
-        // (0, 100, -50) should be easily visible above center
-        const pos = new THREE.Vector3(0, 100, -50);
+        // POS: Front Z = -200
+        const pos = new THREE.Vector3(0, 150, -200);
 
         this.group.position.copy(pos);
         this.group.lookAt(0, 0, 0);
 
-        // 1. The Physical Sun Mesh
-        const geo = new THREE.SphereGeometry(20, 32, 32);
+        // 1. Physical Sun Mesh (Shader)
+        const geo = new THREE.SphereGeometry(30, 64, 64);
 
-        // DEBUG: Use Basic Material to ensure visibility NO SHADER
-        const mat = new THREE.MeshBasicMaterial({
-            color: 0xffff00,
+        this.uniforms = {
+            time: { value: 0 }
+        };
+
+        const mat = new THREE.ShaderMaterial({
+            uniforms: this.uniforms,
+            vertexShader: vertexShader,
+            fragmentShader: sunFragmentShader,
+            side: THREE.FrontSide,
             fog: false
         });
 
         this.sunMesh = new THREE.Mesh(geo, mat);
         this.group.add(this.sunMesh);
 
-        // 3. The Light Source
+        // 2. Corona
+        const spriteMat = new THREE.SpriteMaterial({
+            map: this.createGlowTexture(),
+            color: 0xffdd44,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            fog: false
+        });
+        const sprite = new THREE.Sprite(spriteMat);
+        sprite.scale.set(180, 180, 1);
+        this.group.add(sprite);
+
+        // 3. Light
         const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
         this.mainLight = sunLight;
         this.mainLight.position.copy(pos);
@@ -101,14 +124,9 @@ export class SunSystem {
         this.mainLight.shadow.bias = -0.00005;
 
         this.scene.add(this.mainLight);
-
-        // Ambient helper
-        const ambient = new THREE.AmbientLight(0x404060, 0.4);
-        this.scene.add(ambient);
     }
 
     createGlowTexture() {
-        // Unused in Debug
         const canvas = document.createElement('canvas');
         canvas.width = 512; canvas.height = 512;
         const ctx = canvas.getContext('2d');
@@ -124,6 +142,8 @@ export class SunSystem {
     }
 
     update(dt) {
-        // No shader update needed
+        if (this.uniforms) {
+            this.uniforms.time.value += dt;
+        }
     }
 }

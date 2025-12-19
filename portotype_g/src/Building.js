@@ -717,12 +717,12 @@ export class Building {
 
             for (let k = 1; k <= numWindows; k++) {
                 addWindow(-(width * 0.95) / 2 + k * spacingX, winY, zOffset, 0);
-                addWindow(-(width * 0.95) / 2 + k * spacingX, winY, -zOffset, 0);
+                addWindow(-(width * 0.95) / 2 + k * spacingX, winY, -zOffset, Math.PI);
             }
             const spacingZ = (depth * 0.95) / (numWindows + 1);
             for (let k = 1; k <= numWindows; k++) {
                 addWindow(xOffset, winY, -(depth * 0.95) / 2 + k * spacingZ, Math.PI / 2);
-                addWindow(-xOffset, winY, -(depth * 0.95) / 2 + k * spacingZ, Math.PI / 2);
+                addWindow(-xOffset, winY, -(depth * 0.95) / 2 + k * spacingZ, -Math.PI / 2);
             }
 
             if (i % 2 !== 0 && i < numFloors - 1) {

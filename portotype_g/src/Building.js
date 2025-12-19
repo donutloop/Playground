@@ -254,8 +254,127 @@ export class Building {
         const tempObj = new THREE.Object3D();
 
         // ==========================================
-        // 6. WALL DETAILS (RUSTICATION & QUOINS)
+        // 7. FANCY FIRE ESCAPE (Instanced)
         // ==========================================
+        const feMat = new THREE.MeshStandardMaterial({
+            color: 0x1a1a1a, // Dark Iron
+            roughness: 0.7,
+            metalness: 0.6
+        });
+
+        // A. FIRE ESCAPE PLATFORM (1.5m wide x 4m long)
+        const fePlatGeos = [];
+        // Frame
+        const pFrameW = new THREE.BoxGeometry(1.5, 0.1, 0.1);
+        pFrameW.translate(0, 0, 2); fePlatGeos.push(pFrameW.clone());
+        pFrameW.translate(0, 0, -4); fePlatGeos.push(pFrameW); // Front/Back? No, translate relative.
+        // Actually, let's build relative to center.
+        // Side Channels (4m long)
+        const pChan = new THREE.BoxGeometry(0.1, 0.15, 4);
+        pChan.translate(-0.75, 0, 0); fePlatGeos.push(pChan.clone());
+        pChan.translate(1.5, 0, 0); fePlatGeos.push(pChan);
+        // End Channels (1.3m wide)
+        const pEnd = new THREE.BoxGeometry(1.3, 0.15, 0.1);
+        pEnd.translate(0, 0, 1.95); fePlatGeos.push(pEnd.clone());
+        pEnd.translate(0, 0, -3.9); fePlatGeos.push(pEnd); // Length is 4m? +/- 2m.
+
+        // Grating (Simulated with bars)
+        const pBar = new THREE.BoxGeometry(1.4, 0.02, 0.05);
+        for (let k = 0; k < 20; k++) {
+            const bar = pBar.clone();
+            bar.translate(0, 0.05, -1.9 + k * 0.2);
+            fePlatGeos.push(bar);
+        }
+
+        // Railings (1m high)
+        const rPost = new THREE.BoxGeometry(0.05, 1.0, 0.05);
+        for (let k = 0; k <= 4; k++) { // 5 posts along length
+            const post = rPost.clone();
+            post.translate(-0.75, 0.5, -1.9 + k * 0.95);
+            fePlatGeos.push(post);
+        }
+        // Top Rail
+        const rTop = new THREE.BoxGeometry(0.05, 0.05, 4);
+        rTop.translate(-0.75, 1.0, 0);
+        fePlatGeos.push(rTop);
+        // Mid Rail
+        const rMid = new THREE.BoxGeometry(0.05, 0.05, 4);
+        rMid.translate(-0.75, 0.5, 0);
+        fePlatGeos.push(rMid);
+
+        // End Railings (Short side)
+        const rEndTop = new THREE.BoxGeometry(1.5, 0.05, 0.05);
+        rEndTop.translate(0, 1.0, 1.95); fePlatGeos.push(rEndTop.clone()); // Front
+        rEndTop.translate(0, 1.0, -1.95); fePlatGeos.push(rEndTop); // Back
+
+        const mergedFePlat = mergeGeometries(fePlatGeos);
+        const fePlatMesh = new THREE.InstancedMesh(mergedFePlat, feMat, numFloors);
+        fePlatMesh.castShadow = true; fePlatMesh.receiveShadow = true;
+        this.visual.add(fePlatMesh);
+
+        // B. FIRE ESCAPE STAIRS (Zig Zag)
+        // Floor height is 3.5m. Stair covers that height.
+        // Length 3m? Angle ~45 deg.
+        const feStairGeos = [];
+        const sLen = 3.5; // Horizontal run
+        const sHeight = 3.5; // Vertical rise
+        const sHyp = Math.sqrt(sLen * sLen + sHeight * sHeight);
+        const sAngle = Math.atan2(sHeight, sLen);
+
+        // Stringers
+        const stringer = new THREE.BoxGeometry(0.1, 0.2, sHyp);
+        const strL = stringer.clone();
+        strL.translate(-0.4, sHeight / 2, 0); // Center relative
+        strL.rotateX(-sAngle); // Rotate to pitch
+        // Need to anchor at bottom?
+        // Let's model flat and rotate instance? easier.
+        // Model a straight stair 4m long, 3.5m high.
+
+        const numSteps = 14;
+        const stepRise = sHeight / numSteps;
+        const stepRun = sLen / numSteps; // ~0.25m
+
+        for (let s = 0; s < numSteps; s++) {
+            const step = new THREE.BoxGeometry(0.8, 0.05, 0.25);
+            // Position: Going UP and BACK.
+            // x=0. y = s*rise. z = s*run.
+            step.translate(0, s * stepRise, -s * stepRun);
+            feStairGeos.push(step);
+        }
+        // Stringers (Diagonal box)
+        const strGeo = new THREE.BoxGeometry(0.1, 0.15, sHyp + 0.5);
+        const sL2 = strGeo.clone();
+        sL2.rotateX(sAngle); // Picth up
+        sL2.translate(-0.45, sHeight / 2, -sLen / 2);
+        feStairGeos.push(sL2);
+        const sR2 = strGeo.clone();
+        sR2.rotateX(sAngle);
+        sR2.translate(0.45, sHeight / 2, -sLen / 2);
+        feStairGeos.push(sR2);
+
+        // Handrail
+        const hrGeo = new THREE.BoxGeometry(0.05, 0.05, sHyp + 0.5);
+        const hrL = hrGeo.clone();
+        hrL.rotateX(sAngle);
+        hrL.translate(-0.45, sHeight / 2 + 0.9, -sLen / 2); // +0.9m height
+        feStairGeos.push(hrL);
+        // Posts for handrail
+        for (let k = 0; k < 3; k++) {
+            const hPost = new THREE.BoxGeometry(0.04, 0.9, 0.04);
+            // Interpolate pos
+            const t = k / 2;
+            const py = t * sHeight;
+            const pz = -t * sLen;
+            hPost.translate(-0.45, py + 0.45, pz);
+            feStairGeos.push(hPost);
+        }
+
+        const mergedFeStair = mergeGeometries(feStairGeos);
+        const feStairMesh = new THREE.InstancedMesh(mergedFeStair, feMat, numFloors);
+        feStairMesh.castShadow = true; feStairMesh.receiveShadow = true;
+        this.visual.add(feStairMesh);
+
+        let feIdx = 0;
 
         // --- A. GROUND FLOOR RUSTICATION TEXTURE ---
         const stoneCanvas = document.createElement('canvas');
@@ -592,7 +711,7 @@ export class Building {
                 winIdx++;
             };
 
-            const winY = y;
+            const winY = y - 0.35; // Lowered to increase gap with balcony above
             const zOffset = (depth * 0.95) / 2 + 0.05;
             const xOffset = (width * 0.95) / 2 + 0.05;
 
@@ -616,22 +735,43 @@ export class Building {
                 balIdx++;
             }
 
-            if (i < numFloors - 1) {
-                const stairGeo = new THREE.BoxGeometry(0.8, floorHeight * 1.3, 0.1);
-                const stair = new THREE.Mesh(stairGeo, new THREE.MeshStandardMaterial({ color: 0x111111 }));
-                stair.position.set(-width / 2 - 0.8, y + floorHeight / 2, 0);
-                stair.rotation.z = Math.PI / 5.5;
-                if (i % 2 === 0) stair.rotation.z *= -1;
-                stair.castShadow = true;
-                this.visual.add(stair);
+            if (i < numFloors - 1) { // Fire Escape
+                // Platform
+                const platY = y;
+                const platX = -width / 2 - 1.0; // Left side of building
+                const platZ = 0;
 
-                const platGeo = new THREE.BoxGeometry(1.5, 0.1, 4);
-                const plat = new THREE.Mesh(platGeo, new THREE.MeshStandardMaterial({ color: 0x111111 }));
-                plat.position.set(-width / 2 - 0.8, y, 0);
-                plat.castShadow = true;
-                this.visual.add(plat);
+                tempObj.rotation.set(0, 0, 0);
+                tempObj.position.set(platX, platY, platZ);
+                tempObj.scale.set(1, 1, 1);
+                tempObj.updateMatrix();
+                fePlatMesh.setMatrixAt(feIdx, tempObj.matrix);
+
+                // Stair (Connecting this floor to next)
+                // Zig Zag: Even floors go South-North, Odd floors go North-South?
+                // Our stair geometry goes Up and Back (-Z).
+
+                tempObj.position.set(platX, platY, platZ + 1.5); // Start at front of platform?
+
+                if (i % 2 === 0) {
+                    // Go Back (-Z)
+                    tempObj.position.set(platX, platY, 1.5);
+                    tempObj.rotation.set(0, 0, 0);
+                } else {
+                    // Go Forward (+Z)
+                    // Rotate 180
+                    tempObj.position.set(platX, platY, -1.5);
+                    tempObj.rotation.set(0, Math.PI, 0);
+                }
+
+                tempObj.updateMatrix();
+                feStairMesh.setMatrixAt(feIdx, tempObj.matrix);
+                feIdx++;
             }
         }
+
+        fePlatMesh.count = feIdx;
+        feStairMesh.count = feIdx;
 
         frameMesh.count = winIdx;
         decorMesh.count = winIdx;

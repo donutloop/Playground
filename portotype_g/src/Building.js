@@ -264,8 +264,53 @@ function initSharedResources() {
     }
     sharedResources.geometries.fireEscapeStairs = mergeGeometries(feStairGeos);
 
-    // Quoin Block
     sharedResources.geometries.quoin = new THREE.BoxGeometry(0.6, 0.5, 0.3);
+
+    // --- ROOFTOP ASSETS ---
+
+    // 1. Parapet
+    const width = 12; const depth = 12;
+    const parapetGeos = [];
+    const pWallF = new THREE.BoxGeometry(width, 1.0, 0.3); pWallF.translate(0, 0.5, depth / 2 - 0.15); parapetGeos.push(pWallF);
+    const pWallB = new THREE.BoxGeometry(width, 1.0, 0.3); pWallB.translate(0, 0.5, -depth / 2 + 0.15); parapetGeos.push(pWallB);
+    const pWallL = new THREE.BoxGeometry(0.3, 1.0, depth - 0.6); pWallL.translate(-width / 2 + 0.15, 0.5, 0); parapetGeos.push(pWallL);
+    const pWallR = new THREE.BoxGeometry(0.3, 1.0, depth - 0.6); pWallR.translate(width / 2 - 0.15, 0.5, 0); parapetGeos.push(pWallR);
+    // Cornice Cap
+    const pCapF = new THREE.BoxGeometry(width + 0.2, 0.1, 0.5); pCapF.translate(0, 1.05, depth / 2 - 0.15); parapetGeos.push(pCapF);
+    const pCapB = new THREE.BoxGeometry(width + 0.2, 0.1, 0.5); pCapB.translate(0, 1.05, -depth / 2 + 0.15); parapetGeos.push(pCapB);
+    const pCapL = new THREE.BoxGeometry(0.5, 0.1, depth + 0.2); pCapL.translate(-width / 2 + 0.15, 1.05, 0); parapetGeos.push(pCapL);
+    const pCapR = new THREE.BoxGeometry(0.5, 0.1, depth + 0.2); pCapR.translate(width / 2 - 0.15, 1.05, 0); parapetGeos.push(pCapR);
+    sharedResources.geometries.parapet = mergeGeometries(parapetGeos);
+
+    // 2. HVAC Unit
+    const hvacGeos = [];
+    const hBox = new THREE.BoxGeometry(2.5, 1.5, 1.5); hBox.translate(0, 0.75, 0); hvacGeos.push(hBox);
+    const hFan = new THREE.CylinderGeometry(0.6, 0.6, 0.2, 16); hFan.translate(0.5, 1.5, 0); hvacGeos.push(hFan);
+    const hGrill = new THREE.BoxGeometry(0.8, 0.8, 0.1); hGrill.translate(-0.6, 1.0, 0.75); hvacGeos.push(hGrill);
+    sharedResources.geometries.hvac = mergeGeometries(hvacGeos);
+
+    // 3. Vent Pipe
+    const ventGeos = [];
+    const vStem = new THREE.CylinderGeometry(0.15, 0.15, 1.2, 8); vStem.translate(0, 0.6, 0); ventGeos.push(vStem);
+    const vCap = new THREE.CylinderGeometry(0.25, 0.05, 0.2, 8); vCap.translate(0, 1.2, 0); ventGeos.push(vCap); // Conical cap
+    sharedResources.geometries.vent = mergeGeometries(ventGeos);
+
+    // 4. Roof Access
+    const accessGeos = [];
+    const aShed = new THREE.BoxGeometry(1.5, 2.2, 2.0); aShed.translate(0, 1.1, 0); accessGeos.push(aShed);
+    const aDoor = new THREE.BoxGeometry(0.9, 2.0, 0.1); aDoor.translate(0, 1.0, 1.0); accessGeos.push(aDoor); // Front door
+    sharedResources.geometries.roofAccess = mergeGeometries(accessGeos);
+
+    // 5. Skylight
+    const skyGeos = [];
+    const sFrame = new THREE.BoxGeometry(2.0, 0.3, 3.0); sFrame.translate(0, 0.15, 0); skyGeos.push(sFrame);
+    const sGlass = new THREE.BoxGeometry(1.8, 0.1, 2.8); sGlass.translate(0, 0.25, 0); // Angled? simplified flat
+    skyGeos.push(sGlass);
+    sharedResources.geometries.skylight = mergeGeometries(skyGeos);
+
+    // Materials
+    sharedResources.materials.roofTar = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 1.0 });
+    sharedResources.materials.metalIndustrial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.5, metalness: 0.7 });
 
     sharedResources.loaded = true;
 }
@@ -595,23 +640,71 @@ export class Building {
         cornice.castShadow = true; cornice.receiveShadow = true;
         this.visual.add(cornice);
 
-        // Tank
-        const tankRadius = 2.0;
-        const tankHeight = 3.0;
-        const tankGeo = new THREE.CylinderGeometry(tankRadius, tankRadius, tankHeight, 12);
-        const tank = new THREE.Mesh(tankGeo, sharedResources.materials.wall); // Reuse wall mat or create rust? Reuse wall for now.
-        tank.position.set(2, roofY + 0.4 + tankHeight / 2, -2);
-        tank.castShadow = true; tank.receiveShadow = true;
-        this.visual.add(tank);
+        // --- ROOFTOP DETAILS ---
+        const rY = roofY + 0.4; // Base height for roof items (Cornice top)
 
-        // Supports for tank
-        const tSuppGeo = new THREE.BoxGeometry(0.2, 1.5, 0.2);
-        for (let k = 0; k < 4; k++) {
-            const sup = new THREE.Mesh(tSuppGeo, sharedResources.materials.fireEscape); // Rust color
-            const angle = (k / 4) * Math.PI * 2;
-            sup.position.set(2 + Math.cos(angle) * 1.5, roofY + 0.4 + 1.5 / 2, -2 + Math.sin(angle) * 1.5);
-            this.visual.add(sup);
+        // 1. Parapet
+        const parapet = new THREE.Mesh(sharedResources.geometries.parapet, sharedResources.materials.wall);
+        parapet.position.set(0, rY, 0);
+        parapet.castShadow = true; parapet.receiveShadow = true;
+        this.visual.add(parapet);
+
+        // 2. Roof Floor (Tar/Gravel)
+        const roofFloorGeo = new THREE.PlaneGeometry(width - 0.6, depth - 0.6);
+        const roofFloor = new THREE.Mesh(roofFloorGeo, sharedResources.materials.roofTar);
+        roofFloor.rotation.x = -Math.PI / 2;
+        roofFloor.position.set(0, rY + 0.05, 0); // Slightly above cornice
+        roofFloor.receiveShadow = true;
+        this.visual.add(roofFloor);
+
+        // 3. Roof Access Shed
+        const rAccess = new THREE.Mesh(sharedResources.geometries.roofAccess, sharedResources.materials.wall);
+        rAccess.position.set(-3, rY, 3); // Back Left corner area
+        rAccess.castShadow = true; rAccess.receiveShadow = true;
+        this.visual.add(rAccess);
+
+        // 4. Instanced Clutter (HVAC, Vents, Skylight)
+        const clutterY = rY;
+
+        // HVAC Units (1 or 2)
+        const numHvac = 1 + Math.floor(Math.random() * 2);
+        for (let h = 0; h < numHvac; h++) {
+            const hvac = new THREE.Mesh(sharedResources.geometries.hvac, sharedResources.materials.metalIndustrial);
+            let hX = (Math.random() - 0.5) * 6;
+            let hZ = (Math.random() - 0.5) * 6;
+            // Simple collision check (distance from access)
+            if (Math.abs(hX + 3) < 2.5 && Math.abs(hZ - 3) < 2.5) hZ *= -1; // Avoid Access
+
+            hvac.position.set(hX, clutterY, hZ);
+            hvac.rotation.y = Math.floor(Math.random() * 4) * (Math.PI / 2);
+            hvac.castShadow = true; hvac.receiveShadow = true;
+            this.visual.add(hvac);
         }
+
+        // Vents (2-4)
+        const numVents = 2 + Math.floor(Math.random() * 3);
+        for (let v = 0; v < numVents; v++) {
+            const vent = new THREE.Mesh(sharedResources.geometries.vent, sharedResources.materials.metalIndustrial);
+            let vX = (Math.random() - 0.5) * 8;
+            let vZ = (Math.random() - 0.5) * 8;
+            vent.position.set(vX, clutterY, vZ);
+            vent.castShadow = true; vent.receiveShadow = true;
+            this.visual.add(vent);
+        }
+
+        // Skylight (Maybe)
+        if (Math.random() > 0.3) {
+            const skylight = new THREE.Mesh(sharedResources.geometries.skylight, sharedResources.materials.frame);
+            skylight.material = sharedResources.materials.frame;
+            let sX = (Math.random() - 0.5) * 4;
+            let sZ = 0;
+            if (Math.abs(sX) < 2) sZ = 3;
+            skylight.position.set(sX, clutterY, sZ);
+            skylight.castShadow = true; skylight.receiveShadow = true;
+            this.visual.add(skylight);
+        }
+
+
 
     }
 }

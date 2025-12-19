@@ -1,18 +1,23 @@
 import * as THREE from 'three';
 import { ModernGlassTower } from './ModernGlassTower.js';
 import { UrbanHighrise } from './UrbanHighrise.js';
+import { NYArtDecoTower } from './NYArtDecoTower.js';
 
 export class World {
     constructor(scene) {
         this.scene = scene;
 
         this.tower = new ModernGlassTower();
-        this.tower.visual.position.set(-15, 0, 0);
+        this.tower.visual.position.set(-20, 0, 5); // Left, forward
         this.scene.add(this.tower.visual);
 
         this.highrise = new UrbanHighrise();
-        this.highrise.visual.position.set(15, 0, 0);
+        this.highrise.visual.position.set(20, 0, 5); // Right, forward
         this.scene.add(this.highrise.visual);
+
+        this.deco = new NYArtDecoTower();
+        this.deco.visual.position.set(0, 0, -10); // Center, slightly back
+        this.scene.add(this.deco.visual);
 
         // Ground plane
         const planeGeometry = new THREE.PlaneGeometry(200, 200);

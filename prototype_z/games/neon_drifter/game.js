@@ -631,10 +631,10 @@ class Game {
         // --- PHASE 1: OUTSKIRTS (0 - 2000) ---
         // Easy platforming, learning controls.
         this.platforms.push(
-            { x: 0, y: 500, w: 800, h: 50 }, // Start
-            { x: 900, y: 450, w: 200, h: 20 },
-            { x: 1200, y: 400, w: 200, h: 20 },
-            { x: 1500, y: 350, w: 200, h: 20 },
+            { x: 0, y: 500, w: 850, h: 50 }, // Start
+            { x: 900, y: 450, w: 280, h: 20 }, // Widened
+            { x: 1200, y: 400, w: 280, h: 20 }, // Widened
+            { x: 1500, y: 350, w: 280, h: 20 }, // Widened
             { x: 1800, y: 400, w: 300, h: 50 } // Checkpoint floor
         );
         this.enemies.push(
@@ -645,12 +645,12 @@ class Game {
         // --- PHASE 2: INDUSTRIAL (2000 - 4500) ---
         // GroundBots, Spikes, tighter jumps.
         this.platforms.push(
-            { x: 2200, y: 450, w: 150, h: 20 },
+            { x: 2200, y: 450, w: 190, h: 20 }, // Widened
             { x: 2400, y: 500, w: 600, h: 50 }, // Combat Arena
-            { x: 3100, y: 450, w: 150, h: 20 },
-            { x: 3300, y: 400, w: 150, h: 20 },
+            { x: 3100, y: 450, w: 190, h: 20 }, // Widened
+            { x: 3300, y: 400, w: 190, h: 20 }, // Widened
             { x: 3500, y: 500, w: 800, h: 50 }, // Long Gauntlet
-            { x: 4400, y: 400, w: 200, h: 20 }
+            { x: 4400, y: 400, w: 280, h: 20 }  // Widened
         );
         this.enemies.push(
             new GroundBot(this, 2500, 468),
@@ -665,14 +665,14 @@ class Game {
         // --- PHASE 3: THE CORE (4500 - 7000) ---
         // Verticality, Drones everywhere.
         this.platforms.push(
-            { x: 4700, y: 350, w: 150, h: 20 },
-            { x: 4900, y: 300, w: 150, h: 20 },
-            { x: 5100, y: 250, w: 150, h: 20 },
-            { x: 5300, y: 200, w: 150, h: 20 },
+            { x: 4700, y: 350, w: 190, h: 20 }, // Widened
+            { x: 4900, y: 300, w: 190, h: 20 }, // Widened
+            { x: 5100, y: 250, w: 190, h: 20 }, // Widened
+            { x: 5300, y: 200, w: 190, h: 20 }, // Widened
             { x: 5500, y: 500, w: 1000, h: 50 }, // Floor catch
-            { x: 6000, y: 350, w: 150, h: 20 },
-            { x: 6200, y: 300, w: 150, h: 20 },
-            { x: 6400, y: 250, w: 150, h: 20 },
+            { x: 6000, y: 350, w: 190, h: 20 }, // Widened
+            { x: 6200, y: 300, w: 190, h: 20 }, // Widened
+            { x: 6400, y: 250, w: 190, h: 20 }, // Widened
             { x: 6700, y: 400, w: 400, h: 50 } // Rest
         );
         this.enemies.push(
@@ -687,13 +687,13 @@ class Game {
         // --- PHASE 4: ASCENSION (7000 - 10000) ---
         // New Phase. High risk.
         this.platforms.push(
-            { x: 7200, y: 350, w: 100, h: 20 },
-            { x: 7500, y: 300, w: 100, h: 20 },
-            { x: 7800, y: 250, w: 100, h: 20 },
-            { x: 8100, y: 200, w: 100, h: 20 },
-            { x: 8400, y: 150, w: 100, h: 20 },
+            { x: 7200, y: 350, w: 200, h: 20 }, // Widened
+            { x: 7500, y: 300, w: 200, h: 20 }, // Widened
+            { x: 7800, y: 250, w: 200, h: 20 }, // Widened
+            { x: 8100, y: 200, w: 200, h: 20 }, // Widened
+            { x: 8400, y: 150, w: 200, h: 20 }, // Widened
             { x: 8700, y: 400, w: 500, h: 50 },
-            { x: 9500, y: 300, w: 200, h: 20 }
+            { x: 9500, y: 300, w: 300, h: 20 }
         );
         this.enemies.push(
             new Drone(this, 7500, 280), // Lowered
@@ -704,11 +704,11 @@ class Game {
         // --- PHASE 5: GLITCH CORE (10000+) ---
         // Disjointed, chaotic platforms.
         this.platforms.push(
-            { x: 10000, y: 400, w: 100, h: 10 },
-            { x: 10300, y: 300, w: 50, h: 50 },
-            { x: 10500, y: 500, w: 50, h: 50 },
-            { x: 10800, y: 250, w: 200, h: 10 },
-            { x: 11200, y: 400, w: 100, h: 10 },
+            { x: 10000, y: 400, w: 150, h: 10 }, // Widened
+            { x: 10300, y: 300, w: 80, h: 50 },  // Widened
+            { x: 10500, y: 500, w: 80, h: 50 },  // Widened
+            { x: 10800, y: 250, w: 250, h: 10 }, // Widened
+            { x: 11200, y: 400, w: 150, h: 10 }, // Widened
             { x: 11450, y: 350, w: 1000, h: 50 } // END (Wider and closer)
         );
         this.enemies.push(
@@ -958,6 +958,12 @@ class Game {
         this.drawNode(400, 300, '1', this.mapNode === 1, false);
         this.drawNode(600, 200, '2', false, true); // Locked Node
         this.drawNode(550, 400, '3', false, true); // Locked Node
+
+        // Dev Labels
+        this.ctx.fillStyle = '#ff5555';
+        this.ctx.font = '10px "Press Start 2P"';
+        this.ctx.fillText('IN DEVELOPMENT', 600, 160);
+        this.ctx.fillText('IN DEVELOPMENT', 550, 440);
 
         // Locked Paths
         this.ctx.strokeStyle = '#333';

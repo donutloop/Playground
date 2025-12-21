@@ -272,8 +272,9 @@ class Player {
         const cy = this.y + this.height / 2;
 
         ctx.translate(cx, cy);
-        // Visual Scale: 1.6x larger than hitbox to fix "Far Away" feel
-        ctx.scale(1.6, 1.6);
+
+        // Visual Scale: 1.8x larger to really pop
+        ctx.scale(1.8, 1.8);
 
         if (!this.facingRight) ctx.scale(-1, 1);
 
@@ -307,8 +308,8 @@ class Player {
         ctx.beginPath();
         ctx.moveTo(-6, -10);
         ctx.lineTo(6, -10);
-        ctx.lineTo(4, 8);
-        ctx.lineTo(-4, 8);
+        ctx.lineTo(4, 9);
+        ctx.lineTo(-4, 9);
         ctx.fill();
 
         // Armor Plate Highlight (Chest)
@@ -316,14 +317,14 @@ class Player {
         ctx.fillRect(-3, -6, 6, 6);
 
         // --- HEAD ---
-        ctx.fillStyle = '#111'; // Helmet Base
+        ctx.fillStyle = '#0a0a0a'; // Helmet Base
         ctx.beginPath();
         ctx.arc(0, -14, 9, 0, Math.PI * 2);
         ctx.fill();
 
         // --- VISOR (The Iconic Look) ---
         // Glowing Cyan Visor
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 15;
         ctx.shadowColor = '#00f3ff';
         ctx.fillStyle = '#00f3ff';
 
@@ -331,8 +332,8 @@ class Player {
         // Sleek angular visor
         ctx.moveTo(4, -16);
         ctx.lineTo(9, -16); // Side
-        ctx.lineTo(8, -12); // Indent
-        ctx.lineTo(2, -12);
+        ctx.lineTo(7, -11); // Indent
+        ctx.lineTo(2, -11);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -345,11 +346,11 @@ class Player {
             ctx.fillRect(2, -6, 12, 4); // Right Arm extended
         } else {
             // Idle/Run
-            const armAngle = this.state === 'RUN' ? Math.sin(Date.now() / 100) * 0.5 : 0;
+            const armAngle = this.state === 'RUN' ? Math.sin(Date.now() / 100) * 0.8 : 0;
             ctx.save();
             ctx.translate(0, -8);
             ctx.rotate(armAngle);
-            ctx.fillRect(-2, 0, 4, 12);
+            ctx.fillRect(-2, 0, 5, 12);
             ctx.restore();
         }
 
@@ -365,15 +366,15 @@ class Player {
             // Back Leg
             ctx.save();
             ctx.translate(-2, 8);
-            ctx.rotate(-legPhase * 0.8);
-            ctx.fillRect(-2, 0, 5, 12);
+            ctx.rotate(-legPhase * 1.0);
+            ctx.fillRect(-2, 0, 5, 14);
             ctx.restore();
 
             // Front Leg
             ctx.save();
             ctx.translate(2, 8);
-            ctx.rotate(legPhase * 0.8);
-            ctx.fillRect(-2, 0, 5, 12);
+            ctx.rotate(legPhase * 1.0);
+            ctx.fillRect(-2, 0, 5, 14);
             ctx.restore();
         } else {
             // Idle Stance
@@ -382,7 +383,7 @@ class Player {
         }
 
         // --- KATANA (On Back) ---
-        ctx.strokeStyle = '#555';
+        ctx.strokeStyle = '#888';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(-8, -15); // Handle top left
@@ -655,7 +656,11 @@ class Game {
         this.assets = new AssetLoader();
 
         // Preload Assets (Async but we start game anyway)
-        this.assets.loadImage('player', 'sprites/player_idle.png');
+        this.assets.loadImage('player', 'sprites/player_sheet.png');
+        this.assets.loadImage('city', 'sprites/city_bg.png'); // Keep fallback
+        this.assets.loadImage('bg_industrial', 'sprites/bg_industrial.png');
+        this.assets.loadImage('bg_core', 'sprites/bg_core.png');
+        this.assets.loadImage('bg_glitch', 'sprites/bg_glitch.png');
         this.assets.loadImage('enemy', 'sprites/enemy.png');
         this.assets.loadImage('tiles', 'sprites/tiles.png');
 
@@ -1124,26 +1129,62 @@ class Game {
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        // --- PARALLAX CITY SKYLINE (New from Thumbnail) ---
+        // --- PARALLAX CITY SKYLINE (Dynamic Phase Sprite) ---
+        let bgKey = 'bg_industrial';
+        if (phase === 1) bgKey = 'bg_industrial';
+        if (phase === 2) bgKey = 'bg_core'; // Transition to Core earlier
+        if (phase === 3) bgKey = 'bg_core';
+        if (phase === 4) bgKey = 'bg_glitch';
+
+        const citySprite = this.assets.getImage(bgKey) || this.assets.getImage('city');
+
         this.ctx.save();
-        // Slow parallax (0.2 factor)
-        const cityOffset = -(this.camera.x * 0.2);
-        this.ctx.translate(cityOffset % 200, 0); // Loop the city pattern
+        const scrollFactor = 0.2;
+        const cityOffset = -(this.camera.x * scrollFactor);
 
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Silhouette
-        for (let i = -200; i < this.width + 200; i += 80) {
-            // Pseudo-random buildings based on position
-            const h = 100 + Math.abs(Math.sin(i * 99)) * 150;
-            this.ctx.fillRect(i, this.height - h, 60, h);
+        if (citySprite) {
+            // Draw Tiled Background
+            const bgWidth = 512; // Assumed width of generated sprite
+            const bgHeight = 400; // Desired height
 
-            // Windows
-            this.ctx.fillStyle = (i % 160 === 0) ? '#ff00ff' : '#00ffff'; // Neon windows
-            if (Math.random() > 0.5) {
-                this.ctx.fillRect(i + 10, this.height - h + 20, 10, 10);
-                this.ctx.fillRect(i + 40, this.height - h + 50, 10, 10);
+            // Calculate start tile
+            const startTile = Math.floor(-cityOffset / bgWidth);
+            const offsetX = cityOffset % bgWidth;
+
+            // Draw enough tiles to cover screen
+            // Note: Images have transparency processed, so normal blend is fine.
+            for (let i = -1; i < (this.width / bgWidth) + 1; i++) {
+                this.ctx.drawImage(
+                    citySprite,
+                    i * bgWidth + offsetX, this.height - bgHeight,
+                    bgWidth, bgHeight
+                );
             }
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Restore for next building
+        } else {
+            // Fallback (Silhouette)
+            this.ctx.translate(cityOffset % 200, 0);
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            for (let i = -200; i < this.width + 200; i += 80) {
+                const h = 100 + Math.abs(Math.sin(i * 99)) * 150;
+                this.ctx.fillRect(i, this.height - h, 60, h);
+            }
         }
+
+        // --- FLICKERING LIGHTS OVERLAY (User Requested) ---
+        // Overlay procedural lights to keep the "alive/flickering" chaos
+        this.ctx.globalCompositeOperation = 'lighten';
+        for (let i = 0; i < this.width; i += 40) {
+            if (Math.random() > 0.8) {
+                const h = Math.random() * 300;
+                this.ctx.fillStyle = Math.random() > 0.5 ? '#ff00ff' : '#00ffff';
+                this.ctx.globalAlpha = Math.random() * 0.8;
+                // Random little window rect
+                this.ctx.fillRect(i + Math.random() * 20, this.height - h, 4 + Math.random() * 6, 4 + Math.random() * 6);
+            }
+        }
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = 1.0;
+
         this.ctx.restore();
 
         this.ctx.save();

@@ -731,6 +731,11 @@ class Game {
                 this.input.keys['Enter'] = false;
                 this.input.keys['Space'] = false;
             }
+            // Return to Launcher
+            if (this.input.keys['Escape']) {
+                window.location.href = '../../index.html';
+                this.input.keys['Escape'] = false;
+            }
         } else if (this.state === 'MAP') {
             if (this.input.keys['Enter']) {
                 if (this.mapNode === 1) {
@@ -751,6 +756,12 @@ class Game {
             if (this.input.keys['ArrowLeft'] && this.mapNode === 1) {
                 this.mapNode = 0;
                 this.input.keys['ArrowLeft'] = false;
+            }
+
+            // Return to Menu
+            if (this.input.keys['Escape']) {
+                this.state = 'MENU';
+                this.input.keys['Escape'] = false;
             }
 
         } else if (this.state === 'LEVEL') {
@@ -834,7 +845,7 @@ class Game {
         this.ctx.fillText('You escaped the Neon City.', this.width / 2, this.height / 2 + 20);
 
         this.ctx.fillStyle = '#555';
-        this.ctx.fillText('Press SPACE to Return', this.width / 2, this.height / 2 + 80);
+        this.ctx.fillText('SPACE: RETURN TO MAP | ESC: MENU', this.width / 2, this.height / 2 + 80);
     }
 
     drawMenu() {
@@ -880,6 +891,11 @@ class Game {
             this.ctx.shadowBlur = 5;
             this.ctx.shadowColor = '#fff';
             this.ctx.fillText('PRESS SPACE TO START', this.width / 2, this.height / 2 + 100);
+
+            this.ctx.font = '12px "Press Start 2P"';
+            this.ctx.fillStyle = '#aaa';
+            this.ctx.fillText('ESC: EXIT TO LAUNCHER', this.width / 2, this.height / 2 + 130);
+
             this.ctx.shadowBlur = 0;
         }
 
@@ -954,7 +970,7 @@ class Game {
 
         this.ctx.font = '16px "Press Start 2P"';
         this.ctx.fillStyle = '#aaa';
-        this.ctx.fillText('ARROWS to Move, ENTER to Select', this.width / 2, this.height - 40);
+        this.ctx.fillText('ARROWS: MOVE | ENTER: SELECT | ESC: MENU', this.width / 2, this.height - 40);
     }
 
     drawNode(x, y, label, isSelected, isLocked) {
@@ -1167,7 +1183,7 @@ class Game {
         this.ctx.textAlign = 'left';
         this.ctx.font = '12px "Press Start 2P"';
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        let controlsText = "ARROWS: MOVE  SPACE: JUMP";
+        let controlsText = "ARROWS: MOVE  SPACE: JUMP  ESC: MAP";
         if (this.player.hasWeapon) {
             controlsText += "  F: SHOOT";
             this.ctx.fillStyle = '#00ffff'; // Highlight when weapon active

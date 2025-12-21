@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "name": "Neon Drifter",
             "path": "games/neon_drifter/index.html",
             "description": "High-octane cyber-ninja action.",
-            "thumbnail": ""
+            "thumbnail": "games/neon_drifter/thumbnail.png"
         }
     ];
 

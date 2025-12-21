@@ -1094,9 +1094,10 @@ class Game {
     drawLevel() {
         // --- DYNAMIC BACKGROUND & PHASES ---
         // --- DYNAMIC BACKGROUND & PHASES ---
-        let bgStart = '#0f0c29';
-        let bgMid = '#302b63';
-        let bgEnd = '#24243e';
+        // Default: Deep Cyber Night
+        let bgStart = '#0b001a'; // Very dark purple
+        let bgMid = '#2d1b4e';   // Muted indigo
+        let bgEnd = '#1a1a2e';   // Dark blue
         let phase = 0;
 
         if (this.player.x > 2000 && this.player.x < 4500) phase = 1; // Industrial
@@ -1104,23 +1105,22 @@ class Game {
         if (this.player.x >= 7000 && this.player.x < 10000) phase = 3; // Ascension
         if (this.player.x >= 10000) phase = 4; // Glitch Core
 
-        if (phase === 1) { // Industrial -> Deep Magenta/Purple (Synthwave Factory)
-            bgStart = '#240b36'; // Dark Purple
-            bgMid = '#c31432';   // Deep Red/Magenta
-            bgEnd = '#1a0b2e';
-        } else if (phase === 2) { // Core -> Deep Indigo/Cyan (Data Center)
-            bgStart = '#020024';
-            bgMid = '#00d4ff';   // Cyan
-            bgEnd = '#090979';
-        } else if (phase === 3) { // Ascension -> Royal Gold/Purple
-            bgStart = '#240046';
-            bgMid = '#7b2cbf';
-            bgEnd = '#ff9e00';
-        } else if (phase === 4) { // Glitch Core -> Pure Glitch
-            bgStart = '#000000';
-            bgMid = '#ff00ff';
-            bgEnd = '#ffffff';
-            // Random glitch flicker logic could go here later
+        if (phase === 1) { // Industrial -> Neon Pink/Purple
+            bgStart = '#1a001a';
+            bgMid = '#590059'; // Deep Magenta
+            bgEnd = '#2e002e';
+        } else if (phase === 2) { // Core -> Cyan/Electric Blue
+            bgStart = '#000a1a';
+            bgMid = '#003366'; // Deep Electric Blue
+            bgEnd = '#001a33';
+        } else if (phase === 3) { // Ascension -> Gold/Amber
+            bgStart = '#1a0f00';
+            bgMid = '#4d3300';
+            bgEnd = '#2e1f00';
+        } else if (phase === 4) { // Glitch Core -> Matrix Green/Black
+            bgStart = '#001a00';
+            bgMid = '#003300';
+            bgEnd = '#000000';
         }
 
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);

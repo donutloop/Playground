@@ -661,6 +661,7 @@ class Game {
         this.assets.loadImage('bg_industrial', 'sprites/bg_industrial.png');
         this.assets.loadImage('bg_core', 'sprites/bg_core.png');
         this.assets.loadImage('bg_glitch', 'sprites/bg_glitch.png');
+        this.assets.loadImage('bg_cyber_city', 'sprites/bg_cyber_city.png');
         this.assets.loadImage('enemy', 'sprites/enemy.png');
         this.assets.loadImage('tiles', 'sprites/tiles.png');
 
@@ -1131,11 +1132,13 @@ class Game {
 
         // --- PARALLAX CITY SKYLINE (Dynamic Phase Sprite) ---
         let bgKey = 'bg_industrial';
-        if (phase >= 0) bgKey = 'bg_core';
+        if (phase >= 0) bgKey = 'bg_cyber_city';
 
         const citySprite = this.assets.getImage(bgKey) || this.assets.getImage('city');
 
         this.ctx.save();
+        // Blend mode to hide dark/white backgrounds and mix with gradient
+        this.ctx.globalCompositeOperation = 'lighten';
         const scrollFactor = 0.2;
         const cityOffset = -(this.camera.x * scrollFactor);
 

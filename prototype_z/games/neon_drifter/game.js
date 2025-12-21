@@ -631,11 +631,11 @@ class Game {
         // --- PHASE 1: OUTSKIRTS (0 - 2000) ---
         // Easy platforming, learning controls.
         this.platforms.push(
-            { x: 0, y: 500, w: 850, h: 50 }, // Start
-            { x: 900, y: 450, w: 280, h: 20 }, // Widened
-            { x: 1200, y: 400, w: 280, h: 20 }, // Widened
-            { x: 1500, y: 350, w: 280, h: 20 }, // Widened
-            { x: 1800, y: 400, w: 300, h: 50 } // Checkpoint floor
+            { x: 0, y: 500, w: 950, h: 50 }, // Start
+            { x: 900, y: 450, w: 450, h: 20 }, // Massive
+            { x: 1200, y: 400, w: 450, h: 20 }, // Massive overlap
+            { x: 1500, y: 350, w: 450, h: 20 }, // Massive overlap
+            { x: 1800, y: 400, w: 500, h: 50 } // Checkpoint floor
         );
         this.enemies.push(
             new Drone(this, 1300, 380), // Lowered
@@ -645,12 +645,12 @@ class Game {
         // --- PHASE 2: INDUSTRIAL (2000 - 4500) ---
         // GroundBots, Spikes, tighter jumps.
         this.platforms.push(
-            { x: 2200, y: 450, w: 190, h: 20 }, // Widened
-            { x: 2400, y: 500, w: 600, h: 50 }, // Combat Arena
-            { x: 3100, y: 450, w: 190, h: 20 }, // Widened
-            { x: 3300, y: 400, w: 190, h: 20 }, // Widened
-            { x: 3500, y: 500, w: 800, h: 50 }, // Long Gauntlet
-            { x: 4400, y: 400, w: 280, h: 20 }  // Widened
+            { x: 2200, y: 450, w: 350, h: 20 }, // Longer to reach
+            { x: 2400, y: 500, w: 800, h: 50 }, // Combat Arena (Huge)
+            { x: 3100, y: 450, w: 300, h: 20 }, // Longer
+            { x: 3300, y: 400, w: 300, h: 20 }, // Longer
+            { x: 3500, y: 500, w: 1000, h: 50 }, // Long Gauntlet
+            { x: 4400, y: 400, w: 400, h: 20 }  // Longer
         );
         this.enemies.push(
             new GroundBot(this, 2500, 468),
@@ -665,35 +665,35 @@ class Game {
         // --- PHASE 3: THE CORE (4500 - 7000) ---
         // Verticality, Drones everywhere.
         this.platforms.push(
-            { x: 4700, y: 350, w: 190, h: 20 }, // Widened
-            { x: 4900, y: 300, w: 190, h: 20 }, // Widened
-            { x: 5100, y: 250, w: 190, h: 20 }, // Widened
-            { x: 5300, y: 200, w: 190, h: 20 }, // Widened
-            { x: 5500, y: 500, w: 1000, h: 50 }, // Floor catch
-            { x: 6000, y: 350, w: 190, h: 20 }, // Widened
-            { x: 6200, y: 300, w: 190, h: 20 }, // Widened
-            { x: 6400, y: 250, w: 190, h: 20 }, // Widened
-            { x: 6700, y: 400, w: 400, h: 50 } // Rest
+            { x: 4700, y: 350, w: 350, h: 20 }, // Longer
+            { x: 4900, y: 300, w: 350, h: 20 }, // Longer overlap
+            { x: 5100, y: 250, w: 350, h: 20 }, // Longer overlap
+            { x: 5300, y: 200, w: 350, h: 20 }, // Longer overlap
+            { x: 5500, y: 500, w: 1200, h: 50 }, // Floor catch (Huge)
+            { x: 6000, y: 380, w: 350, h: 20 }, // Longer
+            { x: 6200, y: 330, w: 350, h: 20 }, // Longer
+            { x: 6400, y: 280, w: 350, h: 20 }, // Longer
+            { x: 6700, y: 400, w: 600, h: 50 } // Rest (Huge)
         );
         this.enemies.push(
             new Drone(this, 5000, 230), // Lowered
             new Drone(this, 5200, 180), // Lowered
             new GroundBot(this, 5600, 468),
             new GroundBot(this, 5800, 468),
-            new Drone(this, 6100, 280), // Lowered
-            new Drone(this, 6300, 230)  // Lowered
+            new Drone(this, 6100, 310), // Adjusted
+            new Drone(this, 6300, 260)  // Adjusted
         );
 
         // --- PHASE 4: ASCENSION (7000 - 10000) ---
         // New Phase. High risk.
         this.platforms.push(
-            { x: 7200, y: 350, w: 200, h: 20 }, // Widened
-            { x: 7500, y: 300, w: 200, h: 20 }, // Widened
-            { x: 7800, y: 250, w: 200, h: 20 }, // Widened
-            { x: 8100, y: 200, w: 200, h: 20 }, // Widened
-            { x: 8400, y: 150, w: 200, h: 20 }, // Widened
-            { x: 8700, y: 400, w: 500, h: 50 },
-            { x: 9500, y: 300, w: 300, h: 20 }
+            { x: 7200, y: 350, w: 400, h: 20 }, // Staircase step (Huge)
+            { x: 7500, y: 300, w: 400, h: 20 }, // Staircase step
+            { x: 7800, y: 250, w: 400, h: 20 }, // Staircase step
+            { x: 8100, y: 200, w: 400, h: 20 }, // Staircase step
+            { x: 8400, y: 150, w: 400, h: 20 }, // Staircase step
+            { x: 8700, y: 400, w: 800, h: 50 }, // Landing (Huge)
+            { x: 9400, y: 300, w: 500, h: 20 }
         );
         this.enemies.push(
             new Drone(this, 7500, 280), // Lowered
@@ -704,16 +704,17 @@ class Game {
         // --- PHASE 5: GLITCH CORE (10000+) ---
         // Disjointed, chaotic platforms.
         this.platforms.push(
-            { x: 10000, y: 400, w: 150, h: 10 }, // Widened
-            { x: 10300, y: 300, w: 80, h: 50 },  // Widened
-            { x: 10500, y: 500, w: 80, h: 50 },  // Widened
-            { x: 10800, y: 250, w: 250, h: 10 }, // Widened
-            { x: 11200, y: 400, w: 150, h: 10 }, // Widened
-            { x: 11450, y: 350, w: 1000, h: 50 } // END (Wider and closer)
+            { x: 9950, y: 400, w: 300, h: 10 }, // Longer
+            { x: 10300, y: 300, w: 150, h: 50 },  // Longer
+            { x: 10500, y: 500, w: 150, h: 50 },  // Longer
+            { x: 10680, y: 380, w: 200, h: 20 }, // Stepper (Longer)
+            { x: 10850, y: 250, w: 400, h: 10 }, // Longer
+            { x: 11200, y: 400, w: 300, h: 10 }, // Longer
+            { x: 11450, y: 350, w: 1000, h: 50 } // END
         );
         this.enemies.push(
             new Drone(this, 10300, 200),
-            new Drone(this, 10800, 150),
+            new Drone(this, 10850, 150),
             new Spike(this, 11500, 318),
             new GroundBot(this, 11600, 318),
             new Spike(this, 11700, 318)

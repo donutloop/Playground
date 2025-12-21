@@ -1144,8 +1144,8 @@ class Game {
 
         if (citySprite) {
             // Draw Tiled Background
-            const bgWidth = 512; // Assumed width of generated sprite
-            const bgHeight = 400; // Desired height
+            const bgHeight = this.height; // Full height
+            const bgWidth = bgHeight;     // Keep 1:1 aspect ratio (assuming square source)
 
             // Calculate start tile
             const startTile = Math.floor(-cityOffset / bgWidth);
@@ -1156,7 +1156,7 @@ class Game {
             for (let i = -1; i < (this.width / bgWidth) + 1; i++) {
                 this.ctx.drawImage(
                     citySprite,
-                    i * bgWidth + offsetX, this.height - bgHeight,
+                    i * bgWidth + offsetX, 0,
                     bgWidth, bgHeight
                 );
             }

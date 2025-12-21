@@ -150,6 +150,24 @@ body::after {
     /* Glow */
 }
 
+/* Keyboard/Gamepad Selection State */
+.game-card.selected {
+    transform: translateY(-10px) scale(1.05);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent-primary);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 243, 255, 0.4);
+    outline: none;
+}
+
+.game-card.selected .card-content::after {
+    color: #fff;
+    padding-left: 10px;
+    opacity: 1;
+    text-shadow: 0 0 10px var(--accent-primary);
+}
+
 .card-thumbnail {
     height: 220px;
     background: #000;

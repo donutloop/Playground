@@ -1131,10 +1131,7 @@ class Game {
 
         // --- PARALLAX CITY SKYLINE (Dynamic Phase Sprite) ---
         let bgKey = 'bg_industrial';
-        if (phase === 1) bgKey = 'bg_industrial';
-        if (phase === 2) bgKey = 'bg_core'; // Transition to Core earlier
-        if (phase === 3) bgKey = 'bg_core';
-        if (phase === 4) bgKey = 'bg_glitch';
+        if (phase >= 0) bgKey = 'bg_core';
 
         const citySprite = this.assets.getImage(bgKey) || this.assets.getImage('city');
 

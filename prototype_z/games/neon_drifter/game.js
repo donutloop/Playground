@@ -264,57 +264,130 @@ class Player {
 
 
     draw(ctx) {
-        // Procedural Cyber Ninja
+        // Procedural Cyber Ninja - High Fidelity (Thumbnail Style)
         ctx.save();
 
-        // Translate to center of sprite for rotation/scaling
+        // Translate to center for rotation/scaling
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
 
         ctx.translate(cx, cy);
+        // Visual Scale: 1.6x larger than hitbox to fix "Far Away" feel
+        ctx.scale(1.6, 1.6);
+
         if (!this.facingRight) ctx.scale(-1, 1);
 
-        // --- SCARF/CAPE PHYSICS (Simple Sine Wave) ---
-        const t = Date.now() / 200;
+        // --- SCARF (Flowing & Glowing) ---
+        // Dynamic sine wave based on movement
+        const t = Date.now() / 150;
+        const speedFactor = Math.abs(this.vx) > 0 ? 2 : 1;
+
         ctx.beginPath();
-        ctx.moveTo(-5, -5);
-        ctx.bezierCurveTo(-15, -5 + Math.sin(t) * 5, -25, -5 + Math.cos(t) * 5, -35, -5 + Math.sin(t + 1) * 10);
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#ff00ff'; // Neon Pink Scarf
+        ctx.moveTo(-4, -8); // Neck anchor
+        // Longer, more dramatic scarf
+        ctx.bezierCurveTo(
+            -15, -15 + Math.sin(t * speedFactor) * 5,
+            -25, -5 + Math.cos(t * speedFactor) * 5,
+            -45, -10 + Math.sin(t * speedFactor + 1) * 10
+        );
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#bc13fe'; // Deep Neon Pink (Thumbnail match)
         ctx.stroke();
 
-        // --- BODY ---
-        ctx.fillStyle = '#2d2d2d'; // Dark Grey Armor
-        ctx.fillRect(-10, -10, 20, 26);
+        // Inner brighter core for scarf
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ff55ff';
+        ctx.stroke();
 
-        // --- LEGS ---
-        ctx.fillStyle = '#1a1a1a';
-        if (this.state === 'RUN') {
-            // Run cycle leg bob
-            const runOffset = Math.sin(Date.now() / 50) * 5;
-            ctx.fillRect(-10, 16, 8, 10 + runOffset);
-            ctx.fillRect(2, 16, 8, 10 - runOffset);
-        } else {
-            ctx.fillRect(-10, 16, 8, 16);
-            ctx.fillRect(2, 16, 8, 16);
-        }
+        // --- BODY (Dark Cyber Armor) ---
+        ctx.fillStyle = '#1a1a2e'; // Dark Blue/Black Armor
 
-        // --- HEAD ---
-        ctx.fillStyle = '#111'; // Black Helmet
+        // Torso
         ctx.beginPath();
-        ctx.arc(0, -12, 12, 0, Math.PI * 2);
+        ctx.moveTo(-6, -10);
+        ctx.lineTo(6, -10);
+        ctx.lineTo(4, 8);
+        ctx.lineTo(-4, 8);
         ctx.fill();
 
-        // --- VISOR (Glowing) ---
+        // Armor Plate Highlight (Chest)
+        ctx.fillStyle = '#303050';
+        ctx.fillRect(-3, -6, 6, 6);
+
+        // --- HEAD ---
+        ctx.fillStyle = '#111'; // Helmet Base
+        ctx.beginPath();
+        ctx.arc(0, -14, 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        // --- VISOR (The Iconic Look) ---
+        // Glowing Cyan Visor
         ctx.shadowBlur = 10;
-        ctx.shadowColor = '#00ffff';
-        ctx.fillStyle = '#00ffff'; // Cyan Visor
-        ctx.fillRect(2, -14, 10, 4);
+        ctx.shadowColor = '#00f3ff';
+        ctx.fillStyle = '#00f3ff';
+
+        ctx.beginPath();
+        // Sleek angular visor
+        ctx.moveTo(4, -16);
+        ctx.lineTo(9, -16); // Side
+        ctx.lineTo(8, -12); // Indent
+        ctx.lineTo(2, -12);
+        ctx.fill();
         ctx.shadowBlur = 0;
 
-        // --- SWORD ---
-        ctx.fillStyle = '#ccc';
-        ctx.fillRect(-12, -5, 4, 30); // Sheath on back
+        // --- LIMBS ---
+        ctx.fillStyle = '#1a1a2e'; // Dark Armor
+
+        // Arms
+        if (this.hasWeapon) {
+            // Aiming pose
+            ctx.fillRect(2, -6, 12, 4); // Right Arm extended
+        } else {
+            // Idle/Run
+            const armAngle = this.state === 'RUN' ? Math.sin(Date.now() / 100) * 0.5 : 0;
+            ctx.save();
+            ctx.translate(0, -8);
+            ctx.rotate(armAngle);
+            ctx.fillRect(-2, 0, 4, 12);
+            ctx.restore();
+        }
+
+        // Legs
+        if (this.state === 'JUMP') {
+            // Jump Pose (Tucked)
+            ctx.fillRect(-6, 8, 5, 8); // Back leg
+            ctx.fillRect(2, 6, 5, 8);  // Front leg tucked
+        } else if (this.state === 'RUN') {
+            // Run Cycle
+            const legPhase = Math.sin(Date.now() / 80);
+
+            // Back Leg
+            ctx.save();
+            ctx.translate(-2, 8);
+            ctx.rotate(-legPhase * 0.8);
+            ctx.fillRect(-2, 0, 5, 12);
+            ctx.restore();
+
+            // Front Leg
+            ctx.save();
+            ctx.translate(2, 8);
+            ctx.rotate(legPhase * 0.8);
+            ctx.fillRect(-2, 0, 5, 12);
+            ctx.restore();
+        } else {
+            // Idle Stance
+            ctx.fillRect(-7, 8, 5, 14);
+            ctx.fillRect(2, 8, 5, 14);
+        }
+
+        // --- KATANA (On Back) ---
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-8, -15); // Handle top left
+        ctx.lineTo(8, 5);    // Tip bottom right
+        ctx.stroke();
 
         ctx.restore();
     }
@@ -1025,19 +1098,19 @@ class Game {
         if (this.player.x >= 7000 && this.player.x < 10000) phase = 3; // Ascension
         if (this.player.x >= 10000) phase = 4; // Glitch Core
 
-        if (phase === 1) { // Industrial (Orange/Red)
-            bgStart = '#290c0c';
-            bgMid = '#632b2b';
-            bgEnd = '#3e2424';
-        } else if (phase === 2) { // Core (Green)
-            bgStart = '#0c290c';
-            bgMid = '#2b632b';
-            bgEnd = '#243e24';
-        } else if (phase === 3) { // Ascension (Gold/Royal)
+        if (phase === 1) { // Industrial -> Deep Magenta/Purple (Synthwave Factory)
+            bgStart = '#240b36'; // Dark Purple
+            bgMid = '#c31432';   // Deep Red/Magenta
+            bgEnd = '#1a0b2e';
+        } else if (phase === 2) { // Core -> Deep Indigo/Cyan (Data Center)
+            bgStart = '#020024';
+            bgMid = '#00d4ff';   // Cyan
+            bgEnd = '#090979';
+        } else if (phase === 3) { // Ascension -> Royal Gold/Purple
             bgStart = '#240046';
             bgMid = '#7b2cbf';
             bgEnd = '#ff9e00';
-        } else if (phase === 4) { // Glitch Core (Magenta/White/Black)
+        } else if (phase === 4) { // Glitch Core -> Pure Glitch
             bgStart = '#000000';
             bgMid = '#ff00ff';
             bgEnd = '#ffffff';
@@ -1051,16 +1124,38 @@ class Game {
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.width, this.height);
 
+        // --- PARALLAX CITY SKYLINE (New from Thumbnail) ---
+        this.ctx.save();
+        // Slow parallax (0.2 factor)
+        const cityOffset = -(this.camera.x * 0.2);
+        this.ctx.translate(cityOffset % 200, 0); // Loop the city pattern
+
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Silhouette
+        for (let i = -200; i < this.width + 200; i += 80) {
+            // Pseudo-random buildings based on position
+            const h = 100 + Math.abs(Math.sin(i * 99)) * 150;
+            this.ctx.fillRect(i, this.height - h, 60, h);
+
+            // Windows
+            this.ctx.fillStyle = (i % 160 === 0) ? '#ff00ff' : '#00ffff'; // Neon windows
+            if (Math.random() > 0.5) {
+                this.ctx.fillRect(i + 10, this.height - h + 20, 10, 10);
+                this.ctx.fillRect(i + 40, this.height - h + 50, 10, 10);
+            }
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Restore for next building
+        }
+        this.ctx.restore();
+
         this.ctx.save();
         this.ctx.translate(-this.camera.x, 0);
 
         // Grid Floor Perspective (Fixed to camera for parallax feel)
         // Grid Floor Perspective (Fixed to camera for parallax feel)
         let gridColor = '#00ffff'; // Default
-        if (phase === 1) gridColor = '#ffaa00';
-        if (phase === 2) gridColor = '#00ff00';
+        if (phase === 1) gridColor = '#ff00ff'; // Magenta
+        if (phase === 2) gridColor = '#00d4ff'; // Cyan
         if (phase === 3) gridColor = '#ffd700'; // Gold
-        if (phase === 4) gridColor = '#ff00ff'; // Magenta
+        if (phase === 4) gridColor = '#ffffff'; // White
 
         this.ctx.strokeStyle = gridColor;
         this.ctx.lineWidth = 1;
@@ -1092,16 +1187,16 @@ class Game {
             this.ctx.fillRect(p.x, p.y, p.w, p.h);
 
             // Content Glow
-            this.ctx.shadowBlur = 10;
+            this.ctx.shadowBlur = 15; // Increased glow
             let glowColor = '#00ffff';
-            if (phase === 1) glowColor = '#ffaa00';
-            if (phase === 2) glowColor = '#00ff00';
+            if (phase === 1) glowColor = '#ff00ff';
+            if (phase === 2) glowColor = '#00d4ff';
             if (phase === 3) glowColor = '#ffd700';
             if (phase === 4) glowColor = '#ffffff';
 
             this.ctx.shadowColor = glowColor;
             this.ctx.strokeStyle = glowColor;
-            this.ctx.lineWidth = 2;
+            this.ctx.lineWidth = 3; // Thicker lines
             this.ctx.strokeRect(p.x, p.y, p.w, p.h);
             this.ctx.shadowBlur = 0;
         });

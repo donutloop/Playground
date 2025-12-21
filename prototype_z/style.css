@@ -169,7 +169,8 @@ body::after {
 }
 
 .card-thumbnail {
-    height: 220px;
+    height: 160px;
+    /* Reduced from 220px */
     background: #000;
     position: relative;
     overflow: hidden;

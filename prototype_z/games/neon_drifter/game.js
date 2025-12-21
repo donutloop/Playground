@@ -1,5 +1,56 @@
 // Core Game Engine
 
+class Spaceship {
+    constructor(game, x, y) {
+        this.game = game;
+        this.x = x;
+        this.y = y;
+        this.width = 400; // Increased size (approx 4x scale visual)
+        this.height = 240;
+    }
+
+    draw(ctx) {
+        // Neo-Retro Spaceship
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(4, 4); // Scale up visual to match new size
+
+        // Thruster flame
+        const t = Date.now() / 100;
+        ctx.fillStyle = '#00ffff';
+        ctx.beginPath();
+        ctx.moveTo(10, 40);
+        ctx.lineTo(-20 - Math.sin(t) * 10, 50);
+        ctx.lineTo(10, 60);
+        ctx.fill();
+
+        // Hull
+        ctx.fillStyle = '#CCCCCC';
+        ctx.beginPath();
+        ctx.moveTo(0, 40);
+        ctx.lineTo(80, 50); // Nose
+        ctx.lineTo(0, 60);
+        ctx.lineTo(-10, 50);
+        ctx.fill();
+
+        // Cockpit
+        ctx.fillStyle = '#0000FF';
+        ctx.beginPath();
+        ctx.ellipse(30, 45, 15, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Legs
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1; // Thinner line relative to scale
+        ctx.beginPath();
+        ctx.moveTo(10, 55); ctx.lineTo(0, 70);
+        ctx.moveTo(60, 52); ctx.lineTo(65, 70);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+}
+
 class InputHandler {
     constructor() {
         this.keys = {};
@@ -202,6 +253,12 @@ class Player {
                 this.facingRight ? 1 : -1
             ));
             this.shotTimer = 20; // Cooldown
+        }
+
+        // --- VICTORY CONDITION ---
+        // Check collision with Spaceship (Approximate at end of level)
+        if (this.x > 11800) {
+            this.game.state = 'VICTORY';
         }
     }
 
@@ -627,7 +684,7 @@ class Game {
             new Drone(this, 6300, 230)  // Lowered
         );
 
-        // --- PHASE 4: ASCENSION (7000+) ---
+        // --- PHASE 4: ASCENSION (7000 - 10000) ---
         // New Phase. High risk.
         this.platforms.push(
             { x: 7200, y: 350, w: 100, h: 20 },
@@ -635,13 +692,36 @@ class Game {
             { x: 7800, y: 250, w: 100, h: 20 },
             { x: 8100, y: 200, w: 100, h: 20 },
             { x: 8400, y: 150, w: 100, h: 20 },
-            { x: 8700, y: 400, w: 500, h: 50 } // VICTORY PLATFORM
+            { x: 8700, y: 400, w: 500, h: 50 },
+            { x: 9500, y: 300, w: 200, h: 20 }
         );
         this.enemies.push(
             new Drone(this, 7500, 280), // Lowered
             new Drone(this, 7800, 230), // Lowered
             new Drone(this, 8100, 180)  // Lowered
         );
+
+        // --- PHASE 5: GLITCH CORE (10000+) ---
+        // Disjointed, chaotic platforms.
+        this.platforms.push(
+            { x: 10000, y: 400, w: 100, h: 10 },
+            { x: 10300, y: 300, w: 50, h: 50 },
+            { x: 10500, y: 500, w: 50, h: 50 },
+            { x: 10800, y: 250, w: 200, h: 10 },
+            { x: 11200, y: 400, w: 100, h: 10 },
+            { x: 11500, y: 350, w: 600, h: 50 } // END
+        );
+        this.enemies.push(
+            new Drone(this, 10300, 200),
+            new Drone(this, 10800, 150),
+            new Spike(this, 11600, 318),
+            new Spike(this, 11800, 318),
+            new Spike(this, 11800, 318),
+            new GroundBot(this, 11700, 318)
+        );
+
+        // --- VICTORY SHIP ---
+        this.spaceship = new Spaceship(this, 11900, 300);
     }
 
     update(dt) {
@@ -729,7 +809,27 @@ class Game {
             this.drawMap();
         } else if (this.state === 'LEVEL') {
             this.drawLevel();
+        } else if (this.state === 'VICTORY') {
+            this.drawVictory();
         }
+    }
+
+    drawVictory() {
+        // Clear logic to stop game loop visual noise
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        this.ctx.fillStyle = '#00ffff';
+        this.ctx.font = '40px "Press Start 2P"';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('MISSION COMPLETE', this.width / 2, this.height / 2 - 50);
+
+        this.ctx.font = '20px "Press Start 2P"';
+        this.ctx.fillStyle = '#fff';
+        this.ctx.fillText('You escaped the Neon City.', this.width / 2, this.height / 2 + 20);
+
+        this.ctx.fillStyle = '#555';
+        this.ctx.fillText('Press SPACE to Return', this.width / 2, this.height / 2 + 80);
     }
 
     drawMenu() {
@@ -894,7 +994,8 @@ class Game {
 
         if (this.player.x > 2000 && this.player.x < 4500) phase = 1; // Industrial
         if (this.player.x >= 4500 && this.player.x < 7000) phase = 2; // Core
-        if (this.player.x >= 7000) phase = 3; // Ascension
+        if (this.player.x >= 7000 && this.player.x < 10000) phase = 3; // Ascension
+        if (this.player.x >= 10000) phase = 4; // Glitch Core
 
         if (phase === 1) { // Industrial (Orange/Red)
             bgStart = '#290c0c';
@@ -905,9 +1006,14 @@ class Game {
             bgMid = '#2b632b';
             bgEnd = '#243e24';
         } else if (phase === 3) { // Ascension (Gold/Royal)
-            bgStart = '#240046'; // Dark Violet
-            bgMid = '#7b2cbf';   // Royal Purple
-            bgEnd = '#ff9e00';   // Gold
+            bgStart = '#240046';
+            bgMid = '#7b2cbf';
+            bgEnd = '#ff9e00';
+        } else if (phase === 4) { // Glitch Core (Magenta/White/Black)
+            bgStart = '#000000';
+            bgMid = '#ff00ff';
+            bgEnd = '#ffffff';
+            // Random glitch flicker logic could go here later
         }
 
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
@@ -926,6 +1032,7 @@ class Game {
         if (phase === 1) gridColor = '#ffaa00';
         if (phase === 2) gridColor = '#00ff00';
         if (phase === 3) gridColor = '#ffd700'; // Gold
+        if (phase === 4) gridColor = '#ff00ff'; // Magenta
 
         this.ctx.strokeStyle = gridColor;
         this.ctx.lineWidth = 1;
@@ -962,6 +1069,7 @@ class Game {
             if (phase === 1) glowColor = '#ffaa00';
             if (phase === 2) glowColor = '#00ff00';
             if (phase === 3) glowColor = '#ffd700';
+            if (phase === 4) glowColor = '#ffffff';
 
             this.ctx.shadowColor = glowColor;
             this.ctx.strokeStyle = glowColor;
@@ -972,7 +1080,7 @@ class Game {
 
         // --- LAVA / FIRE FLOOR (Visualizing Death Zone) ---
         const lavaY = 600;
-        const time = Date.now() / 500;
+        const lavaTime = Date.now() / 500; // Renamed to avoid local scope conflict
 
         // Lava Base
         this.ctx.fillStyle = '#aa0000';
@@ -983,7 +1091,8 @@ class Game {
         this.ctx.beginPath();
         this.ctx.moveTo(this.camera.x, lavaY);
         for (let i = 0; i <= this.width; i += 20) {
-            const waveH = Math.sin((i + this.camera.x) * 0.02 + time) * 10;
+            // Use camera x in sin calculation for continuous wave feeling
+            const waveH = Math.sin((i + this.camera.x) * 0.02 + lavaTime) * 10;
             this.ctx.lineTo(this.camera.x + i, lavaY + waveH);
         }
         this.ctx.lineTo(this.camera.x + this.width, lavaY + 200);
@@ -996,7 +1105,7 @@ class Game {
         this.ctx.fillStyle = '#ffaa00'; // Hot tops
         for (let i = 0; i < 10; i++) {
             const px = this.camera.x + (Date.now() / 2 + i * 200) % this.width;
-            const py = lavaY + Math.sin(i + time) * 10;
+            const py = lavaY + Math.sin(i + lavaTime) * 10;
             this.ctx.beginPath();
             this.ctx.arc(px, py, 5 + Math.random() * 5, 0, Math.PI * 2);
             this.ctx.fill();
@@ -1018,6 +1127,11 @@ class Game {
             e.draw(this.ctx);
         });
 
+        // Spaceship (if exists)
+        if (this.spaceship) {
+            this.spaceship.draw(this.ctx);
+        }
+
         // Player
         this.player.draw(this.ctx);
         if (this.player.hasWeapon) {
@@ -1038,6 +1152,7 @@ class Game {
         if (phase === 1) phaseName = "INDUSTRIAL";
         if (phase === 2) phaseName = "CORE";
         if (phase === 3) phaseName = "ASCENSION";
+        if (phase === 4) phaseName = "GLITCH CORE";
 
         this.ctx.fillText(`SECTOR: ${phaseName}`, 20, 40);
         this.ctx.textAlign = 'right';

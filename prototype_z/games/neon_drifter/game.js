@@ -257,7 +257,7 @@ class Player {
 
         // --- VICTORY CONDITION ---
         // Check collision with Spaceship (Approximate at end of level)
-        if (this.x > 11800) {
+        if (this.x > 12000) {
             this.game.state = 'VICTORY';
         }
     }
@@ -709,19 +709,19 @@ class Game {
             { x: 10500, y: 500, w: 50, h: 50 },
             { x: 10800, y: 250, w: 200, h: 10 },
             { x: 11200, y: 400, w: 100, h: 10 },
-            { x: 11500, y: 350, w: 600, h: 50 } // END
+            { x: 11450, y: 350, w: 1000, h: 50 } // END (Wider and closer)
         );
         this.enemies.push(
             new Drone(this, 10300, 200),
             new Drone(this, 10800, 150),
-            new Spike(this, 11600, 318),
-            new Spike(this, 11800, 318),
-            new Spike(this, 11800, 318),
-            new GroundBot(this, 11700, 318)
+            new Spike(this, 11500, 318),
+            new GroundBot(this, 11600, 318),
+            new Spike(this, 11700, 318)
         );
 
         // --- VICTORY SHIP ---
-        this.spaceship = new Spaceship(this, 11900, 300);
+        // Y Position calculated: Platform Y (350) - Ship Leg Height (280) = 70
+        this.spaceship = new Spaceship(this, 11800, 70);
     }
 
     update(dt) {
@@ -796,6 +796,11 @@ class Game {
                 this.aiMode = !this.aiMode;
                 this.input.keys['KeyA'] = false; // Debounce
                 console.log("AI Mode:", this.aiMode);
+            }
+        } else if (this.state === 'VICTORY') {
+            if (this.input.keys['Space']) {
+                this.state = 'MAP';
+                this.input.keys['Space'] = false;
             }
         }
     }

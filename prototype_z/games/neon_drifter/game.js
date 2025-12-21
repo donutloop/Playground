@@ -80,9 +80,9 @@ class Player {
         this.height = 32;
         this.vx = 0;
         this.vy = 0;
-        this.speed = 4.5; // Fast run for long jumps
-        this.jumpForce = -13; // HIGH jump
-        this.gravity = 0.25; // LOW gravity (Moon physics)
+        this.speed = 5.0; // Snappy run
+        this.jumpForce = -13.5; // Tuned for ~5 tile high jump
+        this.gravity = 0.55; // Heavier gravity for precision
         this.grounded = false;
         this.facingRight = true;
         this.hasWeapon = false;
@@ -93,12 +93,17 @@ class Player {
     }
 
     update(input, platforms, enemies) {
+        let keys = input.keys;
+        if (this.game.aiMode) {
+            keys = this.getAIControls(platforms, enemies);
+        }
+
         // Horizontal Movement
-        if (input.keys['ArrowLeft'] || input.keys['KeyA']) {
+        if (keys['ArrowLeft'] || keys['KeyA']) {
             this.vx = -this.speed;
             this.facingRight = false;
             this.state = 'RUN';
-        } else if (input.keys['ArrowRight'] || input.keys['KeyD']) {
+        } else if (keys['ArrowRight'] || keys['KeyD']) {
             this.vx = this.speed;
             this.facingRight = true;
             this.state = 'RUN';
@@ -113,7 +118,9 @@ class Player {
         if (this.x < 0) this.x = 0;
         // No right boundary for scrolling level, or set a max level width
 
-        if ((input.keys['Space'] || input.keys['ArrowUp'] || input.keys['KeyW']) && this.grounded) {
+        // No right boundary for scrolling level, or set a max level width
+
+        if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW']) && (this.grounded || (this.game.aiMode && this.y > 400))) {
             this.vy = this.jumpForce;
             this.grounded = false;
             this.state = 'JUMP';
@@ -127,8 +134,12 @@ class Player {
 
         // Floor collision (Bottom of screen relative to camera is tricky, usually strictly platform based in scrolling)
         if (this.y > 620) { // Hit Lava
-            this.game.resetLevel();
-            return;
+            if (this.game.aiMode) {
+                this.vy = -20; // Super bounce recovery for AI
+            } else {
+                this.game.resetLevel();
+                return;
+            }
         }
 
         // Platform collisions
@@ -162,7 +173,9 @@ class Player {
                     this.vy = -10; // Big Bounce
                 } else {
                     // Die
-                    this.game.resetLevel();
+                    if (!this.game.aiMode) {
+                        this.game.resetLevel();
+                    }
                 }
             }
         });
@@ -182,7 +195,7 @@ class Player {
 
         // Shooting
         if (this.shotTimer > 0) this.shotTimer--;
-        if (this.hasWeapon && input.keys['KeyF'] && this.shotTimer === 0) {
+        if (this.hasWeapon && keys['KeyF'] && this.shotTimer === 0) {
             this.game.bullets.push(new Bullet(this.game,
                 this.x + (this.facingRight ? this.width : 0),
                 this.y + this.height / 2,
@@ -248,6 +261,68 @@ class Player {
 
         ctx.restore();
     }
+
+    getAIControls(platforms, enemies) {
+        const keys = { 'ArrowRight': true, 'Space': false, 'KeyF': false }; // Always move right
+
+        // 1. Jump Gaps
+        // Future check: Look ahead 50px
+        const checkX = this.x + (this.facingRight ? 50 : -50);
+        let platformUpcoming = false;
+
+        platforms.forEach(p => {
+            // Simple AABB check for platform under future feet
+            if (checkX >= p.x && checkX <= p.x + p.w &&
+                this.y + this.height < p.y + 10) { // Platform is below us (approx)
+                platformUpcoming = true;
+            }
+        });
+
+        // If no platform ahead, or platform is too high -> JUMP
+        // Also check if we are AT THE EDGE of current platform
+        let onPlatform = false;
+        platforms.forEach(p => {
+            // Check if we are currently supported
+            if (this.x + this.width / 2 >= p.x && this.x + this.width / 2 <= p.x + p.w &&
+                this.y + this.height <= p.y + 5 && this.y + this.height >= p.y - 5) {
+                onPlatform = true;
+
+                // Check for wall jump (platform ahead is higher)
+                // Or if there's a platform ahead but it's higher than current
+                const wallAhead = platforms.find(wp =>
+                    wp.x > this.x + 20 && wp.x < this.x + 150 && // Ahead
+                    wp.y < this.y // Higher
+                );
+                if (wallAhead) keys['Space'] = true;
+            }
+        });
+
+        // Jump if we are grounded, reached edge (no platform upcoming), and are safe to jump
+        // Also jump if we see a wall
+        if (this.grounded) {
+            if (!platformUpcoming && onPlatform) keys['Space'] = true;
+        }
+
+        // 2. Shoot Enemies
+        // 2. Shoot Enemies or Avoid Spikes
+        enemies.forEach(e => {
+            if (!e.dead) {
+                // Shooting Logic
+                if (Math.abs(e.y - this.y) < 80 && // Approx same height
+                    e.x > this.x && e.x < this.x + 500) { // Ahead and in range
+                    keys['KeyF'] = true;
+                }
+
+                // Evasion Logic (Spikes/GroundBots close)
+                if (e.x > this.x && e.x < this.x + 100 && // Close ahead
+                    Math.abs(e.y - this.y) < 50) { // On same ground
+                    keys['Space'] = true; // Jump to stomp or avoid
+                }
+            }
+        });
+
+        return keys;
+    }
 }
 
 class Drone {
@@ -310,7 +385,7 @@ class GroundBot {
         this.y = y;
         this.width = 32;
         this.height = 32;
-        this.vx = 0.8; // Slowed from 1.5
+        this.vx = 2.0; // Faster patrol
         this.patrolStart = x;
         this.patrolDist = 150;
         this.type = 'BOT';
@@ -457,6 +532,7 @@ class Game {
         this.player = new Player(this);
         this.camera = { x: 0, y: 0 };
         this.bullets = [];
+        this.aiMode = false; // AI Auto-play flag
         this.pickups = [
             new WeaponPickup(this, 300, 500) // Early pistol
         ];
@@ -466,40 +542,7 @@ class Game {
         // Phase 2: Industrial (1000-2500)
         // Phase 3: Core (2500-4000)
 
-        this.platforms = [
-            // Safe Start (Super long)
-            { x: 0, y: 500, w: 800, h: 50 },
-
-            // Phase 1: Platforms & Gaps (Super Easy)
-            { x: 850, y: 450, w: 200, h: 20 },
-            { x: 1100, y: 400, w: 150, h: 20 }, // Bridge to Ph2
-
-            // Phase 2: Industrial (Longer floor for fighting)
-            { x: 1200, y: 500, w: 800, h: 50 }, // Extended floor
-            { x: 1300, y: 350, w: 150, h: 20 }, // Safety platform
-            { x: 1600, y: 300, w: 150, h: 20 },
-
-            // Phase 3: The Core (Verticality - kept hard but wider)
-            { x: 2100, y: 500, w: 300, h: 50 },
-            { x: 2400, y: 400, w: 120, h: 20 },
-            { x: 2600, y: 300, w: 120, h: 20 },
-            { x: 2800, y: 200, w: 120, h: 20 },
-            { x: 3000, y: 150, w: 400, h: 20 }, // Final Platform
-        ];
-
-        this.enemies = [
-            // Outskirts
-            new Drone(this, 950, 300),
-
-            // Industrial
-            new GroundBot(this, 1300, 468),
-            new GroundBot(this, 1600, 468),
-            new Spike(this, 1500, 468),
-
-            // Core
-            new Drone(this, 2400, 200),
-            new Drone(this, 2600, 150)
-        ];
+        this.initLevel();
 
         // Game State
         this.state = 'MENU'; // MENU, MAP, LEVEL
@@ -511,24 +554,94 @@ class Game {
     }
 
     resetLevel() {
+        this.initLevel();
+    }
+
+    initLevel() {
         this.player.x = 100;
         this.player.y = 300;
         this.player.vx = 0;
         this.player.vy = 0;
-        this.player.hasWeapon = false; // Lose weapon on death
+        this.player.hasWeapon = false;
         this.camera.x = 0;
         this.bullets = [];
-        this.pickups = [new WeaponPickup(this, 300, 500)]; // Respawn Item
+        this.pickups = [new WeaponPickup(this, 300, 500)];
 
-        // Reset enemies (Hack: Re-create them)
-        this.enemies = [
-            new Drone(this, 950, 300),
-            new GroundBot(this, 1300, 468),
-            new GroundBot(this, 1600, 468),
-            new Spike(this, 1500, 468),
-            new Drone(this, 2400, 200),
-            new Drone(this, 2600, 150)
-        ];
+        // --- EXTENDED LEVEL DESIGN ---
+        this.platforms = [];
+        this.enemies = [];
+
+        // --- PHASE 1: OUTSKIRTS (0 - 2000) ---
+        // Easy platforming, learning controls.
+        this.platforms.push(
+            { x: 0, y: 500, w: 800, h: 50 }, // Start
+            { x: 900, y: 450, w: 200, h: 20 },
+            { x: 1200, y: 400, w: 200, h: 20 },
+            { x: 1500, y: 350, w: 200, h: 20 },
+            { x: 1800, y: 400, w: 300, h: 50 } // Checkpoint floor
+        );
+        this.enemies.push(
+            new Drone(this, 1300, 380), // Lowered
+            new Drone(this, 1900, 380)  // Lowered
+        );
+
+        // --- PHASE 2: INDUSTRIAL (2000 - 4500) ---
+        // GroundBots, Spikes, tighter jumps.
+        this.platforms.push(
+            { x: 2200, y: 450, w: 150, h: 20 },
+            { x: 2400, y: 500, w: 600, h: 50 }, // Combat Arena
+            { x: 3100, y: 450, w: 150, h: 20 },
+            { x: 3300, y: 400, w: 150, h: 20 },
+            { x: 3500, y: 500, w: 800, h: 50 }, // Long Gauntlet
+            { x: 4400, y: 400, w: 200, h: 20 }
+        );
+        this.enemies.push(
+            new GroundBot(this, 2500, 468),
+            new Spike(this, 2700, 468),
+            new GroundBot(this, 2800, 468),
+            new GroundBot(this, 3600, 468),
+            new Spike(this, 3800, 468),
+            new Spike(this, 4000, 468),
+            new GroundBot(this, 4100, 468)
+        );
+
+        // --- PHASE 3: THE CORE (4500 - 7000) ---
+        // Verticality, Drones everywhere.
+        this.platforms.push(
+            { x: 4700, y: 350, w: 150, h: 20 },
+            { x: 4900, y: 300, w: 150, h: 20 },
+            { x: 5100, y: 250, w: 150, h: 20 },
+            { x: 5300, y: 200, w: 150, h: 20 },
+            { x: 5500, y: 500, w: 1000, h: 50 }, // Floor catch
+            { x: 6000, y: 350, w: 150, h: 20 },
+            { x: 6200, y: 300, w: 150, h: 20 },
+            { x: 6400, y: 250, w: 150, h: 20 },
+            { x: 6700, y: 400, w: 400, h: 50 } // Rest
+        );
+        this.enemies.push(
+            new Drone(this, 5000, 230), // Lowered
+            new Drone(this, 5200, 180), // Lowered
+            new GroundBot(this, 5600, 468),
+            new GroundBot(this, 5800, 468),
+            new Drone(this, 6100, 280), // Lowered
+            new Drone(this, 6300, 230)  // Lowered
+        );
+
+        // --- PHASE 4: ASCENSION (7000+) ---
+        // New Phase. High risk.
+        this.platforms.push(
+            { x: 7200, y: 350, w: 100, h: 20 },
+            { x: 7500, y: 300, w: 100, h: 20 },
+            { x: 7800, y: 250, w: 100, h: 20 },
+            { x: 8100, y: 200, w: 100, h: 20 },
+            { x: 8400, y: 150, w: 100, h: 20 },
+            { x: 8700, y: 400, w: 500, h: 50 } // VICTORY PLATFORM
+        );
+        this.enemies.push(
+            new Drone(this, 7500, 280), // Lowered
+            new Drone(this, 7800, 230), // Lowered
+            new Drone(this, 8100, 180)  // Lowered
+        );
     }
 
     update(dt) {
@@ -596,6 +709,13 @@ class Game {
             if (this.input.keys['Escape']) {
                 this.state = 'MAP';
                 this.input.keys['Escape'] = false;
+            }
+
+            // AI Toggle (Shift + A)
+            if (this.input.keys['ShiftLeft'] && this.input.keys['KeyA']) {
+                this.aiMode = !this.aiMode;
+                this.input.keys['KeyA'] = false; // Debounce
+                console.log("AI Mode:", this.aiMode);
             }
         }
     }
@@ -766,19 +886,28 @@ class Game {
 
     drawLevel() {
         // --- DYNAMIC BACKGROUND & PHASES ---
+        // --- DYNAMIC BACKGROUND & PHASES ---
         let bgStart = '#0f0c29';
         let bgMid = '#302b63';
         let bgEnd = '#24243e';
+        let phase = 0;
 
-        const phase = Math.floor(this.player.x / 1000); // 0=Outskirts, 1=Industrial, 2=Core
+        if (this.player.x > 2000 && this.player.x < 4500) phase = 1; // Industrial
+        if (this.player.x >= 4500 && this.player.x < 7000) phase = 2; // Core
+        if (this.player.x >= 7000) phase = 3; // Ascension
+
         if (phase === 1) { // Industrial (Orange/Red)
             bgStart = '#290c0c';
             bgMid = '#632b2b';
             bgEnd = '#3e2424';
-        } else if (phase >= 2) { // Core (Green)
+        } else if (phase === 2) { // Core (Green)
             bgStart = '#0c290c';
             bgMid = '#2b632b';
             bgEnd = '#243e24';
+        } else if (phase === 3) { // Ascension (Gold/Royal)
+            bgStart = '#240046'; // Dark Violet
+            bgMid = '#7b2cbf';   // Royal Purple
+            bgEnd = '#ff9e00';   // Gold
         }
 
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
@@ -792,7 +921,13 @@ class Game {
         this.ctx.translate(-this.camera.x, 0);
 
         // Grid Floor Perspective (Fixed to camera for parallax feel)
-        this.ctx.strokeStyle = phase === 1 ? '#ffaa00' : (phase >= 2 ? '#00ff00' : '#00ffff');
+        // Grid Floor Perspective (Fixed to camera for parallax feel)
+        let gridColor = '#00ffff'; // Default
+        if (phase === 1) gridColor = '#ffaa00';
+        if (phase === 2) gridColor = '#00ff00';
+        if (phase === 3) gridColor = '#ffd700'; // Gold
+
+        this.ctx.strokeStyle = gridColor;
         this.ctx.lineWidth = 1;
         this.ctx.beginPath();
 
@@ -825,7 +960,8 @@ class Game {
             this.ctx.shadowBlur = 10;
             let glowColor = '#00ffff';
             if (phase === 1) glowColor = '#ffaa00';
-            if (phase >= 2) glowColor = '#00ff00';
+            if (phase === 2) glowColor = '#00ff00';
+            if (phase === 3) glowColor = '#ffd700';
 
             this.ctx.shadowColor = glowColor;
             this.ctx.strokeStyle = glowColor;
@@ -900,7 +1036,8 @@ class Game {
 
         let phaseName = "OUTSKIRTS";
         if (phase === 1) phaseName = "INDUSTRIAL";
-        if (phase >= 2) phaseName = "CORE";
+        if (phase === 2) phaseName = "CORE";
+        if (phase === 3) phaseName = "ASCENSION";
 
         this.ctx.fillText(`SECTOR: ${phaseName}`, 20, 40);
         this.ctx.textAlign = 'right';
@@ -919,12 +1056,25 @@ class Game {
     }
 
     animate(timeStamp) {
+        if (!this.lastTime) this.lastTime = timeStamp;
         const dt = timeStamp - this.lastTime;
         this.lastTime = timeStamp;
 
-        this.update(dt);
-        this.draw();
+        // Cumulative logic for fixed timestep (60 FPS)
+        if (!this.accumulator) this.accumulator = 0;
+        this.accumulator += dt;
 
+        // Cap accumulator to prevent spiral of death
+        if (this.accumulator > 200) this.accumulator = 200;
+
+        const TIME_STEP = 1000 / 60; // 16.66ms
+
+        while (this.accumulator >= TIME_STEP) {
+            this.update(TIME_STEP);
+            this.accumulator -= TIME_STEP;
+        }
+
+        this.draw();
         requestAnimationFrame(this.animate);
     }
 }

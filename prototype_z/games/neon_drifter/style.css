@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    background-color: #000;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#game-container {
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    border: 4px solid #444;
+}
+
+canvas {
+    display: block;
+    background-color: #5c94fc;
+    /* Mario Sky Blue */
+    image-rendering: pixelated;
+    /* Essential for retro look */
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}

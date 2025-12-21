@@ -3,7 +3,7 @@ import { ModernGlassTower } from './ModernGlassTower.js';
 import { UrbanHighrise } from './UrbanHighrise.js';
 import { NYArtDecoTower } from './NYArtDecoTower.js';
 import { NYChryslerTower } from './NYChryslerTower.js';
-import { SpiderManTower } from './SpiderManTower.js';
+import { HyperRealisticTower } from './HyperRealisticTower.js';
 
 export class World {
     constructor(scene) {
@@ -25,9 +25,9 @@ export class World {
         this.chrysler.visual.position.set(30, 0, -20); // Back Right
         this.scene.add(this.chrysler.visual);
 
-        this.oscorp = new SpiderManTower();
-        this.oscorp.visual.position.set(-35, 0, -30); // Back Left
-        this.scene.add(this.oscorp.visual);
+        this.hyper = new HyperRealisticTower();
+        this.hyper.visual.position.set(-35, 0, -30); // Back Left
+        this.scene.add(this.hyper.visual);
 
         // Ground plane
         const planeGeometry = new THREE.PlaneGeometry(200, 200);

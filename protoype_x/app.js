@@ -30,7 +30,7 @@ const COMPANIES = [
         id: 'quantinuum',
         name: 'Quantinuum',
         type: 'direct',
-        url: 'https://www.quantinuum.com/news'
+        url: 'https://www.quantinuum.com/news/news#press-release'
     },
     {
         id: 'psiquantum',
@@ -96,52 +96,128 @@ const fetchUrl = async (url) => {
 // Helper to parse Markdown links [Title](URL)
 const parseMarkdown = (mdString, domain) => {
     const items = [];
-    // Regex for [Title](URL) or ### Title ... [Link Text](URL)
-    // We grab explicit links first.
-    const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
 
-    // Initial pass: standard links
-    let match;
-    while ((match = linkRegex.exec(mdString)) !== null) {
-        const title = match[1].trim();
-        const link = match[2].trim();
+    // Quick date extraction helper
+    const extractDate = (text) => {
+        if (!text) return null;
+        // Match DD.MM.YY, YYYY-MM-DD, Month DD, YYYY
+        const dateMatch = text.match(/(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})|([A-Za-z]+ \d{1,2},? \d{4})/);
+        return dateMatch ? dateMatch[0] : null;
+    };
 
-        // Filter heuristics
-        if (title.length < 20) continue;
-        if (title.includes('Image')) continue;
-        if (title.includes('Read our')) continue; // Common in Quantinuum
-        if (title.includes('Skip to')) continue;
-        if (title.includes('Learn More')) continue; // Rigetti uses this as link text, not title
-
-        // Domain check (Strict for some, relaxed for others if domain is null/empty)
-        if (domain && !link.includes(domain)) continue;
-
-        items.push({
-            title: title,
-            link: link,
-            date: 'Recent'
-        });
-    }
-
-    // Secondary pass for Rigetti-style: ### Title \n ... [Learn More](Link)
-    // We scan for ### headers and find the next link.
     const lines = mdString.split('\n');
+
+    // Secondary pass for Rigetti-style: ### Title 
+    // AND Quantinuum-style: Title 
+    // date 
+    // [Read the paper](Link)
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
+        if (!line) continue;
+
+        // Rigetti Headers
         if (line.startsWith('### ')) {
             const title = line.replace(/^###\s+/, '').trim();
-            // Look ahead for next link
+            let date = 'Recent';
+            // Look backward for date
+            for (let k = 1; k <= 3; k++) {
+                if (i - k >= 0) {
+                    const prevDate = extractDate(lines[i - k]);
+                    if (prevDate) { date = prevDate; break; }
+                }
+            }
+
+            // Look ahead for Link
             for (let j = 1; j < 6 && i + j < lines.length; j++) {
                 const nextLine = lines[i + j];
-                const linkMatch = nextLine.match(/\[(Learn More|Read more|Source)\]\((https?:\/\/[^\)]+)\)/i);
+                const linkMatch = nextLine.match(/\[(Learn More|Read more|Source|.*?)\]\((https?:\/\/[^\)]+)\)/i);
                 if (linkMatch) {
-                    items.push({
-                        title: title,
-                        link: linkMatch[2],
-                        date: 'Recent'
-                    });
+                    items.push({ title, link: linkMatch[2], date });
                     break;
                 }
+            }
+        }
+
+        // Quantinuum "Plain text title" heuristic
+        // It's hard to distinguish a title from random text, but let's look for:
+        // Text line -> Date line -> [Read the paper] link
+        else if (line.length > 30 && !line.startsWith('[') && !line.startsWith('![')) {
+            // Potential title?
+            let title = line;
+            let date = 'Recent';
+            let link = null;
+
+            // Check next few lines for date and link
+            for (let j = 1; j < 5 && i + j < lines.length; j++) {
+                const nextLine = lines[i + j].trim();
+                if (!nextLine) continue;
+
+                const d = extractDate(nextLine);
+                if (d) { date = d; continue; }
+
+                const linkMatch = nextLine.match(/\[(Read the paper|Read more|Link text llorem)\]\((https?:\/\/[^\)[#]+)\)/i);
+                if (linkMatch) {
+                    link = linkMatch[2];
+                    break;
+                }
+
+                // If we hit another big text block or header, abort
+                if (nextLine.length > 50) break;
+            }
+
+            if (link) {
+                items.push({ title, link, date });
+            }
+        }
+    }
+
+    // Strategy 2: Standard [Title](Link) lines, potentially with date on previous line
+    for (let i = 0; i < lines.length; i++) { // Re-iterate for standard links
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const linkMatch = line.match(/^\[([^\]]+)\]\((https?:\/\/[^\)]+)\)$/);
+        if (linkMatch) {
+            const title = linkMatch[1].trim();
+            const link = linkMatch[2].trim();
+
+            // Filter heuristics
+            if (title.length < 15) continue;
+            if (title.includes('Image')) continue;
+            if (title.includes('Skip to')) continue;
+            if (domain && !link.includes(domain)) continue;
+
+            // Look backward for date
+            let date = 'Recent';
+            for (let k = 1; k <= 3; k++) {
+                if (i - k >= 0) {
+                    const prevDate = extractDate(lines[i - k]);
+                    if (prevDate) {
+                        date = prevDate;
+                        break;
+                    }
+                }
+            }
+
+            items.push({ title, link, date });
+        }
+    }
+
+    // Fallback: If line-by-line failed to find enough, do the bulk regex (no date support usually)
+    if (items.length < 2) {
+        const regex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
+        let match;
+        while ((match = regex.exec(mdString)) !== null) {
+            const title = match[1].trim();
+            const link = match[2].trim();
+            // Filter heuristics
+            if (title.length < 20) continue;
+            if (title.includes('Image')) continue;
+            if (domain && !link.includes(domain)) continue;
+
+            // Check if we already have this
+            if (!items.find(it => it.link === link)) {
+                items.push({ title, link, date: 'Recent' });
             }
         }
     }

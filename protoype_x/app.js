@@ -41,9 +41,11 @@ const COMPANIES = [
 ];
 
 // --- Utilities ---
+// Rotating proxies. Direct fetch first, then Jina, then others.
 const fetchWithFallback = async (url) => {
-    // Rotating proxies to bypass simple blocks
     const proxies = [
+        (u) => u, // Try direct fetch first (will specificially work if user has CORS disabled or server allows)
+        (u) => `https://r.jina.ai/${u}`, // Very robust for text content
         (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
         (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
         (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
@@ -54,20 +56,31 @@ const fetchWithFallback = async (url) => {
             const proxyUrl = proxyGen(url);
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error(`Proxy ${proxyUrl} failed`);
-            const data = await response.json();
 
-            // Normalize response: allorigins uses .contents, codetabs returns raw JSON/HTML
-            // If data has .contents, use it. If data IS the content (codetabs often returns raw), use data.
-            let content = data.contents || data;
+            const text = await response.text();
+            let content = text;
+            let isMarkdown = false;
 
-            // Type check: content should be string for HTML parsing
-            if (typeof content !== 'string') {
-                content = JSON.stringify(content); // Fallback if API returns JSON
+            // Check if Jina response (it's markdown)
+            // Jina usually starts with Title or URL Source metadata
+            if (proxyUrl.includes('r.jina.ai')) {
+                isMarkdown = true;
+            } else {
+                try {
+                    const json = JSON.parse(text);
+                    if (json.contents) {
+                        content = json.contents;
+                    }
+                } catch (e) {
+                    // Not JSON, assume raw HTML
+                }
             }
 
-            return { contents: content };
+            if (!content || content.length < 50) throw new Error('Empty content');
+
+            return { contents: content, isMarkdown };
         } catch (e) {
-            console.warn(`Proxy failed`, e);
+            console.warn(`Proxy failed: ${proxyGen(url)}`, e);
             continue;
         }
     }
@@ -79,10 +92,78 @@ const fetchUrl = async (url) => {
 };
 
 // --- Parsers ---
-const parseIonQ = (htmlString) => {
+
+// Helper to parse Markdown links [Title](URL)
+const parseMarkdown = (mdString, domain) => {
+    const items = [];
+    // Regex for [Title](URL) or ### Title ... [Link Text](URL)
+    // We grab explicit links first.
+    const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
+
+    // Initial pass: standard links
+    let match;
+    while ((match = linkRegex.exec(mdString)) !== null) {
+        const title = match[1].trim();
+        const link = match[2].trim();
+
+        // Filter heuristics
+        if (title.length < 20) continue;
+        if (title.includes('Image')) continue;
+        if (title.includes('Read our')) continue; // Common in Quantinuum
+        if (title.includes('Skip to')) continue;
+        if (title.includes('Learn More')) continue; // Rigetti uses this as link text, not title
+
+        // Domain check (Strict for some, relaxed for others if domain is null/empty)
+        if (domain && !link.includes(domain)) continue;
+
+        items.push({
+            title: title,
+            link: link,
+            date: 'Recent'
+        });
+    }
+
+    // Secondary pass for Rigetti-style: ### Title \n ... [Learn More](Link)
+    // We scan for ### headers and find the next link.
+    const lines = mdString.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('### ')) {
+            const title = line.replace(/^###\s+/, '').trim();
+            // Look ahead for next link
+            for (let j = 1; j < 6 && i + j < lines.length; j++) {
+                const nextLine = lines[i + j];
+                const linkMatch = nextLine.match(/\[(Learn More|Read more|Source)\]\((https?:\/\/[^\)]+)\)/i);
+                if (linkMatch) {
+                    items.push({
+                        title: title,
+                        link: linkMatch[2],
+                        date: 'Recent'
+                    });
+                    break;
+                }
+            }
+        }
+    }
+
+    return items;
+};
+
+const deduplicateByLink = (items) => {
+    const seen = new Set();
+    return items.filter(item => {
+        if (seen.has(item.link)) return false;
+        seen.add(item.link);
+        return true;
+    });
+};
+
+const parseIonQ = (content, isMarkdown) => {
+    if (isMarkdown) return deduplicateByLink(parseMarkdown(content, 'ionq.com'));
+
     try {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
+        const doc = parser.parseFromString(content, 'text/html');
         const items = [];
         const nodes = doc.querySelectorAll('a[href^="/news/"]');
         nodes.forEach(node => {
@@ -95,17 +176,20 @@ const parseIonQ = (htmlString) => {
                 });
             }
         });
-        return Array.from(new Set(items.map(i => JSON.stringify(i)))).map(s => JSON.parse(s)).slice(0, 5);
+        return deduplicateByLink(items).slice(0, 5);
     } catch (e) {
         console.error("Parse Error IonQ", e);
         return [];
     }
 };
 
-const parseRigetti = (htmlString) => {
+const parseRigetti = (content, isMarkdown) => {
+    // Pass null domain to allow external links (GlobeNewswire, Medium, etc)
+    if (isMarkdown) return deduplicateByLink(parseMarkdown(content, null));
+
     try {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
+        const doc = parser.parseFromString(content, 'text/html');
         const items = [];
         // Rigetti: Titles are h3, links are often "Learn More" or external
         const h3s = doc.querySelectorAll('h3');
@@ -133,17 +217,19 @@ const parseRigetti = (htmlString) => {
                 date: 'Recent'
             });
         });
-        return items.slice(0, 5);
+        return deduplicateByLink(items).slice(0, 5);
     } catch (e) {
         console.error("Parse Error Rigetti", e);
         return [];
     }
 };
 
-const parseDWave = (htmlString) => {
+const parseDWave = (content, isMarkdown) => {
+    if (isMarkdown) return deduplicateByLink(parseMarkdown(content, 'dwavequantum.com'));
+
     try {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
+        const doc = parser.parseFromString(content, 'text/html');
         const items = [];
         const nodes = doc.querySelectorAll('a');
         nodes.forEach(node => {
@@ -159,94 +245,79 @@ const parseDWave = (htmlString) => {
                 }
             }
         });
-        return Array.from(new Set(items.map(i => JSON.stringify(i)))).map(s => JSON.parse(s)).slice(0, 5);
+        return deduplicateByLink(items).slice(0, 5);
     } catch (e) {
         console.error("Parse Error D-Wave", e);
         return [];
     }
 };
 
-const parseQuantinuum = (htmlString) => {
+const parseQuantinuum = (content, isMarkdown) => {
+    if (isMarkdown) return deduplicateByLink(parseMarkdown(content, 'quantinuum.com'));
+
     try {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
+        const doc = parser.parseFromString(content, 'text/html');
         const items = [];
-        // Robust selector: .title_wrap OR just a text match
+
+        // Robust selector: .news_card_wrap (Primary) or generic search
         const cards = doc.querySelectorAll('.news_card_wrap');
 
-        if (cards.length === 0) {
-            // Fallback: look for ANY link to press-releases
-            const links = doc.querySelectorAll('a[href*="/press-releases/"]');
-            links.forEach(a => {
-                const title = a.innerText.trim();
-                // "Read our announcement" is not a title.
-                // If text is generic, look at parent or sibling?
-                // This fallback is risky.
+        if (cards.length > 0) {
+            cards.forEach(card => {
+                const titleElem = card.querySelector('.title_wrap');
+                const linkElem = card.querySelector('a');
+                const dateElem = card.querySelector('.blog_eyebrow');
+
+                if (titleElem) {
+                    const title = titleElem.innerText.trim();
+                    const link = linkElem ? linkElem.getAttribute('href') : '';
+                    const date = dateElem ? dateElem.innerText.trim() : 'Recent';
+
+                    if (title) {
+                        items.push({
+                            title: title,
+                            link: link.startsWith('http') ? link : 'https://www.quantinuum.com' + link,
+                            date: date
+                        });
+                    }
+                }
             });
         }
 
-        cards.forEach(card => {
-            const titleElem = card.querySelector('.title_wrap');
-            const linkElem = card.querySelector('a'); // Any link in card
-            const dateElem = card.querySelector('.blog_eyebrow');
-
-            if (titleElem) {
-                const title = titleElem.innerText.trim();
-                const link = linkElem ? linkElem.getAttribute('href') : '';
-                const date = dateElem ? dateElem.innerText.trim() : 'Recent';
-
-                if (title) {
-                    items.push({
-                        title: title,
-                        link: link.startsWith('http') ? link : 'https://www.quantinuum.com' + link,
-                        date: date
-                    });
-                }
-            }
-        });
-        return items.slice(0, 5);
+        return deduplicateByLink(items).slice(0, 5);
     } catch (e) {
         console.error("Parse Error Quantinuum", e);
         return [];
     }
 };
 
-const parsePsiQuantum = (htmlString) => {
+const parsePsiQuantum = (content, isMarkdown) => {
+    if (isMarkdown) return deduplicateByLink(parseMarkdown(content, 'psiquantum.com'));
+
     try {
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
-        // Check for CSR placeholder
-        if (htmlString.includes('Loading articles') || htmlString.length < 5000) {
-            // Fallback for CSR
-            return [{
-                title: "Latest News (Visit Site)",
-                link: "https://www.psiquantum.com/news",
-                date: "Live"
-            }];
-        }
-
+        const doc = parser.parseFromString(content, 'text/html');
         const items = [];
-        const nodes = doc.querySelectorAll('a');
-        nodes.forEach(node => {
+
+        // Squarespace Selector
+        const links = doc.querySelectorAll('.summary-title-link, .summary-title a');
+        links.forEach(node => {
+            const title = node.innerText.trim();
             const href = node.getAttribute('href');
-            if (href && (href.includes('/news/') || href.includes('/press/'))) {
-                const title = node.innerText.trim();
-                if (title.length > 25) {
-                    items.push({
-                        title: title,
-                        link: href.startsWith('http') ? href : 'https://www.psiquantum.com' + href,
-                        date: 'Recent'
-                    });
-                }
+            if (title && href) {
+                items.push({
+                    title: title,
+                    link: href.startsWith('http') ? href : 'https://www.psiquantum.com' + href,
+                    date: 'Recent'
+                });
             }
         });
-        return items.length ? Array.from(new Set(items.map(i => JSON.stringify(i)))).map(s => JSON.parse(s)).slice(0, 5) : [{
-            title: "No articles found (Click to Open)",
-            link: "https://www.psiquantum.com/news",
-            date: "Check"
-        }];
+
+        return deduplicateByLink(items).slice(0, 5);
     } catch (e) {
-        return [{ title: "Access Error (Visit Site)", link: "https://www.psiquantum.com/news", date: "Error" }];
+        console.error("Parse Error PsiQuantum", e);
+        return [];
     }
 };
 
@@ -264,13 +335,13 @@ const NewsCard = ({ company }) => {
                 let data = [];
                 // Direct scraping for everyone now
                 const result = await fetchUrl(company.url);
-                const content = result.contents;
+                const { contents: content, isMarkdown } = result;
 
-                if (company.id === 'ionq') data = parseIonQ(content);
-                else if (company.id === 'rigetti') data = parseRigetti(content);
-                else if (company.id === 'dwave') data = parseDWave(content);
-                else if (company.id === 'quantinuum') data = parseQuantinuum(content);
-                else if (company.id === 'psiquantum') data = parsePsiQuantum(content);
+                if (company.id === 'ionq') data = parseIonQ(content, isMarkdown);
+                else if (company.id === 'rigetti') data = parseRigetti(content, isMarkdown);
+                else if (company.id === 'dwave') data = parseDWave(content, isMarkdown);
+                else if (company.id === 'quantinuum') data = parseQuantinuum(content, isMarkdown);
+                else if (company.id === 'psiquantum') data = parsePsiQuantum(content, isMarkdown);
 
                 if (mounted) setNews(data);
             } catch (err) {

@@ -1,0 +1,1 @@
+sudo docker run -e HF_TOKEN={replace me}   -e VLLM_LOGGING_LEVEL=DEBUG   -it --gpus all  -v ~/.cache/:/root/.cache/    -p 8000:8000   vllm/vllm-openai:gemma4-cu130   google/gemma-4-31B-IT --enable-auto-tool-choice --tool-call-parser gemma4 --reasoning-parser gemma4

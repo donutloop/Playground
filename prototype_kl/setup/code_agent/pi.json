@@ -1,0 +1,19 @@
+{
+  "providers": {
+    "local-vllm": {
+      "baseUrl": "http://localhost:8000/v1",
+      "api": "openai",
+      "apiKey": "dummy",
+      "compat": {
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
+        {
+          "id": "google/gemma-4-31B-IT",
+          "contextWindow": 262144
+        }
+      ]
+    }
+  }
+}

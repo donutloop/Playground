@@ -20,4 +20,39 @@ func TestErrors(t *testing.T) {
 			t.Errorf("expected ErrDivisionByZero to be wrapped")
 		}
 	})
+
+	t.Run("UnknownFunctionError", func(t *testing.T) {
+		// ErrUnknownFunction should be returned by lexer for unknown identifier
+		lexer := parser.NewLexer("log(10)")
+		_, err := lexer.Tokenize()
+		if err == nil {
+			t.Errorf("expected error for unknown function")
+			return
+		}
+		var unknownFuncError *parser.ParseError
+		if errors.As(err, &unknownFuncError) {
+			if !errors.Is(unknownFuncError.Err, parser.ErrUnknownFunction) {
+				t.Errorf("expected ErrUnknownFunction, got %v", unknownFuncError.Err)
+			}
+		} else {
+			t.Errorf("error is not a ParseError: %v", err)
+		}
+	})
+
+	t.Run("SqrtNegativeError", func(t *testing.T) {
+		// ErrSqrtNegative should be returned by evaluator for sqrt of negative
+		_, err := parser.Evaluate("sqrt(-4)")
+		if err == nil {
+			t.Errorf("expected error for sqrt of negative number")
+			return
+		}
+		var evalError *parser.EvalError
+		if errors.As(err, &evalError) {
+			if !errors.Is(evalError.Err, parser.ErrSqrtNegative) {
+				t.Errorf("expected ErrSqrtNegative, got %v", evalError.Err)
+			}
+		} else {
+			t.Errorf("error is not an EvalError: %v", err)
+		}
+	})
 }

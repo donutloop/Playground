@@ -1,0 +1,11 @@
+[
+{"expression": "1 @ 2", "error": "ErrInvalidCharacter"},
+{"expression": "1 +", "error": "ParseError"},
+{"expression": "(1 + 2", "error": "ErrMismatchedParen"},
+{"expression": "10 / 0", "error": "ErrDivisionByZero"},
+{"expression": "", "error": "ErrEmptyExpression"},
+{"expression": "   ", "error": "ErrEmptyExpression"},
+{"expression": "sqrt(-1)", "error": "ErrSqrtNegative"},
+{"expression": "log(10)", "error": "ErrUnknownFunction"},
+{"expression": "sqrt(9", "error": "ParseError"}
+]

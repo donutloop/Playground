@@ -19,6 +19,11 @@ func TestEvaluator(t *testing.T) {
 		{"Unary", "-3 + 5", 2, false},
 		{"Complex", "(2 + 3) * (4 - 1)", 15, false},
 		{"DivByZero", "10 / 0", 0, true},
+		{"Sqrt", "sqrt(9)", 3, false},
+		{"Abs", "abs(-4)", 4, false},
+		{"Floor", "floor(2.9)", 2, false},
+		{"Ceil", "ceil(2.1)", 3, false},
+		{"SqrtNegative", "sqrt(-4)", 0, true},
 	}
 
 	for _, tt := range tests {

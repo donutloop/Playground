@@ -16,6 +16,7 @@ const (
 	TokenDivide
 	TokenLParen
 	TokenRParen
+	TokenFunction
 	TokenEOF
 )
 
@@ -68,6 +69,26 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 					l.pos++
 				}
 				tokens = append(tokens, Token{Type: TokenNumber, Value: l.input[start:l.pos], Pos: start})
+				continue
+			}
+			if unicode.IsLetter(rune(char)) {
+				start := l.pos
+				for l.pos < len(l.input) && unicode.IsLetter(rune(l.input[l.pos])) {
+					l.pos++
+				}
+				value := l.input[start:l.pos]
+				// Check if it's a supported function
+				supported := false
+				for _, f := range SupportedFunctions {
+					if f == value {
+						supported = true
+						break
+					}
+				}
+				if !supported {
+					return nil, &ParseError{Err: ErrUnknownFunction, Pos: start, Message: fmt.Sprintf("unknown function %q", value)}
+				}
+				tokens = append(tokens, Token{Type: TokenFunction, Value: value, Pos: start})
 				continue
 			}
 			return nil, &ParseError{Err: ErrInvalidCharacter, Pos: l.pos, Message: fmt.Sprintf("unknown character %q", char)}

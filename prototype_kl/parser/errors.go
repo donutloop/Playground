@@ -12,6 +12,8 @@ var (
 	ErrMismatchedParen  = errors.New("mismatched parentheses")
 	ErrDivisionByZero   = errors.New("division by zero")
 	ErrEmptyExpression  = errors.New("expression is empty")
+	ErrUnknownFunction  = errors.New("unknown function")
+	ErrSqrtNegative     = errors.New("sqrt of negative number")
 )
 
 // ParseError provides context about where the error occurred.

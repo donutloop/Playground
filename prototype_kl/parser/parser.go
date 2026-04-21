@@ -25,9 +25,16 @@ type UnaryOpNode struct {
 	Right Node
 }
 
+// FunctionNode represents a built-in function call, e.g. sqrt(expr).
+type FunctionNode struct {
+	Name string    // one of: sqrt, abs, floor, ceil
+	Arg  Node      // the single argument expression
+}
+
 func (n *NumberNode) isNode()   {}
 func (n *BinaryOpNode) isNode() {}
 func (n *UnaryOpNode) isNode()  {}
+func (n *FunctionNode) isNode() {}
 
 // Parser converts tokens into an AST.
 type Parser struct {
@@ -131,7 +138,7 @@ func (p *Parser) parseUnary() (Node, error) {
 	return p.parsePrimary()
 }
 
-// parsePrimary handles numbers and parentheses.
+// parsePrimary handles numbers, parentheses, and function calls.
 func (p *Parser) parsePrimary() (Node, error) {
 	token := p.consume()
 	switch token.Type {
@@ -159,11 +166,34 @@ func (p *Parser) parsePrimary() (Node, error) {
 		}
 		p.consume() // consume RParen
 		return node, nil
+	case TokenFunction:
+		funcName := token.Value
+		if p.current().Type != TokenLParen {
+			return nil, &ParseError{
+				Err:     ErrUnexpectedToken,
+				Pos:     p.current().Pos,
+				Message: fmt.Sprintf("expected '(' after function name %q", funcName),
+			}
+		}
+		p.consume() // consume '('
+		arg, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+		if p.current().Type != TokenRParen {
+			return nil, &ParseError{
+				Err:     ErrMismatchedParen,
+				Pos:     p.current().Pos,
+				Message: "missing closing parenthesis after function argument",
+			}
+		}
+		p.consume() // consume RParen
+		return &FunctionNode{Name: funcName, Arg: arg}, nil
 	default:
 		return nil, &ParseError{
 			Err:     ErrUnexpectedToken,
 			Pos:     token.Pos,
-			Message: fmt.Sprintf("expected number or '(', got %q", token.Value),
+			Message: fmt.Sprintf("expected number, '(', or function, got %q", token.Value),
 		}
 	}
 }

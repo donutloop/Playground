@@ -10,5 +10,8 @@ const (
 	OpRParen = ')'
 )
 
+// Supported functions for built-in math operations.
+var SupportedFunctions = []string{"sqrt", "abs", "floor", "ceil"}
+
 // Precision settings could be expanded here if rounding were required.
 const DefaultPrecision = 64

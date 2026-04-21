@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"math"
 )
 
 // Evaluator computes the result of an AST.
@@ -51,6 +52,27 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 			return left / right, nil
 		default:
 			return 0, &EvalError{Err: fmt.Errorf("unsupported binary operator %c", n.Op), Message: "binary operation failed"}
+		}
+
+	case *FunctionNode:
+		arg, err := e.Evaluate(n.Arg)
+		if err != nil {
+			return 0, err
+		}
+		switch n.Name {
+		case "sqrt":
+			if arg < 0 {
+				return 0, &EvalError{Err: ErrSqrtNegative, Message: fmt.Sprintf("sqrt of negative number %v", arg)}
+			}
+			return math.Sqrt(arg), nil
+		case "abs":
+			return math.Abs(arg), nil
+		case "floor":
+			return math.Floor(arg), nil
+		case "ceil":
+			return math.Ceil(arg), nil
+		default:
+			return 0, &EvalError{Err: fmt.Errorf("unsupported function %s", n.Name), Message: "function evaluation failed"}
 		}
 
 	default:

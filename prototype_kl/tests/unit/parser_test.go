@@ -20,6 +20,12 @@ func TestParser(t *testing.T) {
 		{"MalformedExpr", "1 +", true},
 		{"MismatchedParen", "(1 + 2", true},
 		{"Empty", "", true},
+		{"FunctionCall", "sqrt(4)", false},
+		{"FunctionCallAbs", "abs(-3)", false},
+		{"FunctionCallFloor", "floor(2.9)", false},
+		{"FunctionCallCeil", "ceil(2.1)", false},
+		{"FunctionMissingParen", "sqrt 4", true},
+		{"FunctionUnknown", "log(10)", true},
 	}
 
 	for _, tt := range tests {

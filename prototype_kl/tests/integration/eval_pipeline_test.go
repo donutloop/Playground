@@ -17,6 +17,12 @@ func TestEvalPipeline(t *testing.T) {
 		{"3.5 * 2", 7},
 		{"100 / 4 / 5", 5},
 		{"((2 + 3) * (4 - 1)) / 5", 3},
+		{"sqrt(9)", 3},
+		{"abs(-7)", 7},
+		{"floor(3.9)", 3},
+		{"ceil(3.1)", 4},
+		{"sqrt(9) + abs(-4) * 2", 11},
+		{"floor(sqrt(16))", 4},
 	}
 
 	for _, tt := range tests {

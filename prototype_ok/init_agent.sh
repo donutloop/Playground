@@ -1,0 +1,25 @@
+sudo docker run --rm -it --gpus all \
+  -e HF_TOKEN= \
+  -e VLLM_MARLIN_USE_ATOMIC_ADD=1 \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -p 8000:8000 \
+  vllm/vllm-openai:latest \
+    --model Qwen/Qwen3.6-27B-FP8 \
+    --served-model-name qwen3-27b \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --dtype auto \
+    --trust-remote-code \
+    --gpu-memory-utilization 0.7 \
+    --enable-chunked-prefill \
+    --enable-prefix-caching \
+    --max-num-seqs 4 \
+    --max-model-len 262144 \
+    --max-num-batched-tokens 16384 \
+    --enable-auto-tool-choice \
+    --tool-call-parser qwen3_coder \
+    --reasoning-parser qwen3 \
+    --speculative-config '{"method":"qwen3_next_mtp","num_speculative_tokens":3}' \
+    --generation-config auto \
+    --override-generation-config '{"temperature":0.6,"top_p":0.95,"top_k":20,"min_p":0.0,"presence_penalty":0.0,"repetition_penalty":1.0}' \
+    --default-chat-template-kwargs '{"preserve_thinking": true}'

@@ -12,10 +12,8 @@ Experimental game projects built with **Godot Engine 4.5+**.
 | ---------------- | ------- | ----------------------------------------------------------------- |
 | **Godot Engine** | 4.5+    | Download from [godotengine.org](https://godotengine.org/download) |
 
-Make sure the `godot` binary is accessible. All commands reference it via the `GODOT` environment variable:
-
 ```bash
-export GODOT=/path/to/godot   # e.g. /usr/local/bin/godot
+export GODOT=/path/to/godot
 ```
 
 ---
@@ -26,52 +24,50 @@ export GODOT=/path/to/godot   # e.g. /usr/local/bin/godot
 prototype_omega/
 ├── AGENTS.md                      # AI-agent rules & conventions
 ├── README.md                      # ← you are here
-├── .gitignore                     # Ignores .so, .h, .godot/, godot_binary
+├── .gitignore
 │
-└── cybersnake/                    # 2D Cyberpunk Snake game (GDScript)
-    ├── README.md                  # Game design, enemy guide, controls
+└── cybersnake3d/                  # 3D Cyberpunk Snake game (GDScript)
     └── project/                   # Godot project root
-        ├── project.godot          # Engine settings (640×640, 2D)
-        ├── main.tscn              # Scene tree (grid, snake, enemies, HUD, CRT)
-        ├── scripts/               # GDScript game logic
-        │   ├── snake.gd           # Core snake controller
-        │   ├── spawner.gd         # ICE shard spawner
-        │   ├── hud.gd             # HUD / death screen
-        │   ├── enemy_manager.gd   # Wave system
-        │   └── enemies/           # 5 enemy types + boss
-        └── shaders/               # Neon grid + CRT post-process
+        ├── project.godot          # Forward+, 1920×1080, SDFGI, SSR, TAA
+        ├── main.tscn              # 3D scene (environment, camera, grid, snake, enemies, HUD)
+        ├── scripts/
+        │   ├── snake3d.gd         # Core snake controller (grid on XZ plane)
+        │   ├── camera_follow.gd   # Smooth third-person camera
+        │   ├── spawner3d.gd       # ICE shard spawner (PrismMesh + OmniLight)
+        │   ├── hud.gd             # HUD overlay (CanvasLayer)
+        │   ├── enemy_manager3d.gd # Wave system
+        │   └── enemies/           # 5 enemy types + boss (all 3D)
+        └── shaders/
+            └── grid_floor.gdshader # Neon grid floor (spatial shader)
 ```
 
 ---
 
-## Projects
+## CyberSnake 3D
 
-### CyberSnake
-
-A neon-noir 2D snake game with tiered enemies, a multi-phase boss, boid-flocking swarms, and CRT post-processing.
+A neon-noir **3D snake game** with tiered enemies, a multi-phase boss, boid-flocking swarms, volumetric fog, and bloom.
 
 ```bash
 # Run the game (using GODOT env var)
-$GODOT --path cybersnake/project/
+$GODOT --path cybersnake3d/project/
 
 # Or directly with the binary path
-/home/donutloop/Workspace/godot_binary --path cybersnake/project/
+/home/donutloop/Workspace/godot_binary --path cybersnake3d/project/
 
 # Open in editor
-$GODOT --editor --path cybersnake/project/
+$GODOT --editor --path cybersnake3d/project/
 ```
 
-See [cybersnake/README.md](./cybersnake/README.md) for gameplay details, enemy guide, and controls.
+**Controls**: Arrow keys to steer, Enter to restart after death.
 
 ---
 
 ## Contributing
 
-See [AGENTS.md](./AGENTS.md) for coding standards, scene tree conventions, and patterns that all contributors (human and AI) must follow.
+See [AGENTS.md](./AGENTS.md) for coding standards, scene tree conventions, and patterns.
 
 ---
 
 ## License
 
-This project is experimental / personal use. See individual dependencies for their licenses:
 - [Godot Engine — MIT](https://github.com/godotengine/godot/blob/master/LICENSE.txt)

@@ -1,7 +1,0 @@
-[configuration]
-entry_symbol="GodotGoSnake3DInit"
-compatibility_minimum="4.1"
-
-[libraries]
-linux.debug.x86_64="res://lib/libsnake3d.so"
-linux.release.x86_64="res://lib/libsnake3d.so"

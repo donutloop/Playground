@@ -1,7 +1,3 @@
-# Compiled shared libraries (build output)
-*.so
-*.h
-
 # Godot editor cache
 .godot/
 

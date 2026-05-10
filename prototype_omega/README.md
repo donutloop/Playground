@@ -51,8 +51,11 @@ prototype_omega/
 A neon-noir 2D snake game with tiered enemies, a multi-phase boss, boid-flocking swarms, and CRT post-processing.
 
 ```bash
-# Run the game
+# Run the game (using GODOT env var)
 $GODOT --path cybersnake/project/
+
+# Or directly with the binary path
+/home/donutloop/Workspace/godot_binary --path cybersnake/project/
 
 # Open in editor
 $GODOT --editor --path cybersnake/project/

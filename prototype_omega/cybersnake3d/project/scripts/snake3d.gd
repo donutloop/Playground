@@ -1,0 +1,177 @@
+# snake3d.gd — 3D Snake controller on XZ grid plane
+extends Node3D
+
+const GRID_W := 40
+const GRID_H := 40
+
+var body: Array[Vector2i] = []
+var direction := Vector2i(1, 0)
+var next_direction := Vector2i(1, 0)
+var move_timer: float = 0.0
+var move_interval: float = 0.125  # 8 steps/sec
+var is_alive: bool = true
+var score: int = 0
+
+var invuln_timer: float = 2.0
+var just_attacked: bool = false
+
+var segments: Array[MeshInstance3D] = []
+
+# Materials
+var head_mat: StandardMaterial3D
+var body_mat: StandardMaterial3D
+
+signal died
+signal ate_shard
+signal score_changed(new_score: int)
+
+func _ready() -> void:
+	# Create materials
+	head_mat = StandardMaterial3D.new()
+	head_mat.albedo_color = Color(0.0, 1.0, 0.85, 1.0)
+	head_mat.emission_enabled = true
+	head_mat.emission = Color(0.0, 1.0, 0.85, 1.0)
+	head_mat.emission_energy_multiplier = 3.0
+
+	body_mat = StandardMaterial3D.new()
+	body_mat.albedo_color = Color(0.0, 0.7, 0.5, 1.0)
+	body_mat.emission_enabled = true
+	body_mat.emission = Color(0.0, 0.6, 0.4, 1.0)
+	body_mat.emission_energy_multiplier = 1.5
+
+	var cx := GRID_W / 2
+	var cy := GRID_H / 2
+	body = [
+		Vector2i(cx, cy),
+		Vector2i(cx - 1, cy),
+		Vector2i(cx - 2, cy),
+	]
+	_rebuild_meshes()
+
+func _process(delta: float) -> void:
+	if not is_alive:
+		return
+
+	if invuln_timer > 0.0:
+		invuln_timer -= delta
+		# Flash head during invuln
+		if head_mat:
+			var flash := sin(invuln_timer * 20.0) * 0.5 + 0.5
+			head_mat.emission_energy_multiplier = 3.0 + flash * 5.0
+
+	just_attacked = false
+	_handle_input()
+	move_timer += delta
+	if move_timer >= move_interval:
+		move_timer = 0.0
+		_step()
+
+func _handle_input() -> void:
+	var new_dir := direction
+	if Input.is_action_pressed("ui_up"):
+		new_dir = Vector2i(0, -1)
+	elif Input.is_action_pressed("ui_down"):
+		new_dir = Vector2i(0, 1)
+	elif Input.is_action_pressed("ui_left"):
+		new_dir = Vector2i(-1, 0)
+	elif Input.is_action_pressed("ui_right"):
+		new_dir = Vector2i(1, 0)
+	if new_dir + direction != Vector2i.ZERO:
+		next_direction = new_dir
+
+func _step() -> void:
+	direction = next_direction
+	var new_head := body[0] + direction
+
+	# Wall collision
+	if new_head.x < 0 or new_head.x >= GRID_W or new_head.y < 0 or new_head.y >= GRID_H:
+		_die()
+		return
+
+	# Self collision
+	for i in range(body.size() - 1):
+		if body[i] == new_head:
+			_die()
+			return
+
+	body.push_front(new_head)
+
+	# ICE shard
+	var spawner := get_node_or_null("../ICEShardSpawner")
+	if spawner and spawner.try_eat(new_head):
+		ate_shard.emit()
+		score += 100
+		score_changed.emit(score)
+		invuln_timer = 0.3
+	else:
+		body.pop_back()
+
+	_check_enemy_damage(new_head)
+	_rebuild_meshes()
+
+func _check_enemy_damage(head_pos: Vector2i) -> void:
+	var manager := get_node_or_null("../EnemyManager")
+	if not manager:
+		return
+	for enemy in manager.get_children():
+		if not is_instance_valid(enemy):
+			continue
+		if not enemy.has_method("take_damage") or not enemy.has_method("get_grid_positions"):
+			continue
+		for cell in enemy.get_grid_positions():
+			if cell == head_pos:
+				enemy.take_damage(1)
+				just_attacked = true
+				invuln_timer = 0.2
+				return
+
+func is_invulnerable() -> bool:
+	return invuln_timer > 0.0 or just_attacked
+
+func _die() -> void:
+	if invuln_timer > 0.0:
+		return
+	is_alive = false
+	died.emit()
+
+func get_occupied_cells() -> Array[Vector2i]:
+	return body
+
+func grid_to_world(gp: Vector2i) -> Vector3:
+	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.5, float(gp.y) - GRID_H * 0.5 + 0.5)
+
+func get_head_world_pos() -> Vector3:
+	if body.size() > 0:
+		return grid_to_world(body[0])
+	return Vector3.ZERO
+
+# ── mesh management ──────────────────────────────────────────────────
+func _rebuild_meshes() -> void:
+	# Remove excess segments
+	while segments.size() > body.size():
+		var seg: MeshInstance3D = segments.pop_back()
+		seg.queue_free()
+
+	# Add missing segments
+	while segments.size() < body.size():
+		var mesh_inst := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.8, 0.8, 0.8)
+		mesh_inst.mesh = box
+		add_child(mesh_inst)
+		segments.append(mesh_inst)
+
+	# Position and style segments — snap to grid (no lerp)
+	for i in range(body.size()):
+		var seg := segments[i]
+		seg.position = grid_to_world(body[i])
+
+		if i == 0:
+			seg.mesh.size = Vector3(0.9, 0.9, 0.9)
+			seg.material_override = head_mat
+		else:
+			var t := float(i) / float(body.size())
+			var s := lerpf(0.8, 0.5, t)
+			seg.mesh.size = Vector3(s, s, s)
+			seg.material_override = body_mat
+

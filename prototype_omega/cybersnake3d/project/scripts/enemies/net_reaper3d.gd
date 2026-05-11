@@ -1,8 +1,7 @@
 # net_reaper3d.gd — Tier 2: A* hunter (3D) - STUB with basic chase AI
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 
 var grid_pos := Vector2i.ZERO
 var hp: int = 2
@@ -68,8 +67,8 @@ func _step_toward_snake() -> void:
 		grid_pos.x += signi(diff.x)
 	else:
 		grid_pos.y += signi(diff.y)
-	grid_pos.x = clampi(grid_pos.x, 0, GRID_W - 1)
-	grid_pos.y = clampi(grid_pos.y, 0, GRID_H - 1)
+	grid_pos.x = clampi(grid_pos.x, 0, LevelSettings.grid_w - 1)
+	grid_pos.y = clampi(grid_pos.y, 0, LevelSettings.grid_h - 1)
 
 func _check_snake_collision() -> void:
 	var snake := get_node_or_null("../../Snake")
@@ -111,12 +110,12 @@ func _update_position() -> void:
 		mesh_inst.position = _grid_to_world(grid_pos)
 
 func _grid_to_world(gp: Vector2i) -> Vector3:
-	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.5, float(gp.y) - GRID_H * 0.5 + 0.5)
+	return Vector3(float(gp.x) - LevelSettings.grid_w * 0.5 + 0.5, 0.5, float(gp.y) - LevelSettings.grid_h * 0.5 + 0.5)
 
 func _random_edge() -> Vector2i:
 	var side := randi_range(0, 3)
 	match side:
-		0: return Vector2i(randi_range(0, GRID_W - 1), 0)
-		1: return Vector2i(randi_range(0, GRID_W - 1), GRID_H - 1)
-		2: return Vector2i(0, randi_range(0, GRID_H - 1))
-		_: return Vector2i(GRID_W - 1, randi_range(0, GRID_H - 1))
+		0: return Vector2i(randi_range(0, LevelSettings.grid_w - 1), 0)
+		1: return Vector2i(randi_range(0, LevelSettings.grid_w - 1), LevelSettings.grid_h - 1)
+		2: return Vector2i(0, randi_range(0, LevelSettings.grid_h - 1))
+		_: return Vector2i(LevelSettings.grid_w - 1, randi_range(0, LevelSettings.grid_h - 1))

@@ -8,9 +8,10 @@ uniform float line_width : hint_range(0.005, 0.1) = 0.02;
 uniform float scroll_speed : hint_range(0.0, 5.0) = 0.3;
 uniform float pulse_speed : hint_range(0.0, 5.0) = 1.5;
 uniform float pulse_amount : hint_range(0.0, 1.0) = 0.3;
+uniform float grid_cells = 40.0;
 
 void fragment() {
-	vec2 world_uv = UV * 40.0; // 40x40 grid
+	vec2 world_uv = UV * grid_cells;
 	world_uv.y += TIME * scroll_speed;
 
 	vec2 grid = abs(fract(world_uv / grid_size) - 0.5);

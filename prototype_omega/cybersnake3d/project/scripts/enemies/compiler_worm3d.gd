@@ -1,8 +1,7 @@
 # compiler_worm3d.gd — Tier 3: snake-like trail (3D)
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 
 var body: Array[Vector2i] = []
 var direction := Vector2i(1, 0)
@@ -46,8 +45,8 @@ func _step() -> void:
 			target = head + Vector2i(signi(diff.x), 0)
 		else:
 			target = head + Vector2i(0, signi(diff.y))
-	target.x = clampi(target.x, 0, GRID_W - 1)
-	target.y = clampi(target.y, 0, GRID_H - 1)
+	target.x = clampi(target.x, 0, LevelSettings.grid_w - 1)
+	target.y = clampi(target.y, 0, LevelSettings.grid_h - 1)
 	direction = target - head
 	body.push_front(target)
 
@@ -109,12 +108,12 @@ func _rebuild_meshes() -> void:
 		segments[i].position = _g2w(body[i])
 
 func _g2w(gp: Vector2i) -> Vector3:
-	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.5, float(gp.y) - GRID_H * 0.5 + 0.5)
+	return Vector3(float(gp.x) - LevelSettings.grid_w * 0.5 + 0.5, 0.5, float(gp.y) - LevelSettings.grid_h * 0.5 + 0.5)
 
 func _random_edge() -> Vector2i:
 	var side := randi_range(0, 3)
 	match side:
-		0: return Vector2i(randi_range(5, GRID_W - 6), 1)
-		1: return Vector2i(randi_range(5, GRID_W - 6), GRID_H - 2)
-		2: return Vector2i(1, randi_range(5, GRID_H - 6))
-		_: return Vector2i(GRID_W - 2, randi_range(5, GRID_H - 6))
+		0: return Vector2i(randi_range(5, LevelSettings.grid_w - 6), 1)
+		1: return Vector2i(randi_range(5, LevelSettings.grid_w - 6), LevelSettings.grid_h - 2)
+		2: return Vector2i(1, randi_range(5, LevelSettings.grid_h - 6))
+		_: return Vector2i(LevelSettings.grid_w - 2, randi_range(5, LevelSettings.grid_h - 6))

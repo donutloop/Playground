@@ -1,8 +1,7 @@
 # snake3d.gd — 3D Snake controller on XZ grid plane
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 
 var body: Array[Vector2i] = []
 var direction := Vector2i(1, 0)
@@ -66,8 +65,8 @@ func _ready() -> void:
 	hp = max_hp
 	move_interval = 1.0 / stats["speed"]
 
-	var cx := GRID_W / 2
-	var cy := GRID_H / 2
+	var cx: int = LevelSettings.grid_w / 2
+	var cy: int = LevelSettings.grid_h / 2
 	body = [
 		Vector2i(cx, cy),
 		Vector2i(cx - 1, cy),
@@ -134,7 +133,7 @@ func _step() -> void:
 	var new_head := body[0] + direction
 
 	# Wall collision
-	if new_head.x < 0 or new_head.x >= GRID_W or new_head.y < 0 or new_head.y >= GRID_H:
+	if new_head.x < 0 or new_head.x >= LevelSettings.grid_w or new_head.y < 0 or new_head.y >= LevelSettings.grid_h:
 		_die()
 		return
 
@@ -253,7 +252,7 @@ func get_occupied_cells() -> Array[Vector2i]:
 	return body
 
 func grid_to_world(gp: Vector2i) -> Vector3:
-	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.5, float(gp.y) - GRID_H * 0.5 + 0.5)
+	return Vector3(float(gp.x) - LevelSettings.grid_w * 0.5 + 0.5, 0.5, float(gp.y) - LevelSettings.grid_h * 0.5 + 0.5)
 
 func get_head_world_pos() -> Vector3:
 	if body.size() > 0:

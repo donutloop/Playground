@@ -1,8 +1,7 @@
 # spawner3d.gd — ICE shard spawner in 3D
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 const MAX_SHARDS := 3
 
 var shards: Array[Vector2i] = []
@@ -48,7 +47,7 @@ func _spawn_shard() -> void:
 	occupied.append_array(shards)
 
 	for _attempt in range(200):
-		var pos := Vector2i(randi_range(1, GRID_W - 2), randi_range(1, GRID_H - 2))
+		var pos := Vector2i(randi_range(1, LevelSettings.grid_w - 2), randi_range(1, LevelSettings.grid_h - 2))
 		if pos not in occupied:
 			shards.append(pos)
 			_create_shard_mesh(pos)
@@ -89,4 +88,4 @@ func get_shard_positions() -> Array[Vector2i]:
 	return shards
 
 func _grid_to_world(gp: Vector2i) -> Vector3:
-	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.7, float(gp.y) - GRID_H * 0.5 + 0.5)
+	return Vector3(float(gp.x) - LevelSettings.grid_w * 0.5 + 0.5, 0.7, float(gp.y) - LevelSettings.grid_h * 0.5 + 0.5)

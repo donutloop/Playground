@@ -1,8 +1,7 @@
 # glitch_drone3d.gd — Tier 1: random walk with glitch stutter (3D)
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 
 var grid_pos := Vector2i.ZERO
 var hp: int = 1
@@ -82,7 +81,7 @@ func _step() -> void:
 		ticks_until_turn = randi_range(3, 6)
 		var d: Vector2i = DIRECTIONS[randi_range(0, 3)]
 		var next: Vector2i = grid_pos + d
-		if next.x >= 0 and next.x < GRID_W and next.y >= 0 and next.y < GRID_H:
+		if next.x >= 0 and next.x < LevelSettings.grid_w and next.y >= 0 and next.y < LevelSettings.grid_h:
 			grid_pos = next
 		return
 
@@ -92,7 +91,7 @@ func _step() -> void:
 	for i in range(dirs.size()):
 		var d: Vector2i = dirs[i]
 		var next: Vector2i = grid_pos + d
-		if next.x >= 0 and next.x < GRID_W and next.y >= 0 and next.y < GRID_H:
+		if next.x >= 0 and next.x < LevelSettings.grid_w and next.y >= 0 and next.y < LevelSettings.grid_h:
 			grid_pos = next
 			return
 
@@ -130,12 +129,12 @@ func _update_position() -> void:
 		mesh_inst.position = _grid_to_world(grid_pos)
 
 func _grid_to_world(gp: Vector2i) -> Vector3:
-	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.5, float(gp.y) - GRID_H * 0.5 + 0.5)
+	return Vector3(float(gp.x) - LevelSettings.grid_w * 0.5 + 0.5, 0.5, float(gp.y) - LevelSettings.grid_h * 0.5 + 0.5)
 
 func _random_edge() -> Vector2i:
 	var side := randi_range(0, 3)
 	match side:
-		0: return Vector2i(randi_range(0, GRID_W - 1), 0)
-		1: return Vector2i(randi_range(0, GRID_W - 1), GRID_H - 1)
-		2: return Vector2i(0, randi_range(0, GRID_H - 1))
-		_: return Vector2i(GRID_W - 1, randi_range(0, GRID_H - 1))
+		0: return Vector2i(randi_range(0, LevelSettings.grid_w - 1), 0)
+		1: return Vector2i(randi_range(0, LevelSettings.grid_w - 1), LevelSettings.grid_h - 1)
+		2: return Vector2i(0, randi_range(0, LevelSettings.grid_h - 1))
+		_: return Vector2i(LevelSettings.grid_w - 1, randi_range(0, LevelSettings.grid_h - 1))

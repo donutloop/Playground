@@ -1,8 +1,7 @@
 # blackwall_sentinel3d.gd — Boss (3D)
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 
 var grid_pos := Vector2i(18, 18)
 var hp: int = 10
@@ -16,7 +15,7 @@ var mesh_inst: MeshInstance3D
 var mat: StandardMaterial3D
 
 func _ready() -> void:
-	grid_pos = Vector2i(GRID_W / 2 - 1, GRID_H / 2 - 1)
+	grid_pos = Vector2i(int(LevelSettings.grid_w) / 2 - 1, LevelSettings.grid_h / 2 - 1)
 	mat = StandardMaterial3D.new()
 	mat.albedo_color = Color(0.8, 0.0, 0.2, 1.0)
 	mat.emission_enabled = true
@@ -112,6 +111,6 @@ func get_grid_positions() -> Array[Vector2i]:
 	return p
 
 func _g2w_center() -> Vector3:
-	var cx := float(grid_pos.x) + 1.5 - GRID_W * 0.5
-	var cz := float(grid_pos.y) + 1.5 - GRID_H * 0.5
+	var cx := float(grid_pos.x) + 1.5 - LevelSettings.grid_w * 0.5
+	var cz := float(grid_pos.y) + 1.5 - LevelSettings.grid_h * 0.5
 	return Vector3(cx, 1.0, cz)

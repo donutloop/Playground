@@ -1,8 +1,7 @@
 # virus_swarm3d.gd — Tier 2: boid flock (3D)
 extends Node3D
+const LevelSettings = preload("res://scripts/level_settings.gd")
 
-const GRID_W := 40
-const GRID_H := 40
 
 var units: Array[Dictionary] = []
 var center_pos := Vector3.ZERO
@@ -95,8 +94,8 @@ func _update_boids(delta: float) -> void:
 		velocity.y = 0.0
 		var new_pos := pos + velocity * delta * 5.0
 		new_pos.y = 0.5
-		new_pos.x = clampf(new_pos.x, -GRID_W * 0.5, GRID_W * 0.5)
-		new_pos.z = clampf(new_pos.z, -GRID_H * 0.5, GRID_H * 0.5)
+		new_pos.x = clampf(new_pos.x, -LevelSettings.grid_w * 0.5, LevelSettings.grid_w * 0.5)
+		new_pos.z = clampf(new_pos.z, -LevelSettings.grid_h * 0.5, LevelSettings.grid_h * 0.5)
 
 		units[i]["pos"] = new_pos
 		(units[i]["mesh"] as MeshInstance3D).position = new_pos
@@ -153,16 +152,16 @@ func get_grid_positions() -> Array[Vector2i]:
 	for u in units:
 		if u["alive"]:
 			var p: Vector3 = u["pos"]
-			positions.append(Vector2i(int(p.x + GRID_W * 0.5), int(p.z + GRID_H * 0.5)))
+			positions.append(Vector2i(int(p.x + LevelSettings.grid_w * 0.5), int(p.z + LevelSettings.grid_h * 0.5)))
 	return positions
 
 func _grid_to_world(gp: Vector2i) -> Vector3:
-	return Vector3(float(gp.x) - GRID_W * 0.5 + 0.5, 0.5, float(gp.y) - GRID_H * 0.5 + 0.5)
+	return Vector3(float(gp.x) - LevelSettings.grid_w * 0.5 + 0.5, 0.5, float(gp.y) - LevelSettings.grid_h * 0.5 + 0.5)
 
 func _random_edge() -> Vector2i:
 	var side := randi_range(0, 3)
 	match side:
-		0: return Vector2i(randi_range(0, GRID_W - 1), 0)
-		1: return Vector2i(randi_range(0, GRID_W - 1), GRID_H - 1)
-		2: return Vector2i(0, randi_range(0, GRID_H - 1))
-		_: return Vector2i(GRID_W - 1, randi_range(0, GRID_H - 1))
+		0: return Vector2i(randi_range(0, LevelSettings.grid_w - 1), 0)
+		1: return Vector2i(randi_range(0, LevelSettings.grid_w - 1), LevelSettings.grid_h - 1)
+		2: return Vector2i(0, randi_range(0, LevelSettings.grid_h - 1))
+		_: return Vector2i(LevelSettings.grid_w - 1, randi_range(0, LevelSettings.grid_h - 1))

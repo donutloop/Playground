@@ -17,7 +17,12 @@ func _ready() -> void:
 	call_deferred("_start_next_wave")
 
 func _process(delta: float) -> void:
-	enemies = enemies.filter(func(e: Node) -> bool: return is_instance_valid(e) and e.is_inside_tree())
+	var i := enemies.size() - 1
+	while i >= 0:
+		var e := enemies[i]
+		if not is_instance_valid(e) or not e.is_inside_tree():
+			enemies.remove_at(i)
+		i -= 1
 
 	if not between_waves and enemies.size() == 0:
 		between_waves = true

@@ -63,6 +63,11 @@ func _check_snake_collision() -> void:
 	if not snake or not snake.is_alive or snake.body.size() == 0:
 		return
 	if snake.is_invulnerable():
+		if snake.overcharge_active:
+			for cell in body:
+				if cell == snake.body[0]:
+					take_damage(1)
+					return
 		return
 	for cell in body:
 		if cell == snake.body[0]:
@@ -82,6 +87,8 @@ func _die() -> void:
 	if snake:
 		snake.score += 250 + body.size() * 30
 		snake.score_changed.emit(snake.score)
+		if snake.has_method("add_xp"):
+			snake.add_xp(50)
 	queue_free()
 
 func get_grid_positions() -> Array[Vector2i]:

@@ -70,9 +70,15 @@ func _check_snake_collision() -> void:
 	var snake := get_node_or_null("../../Snake")
 	if not snake or not snake.is_alive or snake.body.size() == 0:
 		return
-	if snake.is_invulnerable():
-		return
 	var head := snake.body[0]
+	if snake.is_invulnerable():
+		if snake.overcharge_active:
+			for dy in range(3):
+				for dx in range(3):
+					if head == grid_pos + Vector2i(dx, dy):
+						take_damage(1)
+						return
+		return
 	for dy in range(3):
 		for dx in range(3):
 			if head == grid_pos + Vector2i(dx, dy):
@@ -89,6 +95,8 @@ func _die() -> void:
 	if snake:
 		snake.score += 2000
 		snake.score_changed.emit(snake.score)
+		if snake.has_method("add_xp"):
+			snake.add_xp(200)
 	var hud := get_node_or_null("../../HUD")
 	if hud:
 		hud.show_wave_announce(0)

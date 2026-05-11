@@ -106,6 +106,13 @@ func _check_snake_collision() -> void:
 	if not snake or not snake.is_alive or snake.body.size() == 0:
 		return
 	if snake.is_invulnerable():
+		if snake.overcharge_active:
+			var head_world := snake.get_head_world_pos()
+			for u in units:
+				if not u["alive"]:
+					continue
+				if (u["pos"] as Vector3 - head_world).length() < 0.8:
+					take_damage(1)
 		return
 	var head_world := snake.get_head_world_pos()
 	for u in units:
@@ -137,6 +144,8 @@ func _all_dead() -> void:
 	if snake:
 		snake.score += 200
 		snake.score_changed.emit(snake.score)
+		if snake.has_method("add_xp"):
+			snake.add_xp(35)
 	queue_free()
 
 func get_grid_positions() -> Array[Vector2i]:

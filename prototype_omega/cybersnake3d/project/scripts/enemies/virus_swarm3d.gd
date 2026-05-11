@@ -53,8 +53,8 @@ func _process(delta: float) -> void:
 	# Move center toward snake
 	var snake := get_node_or_null("../../Snake")
 	if snake and snake.body.size() > 0 and not scattering:
-		var target := snake.get_head_world_pos()
-		var dir := (target - center_pos).normalized()
+		var target: Vector3 = snake.get_head_world_pos()
+		var dir: Vector3 = (target - center_pos).normalized()
 		center_pos += dir * 2.0 * delta
 
 	_update_boids(delta)
@@ -107,14 +107,14 @@ func _check_snake_collision() -> void:
 		return
 	if snake.is_invulnerable():
 		if snake.overcharge_active:
-			var head_world := snake.get_head_world_pos()
+			var head_world: Vector3 = snake.get_head_world_pos()
 			for u in units:
 				if not u["alive"]:
 					continue
 				if (u["pos"] as Vector3 - head_world).length() < 0.8:
 					take_damage(1)
 		return
-	var head_world := snake.get_head_world_pos()
+	var head_world: Vector3 = snake.get_head_world_pos()
 	for u in units:
 		if not u["alive"]:
 			continue

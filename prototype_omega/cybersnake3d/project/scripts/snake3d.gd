@@ -37,6 +37,8 @@ var invuln_timer: float = 2.0
 var just_attacked: bool = false
 
 var segments: Array[MeshInstance3D] = []
+var head_mesh: Mesh = null
+var body_mesh: Mesh = null
 
 # Materials
 var head_mat: StandardMaterial3D
@@ -49,6 +51,12 @@ signal evolved(stage: int)
 signal xp_changed(current_xp: int, current_level: int, current_evo: int)
 
 func _ready() -> void:
+	# Load custom meshes if they exist in the assets directory
+	if ResourceLoader.exists("res://assets/snake_head.obj"):
+		head_mesh = load("res://assets/snake_head.obj")
+	if ResourceLoader.exists("res://assets/snake_body.obj"):
+		body_mesh = load("res://assets/snake_body.obj")
+
 	# Create materials
 	head_mat = StandardMaterial3D.new()
 	head_mat.emission_enabled = true
@@ -134,7 +142,9 @@ func _step() -> void:
 
 	# Wall collision
 	if new_head.x < 0 or new_head.x >= LevelSettings.grid_w or new_head.y < 0 or new_head.y >= LevelSettings.grid_h:
-		_die()
+		hp = 0
+		is_alive = false
+		died.emit()
 		return
 
 	# Self collision
@@ -269,9 +279,6 @@ func _rebuild_meshes() -> void:
 	# Add missing segments
 	while segments.size() < body.size():
 		var mesh_inst := MeshInstance3D.new()
-		var box := BoxMesh.new()
-		box.size = Vector3(0.8, 0.8, 0.8)
-		mesh_inst.mesh = box
 		add_child(mesh_inst)
 		segments.append(mesh_inst)
 
@@ -281,11 +288,36 @@ func _rebuild_meshes() -> void:
 		seg.position = grid_to_world(body[i])
 
 		if i == 0:
-			seg.mesh.size = Vector3(0.9, 0.9, 0.9)
+			if head_mesh:
+				seg.mesh = head_mesh
+				seg.scale = Vector3.ONE
+			else:
+				var box := BoxMesh.new()
+				box.size = Vector3(0.9, 0.9, 0.9)
+				seg.mesh = box
+				seg.scale = Vector3.ONE
 			seg.material_override = head_mat
+
+			# Rotate head to face movement direction
+			var dir3d := Vector3(float(direction.x), 0.0, float(direction.y))
+			if dir3d.length_squared() > 0.001:
+				seg.look_at(seg.position + dir3d, Vector3.UP)
 		else:
 			var t := float(i) / float(body.size())
 			var s := lerpf(0.8, 0.5, t)
-			seg.mesh.size = Vector3(s, s, s)
+			if body_mesh:
+				seg.mesh = body_mesh
+				seg.scale = Vector3(s, s, s)
+			else:
+				var box := BoxMesh.new()
+				box.size = Vector3(s, s, s)
+				seg.mesh = box
+				seg.scale = Vector3.ONE
 			seg.material_override = body_mat
+
+			# Rotate segment to face the segment ahead
+			var segment_ahead := grid_to_world(body[i - 1])
+			var segment_dir := segment_ahead - seg.position
+			if segment_dir.length_squared() > 0.001:
+				seg.look_at(seg.position + segment_dir.normalized(), Vector3.UP)
 

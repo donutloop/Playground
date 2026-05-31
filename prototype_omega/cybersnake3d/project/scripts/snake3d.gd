@@ -39,10 +39,13 @@ var just_attacked: bool = false
 var segments: Array[MeshInstance3D] = []
 var head_mesh: Mesh = null
 var body_mesh: Mesh = null
+var skull_custom_mesh: Mesh = null
+var snout_custom_mesh: Mesh = null
 
 # Materials
 var head_mat: StandardMaterial3D
 var body_mat: StandardMaterial3D
+var eye_mat: StandardMaterial3D
 
 signal died
 signal ate_shard
@@ -56,6 +59,10 @@ func _ready() -> void:
 		head_mesh = load("res://assets/snake_head.obj")
 	if ResourceLoader.exists("res://assets/snake_body.obj"):
 		body_mesh = load("res://assets/snake_body.obj")
+	if ResourceLoader.exists("res://assets/snake_skull_base.obj"):
+		skull_custom_mesh = load("res://assets/snake_skull_base.obj")
+	if ResourceLoader.exists("res://assets/snake_snout_jaw.obj"):
+		snout_custom_mesh = load("res://assets/snake_snout_jaw.obj")
 
 	# Create materials
 	head_mat = StandardMaterial3D.new()
@@ -224,6 +231,10 @@ func _apply_evo_colors() -> void:
 	if body_mat:
 		body_mat.albedo_color = b_color
 		body_mat.emission = b_color
+	
+	# Update procedural head neon materials to match evolutionary color stage
+	if segments.size() > 0 and is_instance_valid(segments[0]):
+		_update_procedural_head_materials(segments[0])
 
 func _check_enemy_damage(head_pos: Vector2i, is_tail_whip: bool) -> void:
 	var manager := get_node_or_null("../EnemyManager")
@@ -288,36 +299,174 @@ func _rebuild_meshes() -> void:
 		seg.position = grid_to_world(body[i])
 
 		if i == 0:
-			if head_mesh:
-				seg.mesh = head_mesh
-				seg.scale = Vector3.ONE
-			else:
-				var box := BoxMesh.new()
-				box.size = Vector3(0.9, 0.9, 0.9)
-				seg.mesh = box
-				seg.scale = Vector3.ONE
-			seg.material_override = head_mat
-
+			_ensure_procedural_head(seg)
+			
 			# Rotate head to face movement direction
 			var dir3d := Vector3(float(direction.x), 0.0, float(direction.y))
 			if dir3d.length_squared() > 0.001:
 				seg.look_at(seg.position + dir3d, Vector3.UP)
 		else:
 			var t := float(i) / float(body.size())
-			var s := lerpf(0.8, 0.5, t)
+			var s := lerpf(1.3, 0.7, t)
 			if body_mesh:
 				seg.mesh = body_mesh
-				seg.scale = Vector3(s, s, s)
+				seg.scale = Vector3(s, s * 0.5, s)
+				seg.material_override = body_mat
 			else:
 				var box := BoxMesh.new()
-				box.size = Vector3(s, s, s)
+				box.size = Vector3(s, s * 0.5, s)
 				seg.mesh = box
 				seg.scale = Vector3.ONE
-			seg.material_override = body_mat
+				seg.material_override = body_mat
 
 			# Rotate segment to face the segment ahead
 			var segment_ahead := grid_to_world(body[i - 1])
 			var segment_dir := segment_ahead - seg.position
 			if segment_dir.length_squared() > 0.001:
 				seg.look_at(seg.position + segment_dir.normalized(), Vector3.UP)
+
+func _ensure_procedural_head(head_node: MeshInstance3D) -> void:
+	# Ensure the parent head node does not render a primitive mesh itself
+	head_node.mesh = null
+	head_node.material_override = null
+	
+	# Scale the master head parent to make it proportional and large
+	head_node.scale = Vector3(2.3, 2.3, 2.3)
+
+	# Check if procedural head has already been constructed
+	if head_node.get_child_count() > 0:
+		_update_procedural_head_materials(head_node)
+		return
+
+	# Sleek cyber materials
+	var metal_dark := StandardMaterial3D.new()
+	metal_dark.albedo_color = Color(0.12, 0.12, 0.15, 1.0) # Titanium armor plate
+	metal_dark.metallic = 0.9
+	metal_dark.roughness = 0.2
+	
+	var metal_accent := StandardMaterial3D.new()
+	metal_accent.albedo_color = Color(0.25, 0.25, 0.3, 1.0) # Accent panels
+	metal_accent.metallic = 0.95
+	metal_accent.roughness = 0.1
+
+	var neon_glow := StandardMaterial3D.new()
+	neon_glow.albedo_color = head_mat.albedo_color if head_mat else Color(0.2, 1.0, 1.0)
+	neon_glow.emission_enabled = true
+	neon_glow.emission = head_mat.emission if head_mat else Color(0.2, 1.0, 1.0)
+	neon_glow.emission_energy_multiplier = 4.0
+
+	var glass_black := StandardMaterial3D.new()
+	glass_black.albedo_color = Color(0.01, 0.01, 0.01, 1.0) # Piano-black lenses
+	glass_black.metallic = 0.95
+	glass_black.roughness = 0.02
+
+	# 1. Main Brain Case (Rear Skull)
+	var skull := MeshInstance3D.new()
+	skull.name = "Skull"
+	if skull_custom_mesh:
+		skull.mesh = skull_custom_mesh
+		skull.scale = Vector3(0.55, 0.20, 0.30)
+	else:
+		var skull_mesh := BoxMesh.new()
+		skull_mesh.size = Vector3(0.85, 0.38, 0.6)
+		skull.mesh = skull_mesh
+		skull.scale = Vector3.ONE
+	skull.material_override = metal_dark
+	skull.position = Vector3(0.0, 0.1, 0.1)
+	head_node.add_child(skull)
+
+	# 2. Sleek Tapered Snout
+	var snout := MeshInstance3D.new()
+	snout.name = "Snout"
+	if snout_custom_mesh:
+		snout.mesh = snout_custom_mesh
+		snout.scale = Vector3(0.30, 0.20, 0.38)
+	else:
+		var snout_mesh := BoxMesh.new()
+		snout_mesh.size = Vector3(0.55, 0.28, 0.55)
+		snout.mesh = snout_mesh
+		snout.scale = Vector3.ONE
+	snout.material_override = metal_accent
+	snout.position = Vector3(0.0, 0.05, -0.42)
+	head_node.add_child(snout)
+
+	# 3. Triangular Temporal Cheek Plates (Broad back, tapering front)
+	for side in [-1.0, 1.0]:
+		var cheek := MeshInstance3D.new()
+		cheek.name = "Cheek_" + ("L" if side < 0 else "R")
+		var cheek_mesh := BoxMesh.new()
+		cheek_mesh.size = Vector3(0.12, 0.32, 0.6)
+		cheek.mesh = cheek_mesh
+		cheek.material_override = metal_dark
+		cheek.position = Vector3(0.48 * side, 0.08, 0.05)
+		cheek.rotation_degrees = Vector3(0, 15.0 * side, 0)
+		head_node.add_child(cheek)
+
+	# 4. Glossy Black Cyber Eye Lenses (Positioned perfectly on lateral sockets)
+	for side in [-1.0, 1.0]:
+		var eye := MeshInstance3D.new()
+		eye.name = "Eye_" + ("L" if side < 0 else "R")
+		var eye_mesh := SphereMesh.new()
+		eye_mesh.radius = 0.13
+		eye_mesh.height = 0.26
+		eye.mesh = eye_mesh
+		eye.material_override = glass_black
+		eye.position = Vector3(0.42 * side, 0.15, -0.22)
+		head_node.add_child(eye)
+
+	# 5. Cybernetic Brow Plates (Natural stern brow ridges!)
+	for side in [-1.0, 1.0]:
+		var brow := MeshInstance3D.new()
+		brow.name = "Brow_" + ("L" if side < 0 else "R")
+		var brow_mesh := BoxMesh.new()
+		brow_mesh.size = Vector3(0.18, 0.06, 0.35)
+		brow.mesh = brow_mesh
+		brow.material_override = metal_accent
+		brow.position = Vector3(0.38 * side, 0.24, -0.22)
+		brow.rotation_degrees = Vector3(5.0, 0, 12.0 * side)
+		head_node.add_child(brow)
+
+	# 6. Lower Jaw Plate
+	var jaw := MeshInstance3D.new()
+	jaw.name = "Jaw"
+	var jaw_mesh := BoxMesh.new()
+	jaw_mesh.size = Vector3(0.75, 0.1, 0.85)
+	jaw.mesh = jaw_mesh
+	jaw.material_override = metal_dark
+	jaw.position = Vector3(0.0, -0.16, -0.18)
+	head_node.add_child(jaw)
+
+	# 7. Neon Cyber Fangs (Glowing fangs!)
+	for side in [-1.0, 1.0]:
+		var fang := MeshInstance3D.new()
+		fang.name = "Fang_" + ("L" if side < 0 else "R")
+		var fang_mesh := CylinderMesh.new()
+		fang_mesh.top_radius = 0.01
+		fang_mesh.bottom_radius = 0.04
+		fang_mesh.height = 0.28
+		fang.mesh = fang_mesh
+		fang.material_override = neon_glow
+		fang.position = Vector3(0.2 * side, -0.15, -0.58)
+		fang.rotation_degrees = Vector3(-10.0, 0, 5.0 * side)
+		head_node.add_child(fang)
+
+	# 8. Sleek Neon Forehead Visor Stripe
+	var stripe := MeshInstance3D.new()
+	stripe.name = "VisorStripe"
+	var stripe_mesh := BoxMesh.new()
+	stripe_mesh.size = Vector3(0.08, 0.03, 0.6)
+	stripe.mesh = stripe_mesh
+	stripe.material_override = neon_glow
+	stripe.position = Vector3(0.0, 0.25, -0.32)
+	stripe.rotation_degrees = Vector3(15.0, 0, 0)
+	head_node.add_child(stripe)
+
+func _update_procedural_head_materials(head_node: MeshInstance3D) -> void:
+	var current_color = head_mat.emission if head_mat else Color(0.2, 1.0, 1.0)
+	for child in head_node.get_children():
+		if child.name.begins_with("Fang_") or child.name == "VisorStripe":
+			var mat = child.material_override as StandardMaterial3D
+			if mat:
+				mat.albedo_color = current_color
+				mat.emission = current_color
 

@@ -46,6 +46,11 @@ func TestEvaluator(t *testing.T) {
 		{"Fact", "fact(5)", 120, false},
 		{"FactNegative", "fact(-3)", 0, true},
 		{"BadArity", "pow(2)", 0, true},
+		{"Pi", "pi", 3.141592653589793, false},
+		{"E", "e", 2.718281828459045, false},
+		{"PiExpr", "2 * pi", 6.283185307179586, false},
+		{"PiSin", "sin(pi / 2)", 1, false},
+		{"Eln", "ln(e)", 1, false},
 	}
 
 	for _, tt := range tests {

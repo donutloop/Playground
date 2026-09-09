@@ -18,14 +18,16 @@ const (
 	TokenRParen
 	TokenComma
 	TokenFunction
+	TokenConstant
 	TokenEOF
 )
 
 // Token represents a single lexical unit.
 type Token struct {
-	Type  TokenType
-	Value string
-	Pos   int
+	Type     TokenType
+	Value    string
+	Constant float64 // populated for TokenConstant
+	Pos      int
 }
 
 // Lexer breaks the input string into a slice of tokens.
@@ -80,6 +82,11 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 					l.pos++
 				}
 				value := l.input[start:l.pos]
+				// Constants take precedence: pi and e resolve to numeric values.
+				if val, ok := SupportedConstants[value]; ok {
+					tokens = append(tokens, Token{Type: TokenConstant, Value: value, Constant: val, Pos: start})
+					continue
+				}
 				// Check if it's a supported function
 				if _, ok := SupportedFunctions[value]; !ok {
 					return nil, &ParseError{Err: ErrUnknownFunction, Pos: start, Message: fmt.Sprintf("unknown function %q", value)}

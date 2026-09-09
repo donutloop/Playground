@@ -152,6 +152,8 @@ func (p *Parser) parsePrimary() (Node, error) {
 			}
 		}
 		return &NumberNode{Value: val}, nil
+	case TokenConstant:
+		return &NumberNode{Value: token.Constant}, nil
 	case TokenLParen:
 		node, err := p.parseExpression()
 		if err != nil {

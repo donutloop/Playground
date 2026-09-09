@@ -1,5 +1,7 @@
 package parser
 
+import "math"
+
 // Supported operators as constants to ensure consistency across lexer, parser, and evaluator.
 const (
 	OpAdd    = '+'
@@ -41,6 +43,12 @@ var SupportedFunctions = map[string]int{
 	"hypot": 2,  // hypot(x, y)
 	"min":   -1, // variadic
 	"max":   -1, // variadic
+}
+
+// SupportedConstants maps constant names to their numeric values.
+var SupportedConstants = map[string]float64{
+	"pi": math.Pi,
+	"e":  math.E,
 }
 
 // Precision settings could be expanded here if rounding were required.

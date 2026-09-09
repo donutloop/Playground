@@ -123,6 +123,16 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Atan2(args[0], args[1]), nil
 	case "gcd":
 		return gcd(args[0], args[1]), nil
+	case "log10":
+		if args[0] <= 0 {
+			return math.NaN(), ErrDomain
+		}
+		return math.Log10(args[0]), nil
+	case "log1p":
+		if args[0] <= -1 {
+			return math.NaN(), ErrDomain
+		}
+		return math.Log1p(args[0]), nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

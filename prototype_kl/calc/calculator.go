@@ -25,6 +25,7 @@ type Calculator struct {
 	hasMem    bool
 	history   []string
 	statePath string
+	degMode   bool
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -103,6 +104,14 @@ func (c *Calculator) handle(line string) (bool, error) {
 		return false, nil
 	case "ms", "m+", "m-", "mr", "mc", "mem":
 		return false, c.memoryCommand(strings.ToLower(line))
+	case "deg":
+		c.degMode = true
+		fmt.Fprintln(c.out, "trig in degrees")
+		return false, nil
+	case "rad":
+		c.degMode = false
+		fmt.Fprintln(c.out, "trig in radians")
+		return false, nil
 	}
 
 	for _, stmt := range splitStatements(line) {
@@ -166,6 +175,9 @@ func (c *Calculator) eval(line string) (float64, error) {
 		return 0, fmt.Errorf("no previous result yet")
 	}
 	line = c.substitute(line)
+	if c.degMode {
+		line = applyDeg(line)
+	}
 	return parser.Evaluate(line)
 }
 
@@ -229,7 +241,7 @@ functions    sqrt cbrt abs floor ceil round trunc sin cos tan asin acos atan
 variables    name = expression    e.g. x = 3 + 2 ; then use x anywhere
 ans          last result; usable in later expressions
 statements   separate with ';'   e.g. x = 2; x * 3
-commands     help, vars, history, clear, mem, ms, m+, m-, mr, mc, quit/exit`)
+commands     help, vars, history, clear, deg/rad, mem, ms, m+, m-, mr, mc, quit/exit`)
 }
 
 func (c *Calculator) printVars() {

@@ -164,3 +164,33 @@ func TestPersistentLoadError(t *testing.T) {
 		t.Fatal("expected error on corrupt state file")
 	}
 }
+
+func TestDegreeMode(t *testing.T) {
+	got := run(t, "deg\nsin(30)\ncos(60)\ntan(45)\nrad\nsin(30)\n")
+	// In degree mode: sin(30)=0.5, cos(60)=0.5, tan(45)=1
+	for _, want := range []string{"0.5", "0.5", "1"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("degree mode missing %q:\n%s", want, got)
+		}
+	}
+	// Back in radians, sin(30 rad) != 0.5 (it is about -0.988)
+	if !strings.Contains(got, "-0.988") {
+		t.Errorf("radians not restored:\n%s", got)
+	}
+}
+
+func TestInverseDegreeMode(t *testing.T) {
+	got := run(t, "deg\nasin(1)\n")
+	// asin(1) in degrees = 90
+	if !strings.Contains(got, "90") {
+		t.Errorf("inverse trig degrees missing:\n%s", got)
+	}
+}
+
+func TestNestedDegree(t *testing.T) {
+	got := run(t, "deg\nsin(cos(60))\n")
+	// cos(60deg)=0.5, sin(0.5deg)=0.008726535...
+	if !strings.Contains(got, "0.0087") {
+		t.Errorf("nested degree transform missing:\n%s", got)
+	}
+}

@@ -278,3 +278,11 @@ func TestModePrompt(t *testing.T) {
 		t.Errorf("mode prompt missing:\n%s", got)
 	}
 }
+
+func TestRedo(t *testing.T) {
+	got := run(t, "x = 5\nx * 2\nundo\nredo\nx * 2\n")
+	// after undo+redo, state restored; x*2 gives 10 again
+	if !strings.Contains(got, "10") {
+		t.Errorf("redo failed:\n%s", got)
+	}
+}

@@ -29,6 +29,7 @@ type Calculator struct {
 	sci       bool
 	prec      int
 	undoStack []state
+	redoStack []state
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -197,6 +198,7 @@ func (c *Calculator) handle(line string) (bool, error) {
 
 // process handles a single statement: assignment or expression.
 func (c *Calculator) process(stmt string) (bool, error) {
+	c.redoStack = nil
 	c.undoStack = append(c.undoStack, c.snapshot())
 	if stmt[0] == '@' {
 		return false, c.recall(stmt)

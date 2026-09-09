@@ -26,7 +26,7 @@ func (c *Calculator) memoryCommand(cmd string) error {
 		}
 		c.ans = c.memory
 		c.hasAns = true
-		fmt.Fprintln(c.out, Format(c.memory))
+		fmt.Fprintln(c.out, c.format(c.memory))
 		return nil
 	}
 
@@ -35,7 +35,7 @@ func (c *Calculator) memoryCommand(cmd string) error {
 			fmt.Fprintln(c.out, "memory is empty")
 			return nil
 		}
-		fmt.Fprintln(c.out, Format(c.memory))
+		fmt.Fprintln(c.out, c.format(c.memory))
 		return nil
 	}
 
@@ -60,6 +60,6 @@ func (c *Calculator) memoryCommand(cmd string) error {
 		}
 	}
 	c.hasMem = true
-	fmt.Fprintf(c.out, "memory = %s\n", Format(c.memory))
+	fmt.Fprintf(c.out, "memory = %s\n", c.format(c.memory))
 	return nil
 }

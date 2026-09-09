@@ -26,6 +26,8 @@ type Calculator struct {
 	history   []string
 	statePath string
 	degMode   bool
+	sci       bool
+	prec      int
 	undoStack []state
 	in        *bufio.Reader
 	out       io.Writer
@@ -35,6 +37,7 @@ type Calculator struct {
 func New(reader io.Reader, writer io.Writer) *Calculator {
 	return &Calculator{
 		vars: make(map[string]float64),
+		prec: 15,
 		in:   bufio.NewReader(reader),
 		out:  writer,
 	}
@@ -108,6 +111,14 @@ func (c *Calculator) restore(st state) {
 
 // handle processes one input line: commands, assignments, or expressions.
 func (c *Calculator) handle(line string) (bool, error) {
+	if n, ok := parsePrec(line); ok {
+		if n < 1 || n > 17 {
+			return false, fmt.Errorf("prec must be 1..17")
+		}
+		c.prec = n
+		fmt.Fprintf(c.out, "precision = %d\n", n)
+		return false, nil
+	}
 	switch strings.ToLower(line) {
 	case "help", "?":
 		c.printHelp()
@@ -129,7 +140,7 @@ func (c *Calculator) handle(line string) (bool, error) {
 		if !c.hasAns {
 			return false, fmt.Errorf("no previous result")
 		}
-		fmt.Fprintln(c.out, Format(c.ans))
+		fmt.Fprintln(c.out, c.format(c.ans))
 		return false, nil
 	case "ms", "m+", "m-", "mr", "mc", "mem":
 		return false, c.memoryCommand(strings.ToLower(line))
@@ -149,6 +160,16 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.undoStack = c.undoStack[:len(c.undoStack)-1]
 		fmt.Fprintln(c.out, "undone")
 		return false, nil
+	case "sci":
+		c.sci = true
+		fmt.Fprintln(c.out, "scientific notation on")
+		return false, nil
+	case "fix":
+		c.sci = false
+		fmt.Fprintln(c.out, "scientific notation off")
+		return false, nil
+	case "prec":
+		return false, fmt.Errorf("usage: prec <n> (1..17 significant digits)")
 	}
 
 	for _, stmt := range splitStatements(line) {
@@ -184,7 +205,7 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	}
 	c.ans = v
 	c.hasAns = true
-	fmt.Fprintln(c.out, Format(v))
+	fmt.Fprintln(c.out, c.format(v))
 	return false, nil
 }
 
@@ -211,7 +232,7 @@ func (c *Calculator) recall(stmt string) error {
 	}
 	c.ans = v
 	c.hasAns = true
-	fmt.Fprintln(c.out, Format(v))
+	fmt.Fprintln(c.out, c.format(v))
 	return nil
 }
 
@@ -233,7 +254,7 @@ func (c *Calculator) assign(name, expr string) error {
 		return err
 	}
 	c.vars[name] = v
-	fmt.Fprintf(c.out, "%s = %s\n", name, Format(v))
+	fmt.Fprintf(c.out, "%s = %s\n", name, c.format(v))
 	return nil
 }
 
@@ -318,7 +339,7 @@ func (c *Calculator) printVars() {
 		return
 	}
 	for name, val := range c.vars {
-		fmt.Fprintf(c.out, "%s = %s\n", name, Format(val))
+		fmt.Fprintf(c.out, "%s = %s\n", name, c.format(val))
 	}
 }
 

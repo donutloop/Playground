@@ -217,3 +217,29 @@ func TestUndoEmpty(t *testing.T) {
 		t.Errorf("expected error, got:\n%s", got)
 	}
 }
+
+func TestSciToggle(t *testing.T) {
+	got := run(t, "sci\n12345\nfix\n12345\n")
+	// sci: 12345 in scientific notation; fix: back to normal
+	if !strings.Contains(got, "1.2345e+04") {
+		t.Errorf("sci missing:\n%s", got)
+	}
+	if !strings.Contains(got, "12345") {
+		t.Errorf("fix not restored:\n%s", got)
+	}
+}
+
+func TestPrecCommand(t *testing.T) {
+	got := run(t, "prec 3\n1 / 3\n")
+	// 1/3 with 3 sig digits ~ 0.333
+	if !strings.Contains(got, "0.333") {
+		t.Errorf("prec failed:\n%s", got)
+	}
+}
+
+func TestPrecBad(t *testing.T) {
+	got := run(t, "prec 99\n")
+	if !strings.Contains(got, "must be 1..17") {
+		t.Errorf("bad prec not rejected:\n%s", got)
+	}
+}

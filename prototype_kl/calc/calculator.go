@@ -180,7 +180,7 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.history = append(c.history, stmt)
 		quit, err := c.process(stmt)
 		if err != nil {
-			return false, err
+			return false, fmt.Errorf("%s: %v", stmt, err)
 		}
 		if quit {
 			return true, nil

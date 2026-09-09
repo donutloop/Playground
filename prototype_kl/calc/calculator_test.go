@@ -243,3 +243,10 @@ func TestPrecBad(t *testing.T) {
 		t.Errorf("bad prec not rejected:\n%s", got)
 	}
 }
+
+func TestContextualError(t *testing.T) {
+	got := run(t, "1 / 0\n")
+	if !strings.Contains(got, "1 / 0:") {
+		t.Errorf("contextual error missing:\n%s", got)
+	}
+}

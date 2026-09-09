@@ -1,13 +1,19 @@
-.PHONY: build test fmt clean
+.PHONY: build test run fmt vet clean
 
 build:
-	go build -o evaluator main.go
+	go build -o calculator main.go
 
 test:
-	go test -v ./tests/unit/... ./tests/integration/...
+	go test -v ./...
+
+run:
+	go run main.go
 
 fmt:
-	go fmt ./...
+	gofmt -l -w .
+
+vet:
+	go vet ./...
 
 clean:
-	rm -f evaluator
+	rm -f calculator

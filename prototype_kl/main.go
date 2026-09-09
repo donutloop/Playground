@@ -1,34 +1,40 @@
+// Command calculator is a full-featured interactive math calculator.
+//
+// Usage:
+//
+//	calculator                 start the interactive REPL
+//	calculator --eval "expr"   evaluate one expression and print the result
+//	calculator --help          show usage
+//
+// Expressions support arithmetic (+ - * /), parentheses, the constants pi/e,
+// and a rich set of functions (trig, hyperbolic, logs, pow, min/max, fact).
+// In the REPL you can also assign variables and recall the last result as
+// "ans".
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
+
+	"prototype_kl/calc"
 	"prototype_kl/parser"
 )
 
 func main() {
-	expressions := []string{
-		"1 + 2",
-		"10 - 3 * 2",
-		"(10 - 3) * 2",
-		"-5 + 3",
-		"3.5 * 2",
-		"100 / 4 / 5",
-		"((2 + 3) * (4 - 1)) / 5",
-		"42",
-		"((((1))))",
-		"invalid + expr",
-		"10 / 0",
-		"(1 + 2",
+	eval := flag.String("eval", "", "evaluate one expression and print the result")
+	flag.Parse()
+
+	if *eval != "" {
+		v, err := parser.Evaluate(*eval)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println(calc.Format(v))
+		return
 	}
 
-	fmt.Println("Evaluating expressions:")
-	fmt.Println("-----------------------")
-	for _, expr := range expressions {
-		result, err := parser.Evaluate(expr)
-		if err != nil {
-			fmt.Printf("%-25s -> Error: %v\n", expr, err)
-		} else {
-			fmt.Printf("%-25s -> Result: %g\n", expr, result)
-		}
-	}
+	c := calc.New(os.Stdin, os.Stdout)
+	c.Run()
 }

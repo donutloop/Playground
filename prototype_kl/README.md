@@ -1,62 +1,77 @@
-# Math Expression Evaluator
+# Math Calculator
 
-A high-performance, clean-architecture math expression evaluator written in Go.
+A full-featured math calculator in Go, built on a clean-architecture parser
+package plus an interactive read-evaluate-print (REPL) shell.
 
-## Features
-- Basic operations: `+`, `-`, `*`, `/`
-- Correct operator precedence and associativity
-- Grouping with parentheses `()`
-- Unary negation (e.g., `-3 + 5`)
-- Floating point support
-- Comprehensive error handling with typed errors
-- Built-in math functions: `sqrt`, `abs`, `floor`, `ceil`
+## Packages
 
-## Getting Started
+- **`parser`** — a strict, dependency-free expression parser and evaluator.
+  It lexes, parses, and evaluates arithmetic expressions with functions and
+  constants, returning typed errors (division by zero, unknown function,
+  bad arity, domain errors).
+- **`calc`** — an interactive calculator shell. It adds first-class variables,
+  last-result `ans`, multi-statement lines, history, and friendly formatting.
+  Variable resolution uses a real single-pass lexer (no regex).
 
-### Prerequisites
-- Go 1.22+
-- Make
+## Build & run
 
-### Building
-```bash
-make build
+```sh
+make build        # builds ./calculator
+make test         # runs all unit + integration tests
 ```
 
-### Running the Demo
-```bash
-go run main.go
+### Interactive mode
+
+```sh
+./calculator
 ```
 
-### Testing
-```bash
-make test
-```
-
-### Formatting
-```bash
-make fmt
-```
-
-## Built-in Functions
-
-The evaluator supports the following built-in mathematical functions:
-
-| Function | Description | Example | Result |
-|----------|-------------|---------|--------|
-| `sqrt(x)` | Square root of x (x ≥ 0) | `sqrt(9)` | `3` |
-| `abs(x)` | Absolute value of x | `abs(-4)` | `4` |
-| `floor(x)` | Greatest integer ≤ x | `floor(2.9)` | `2` |
-| `ceil(x)` | Smallest integer ≥ x | `ceil(2.1)` | `3` |
-
-### Usage
-Function calls can be nested and combined with operators:
+Type `help` for commands. Example session:
 
 ```
-sqrt(9) + abs(-4) * 2    # evaluates to 11
-floor(sqrt(16))          # evaluates to 4
+> x = 3 + 2
+x = 5
+> x * 3
+15
+> pow(2, 10)
+1024
+> ans + 1
+1025
+> sin(pi / 2)
+1
 ```
 
-### Errors
-- `sqrt` of a negative number returns an `ErrSqrtNegative` error.
-- Unknown function names (e.g., `log`) return an `ErrUnknownFunction` error.
+### One-shot evaluation (scripting)
 
+```sh
+./calculator --eval "0.1 + 0.2"    # prints 0.3
+./calculator --eval "sin(pi/2)"    # prints 1
+```
+
+## Expression language
+
+- Operators: `+ - * /`, parentheses, precedence and associativity.
+- Constants: `pi`, `e`.
+- Unary functions: `sqrt cbrt abs floor ceil round trunc sin cos tan asin
+  acos atan sinh cosh tanh ln log exp fact`.
+- Binary/variadic: `pow(x, y)`, `hypot(x, y)`, `min(a, ...)`, `max(a, ...)`.
+- Trig functions use radians.
+
+## Calculator shell features
+
+| Feature      | Example                                   |
+|--------------|-------------------------------------------|
+| Variables    | `x = 3 + 2` then use `x` anywhere          |
+| Last result  | `ans` usable in later expressions          |
+| Statements   | separate with `;` — `y = 2; y * 3`         |
+| Commands     | `help`, `vars`, `history`, `clear`, `quit` |
+| Formatting   | floating-point noise hidden (`0.1+0.2` → `0.3`) |
+
+## Development
+
+Each feature is developed and committed separately, and `make test` must pass
+before any commit:
+
+```sh
+make fmt && make vet && make test
+```

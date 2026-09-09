@@ -40,6 +40,10 @@ var helpTopics = map[string]string{
 	"undo":      "undo: revert the last statement",
 	"vars":      "vars: list defined variables",
 	"clear":     "clear: reset variables and ans",
+	"ans":       "ans: the last result; usable in any later expression",
+	"mem":       "mem: the memory register; usable in expressions",
+	"@":         "@N: re-evaluate history entry N (1-based)",
+	"last":      "last: show the most recent expression and result",
 }
 
 // help looks up a topic and prints its documentation.
@@ -49,7 +53,11 @@ func (c *Calculator) help(topic string) error {
 		c.printHelp()
 		return nil
 	}
-	doc, ok := helpTopics[strings.ToLower(topic)]
+	key := strings.ToLower(topic)
+	if strings.HasPrefix(key, "@") {
+		key = "@"
+	}
+	doc, ok := helpTopics[key]
 	if !ok {
 		return fmt.Errorf("no help for %q; try 'help'", topic)
 	}

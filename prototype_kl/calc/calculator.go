@@ -498,3 +498,8 @@ func (c *Calculator) Eng() {
 	c.eng = true
 	c.sci = false
 }
+
+// SetRad forces radians mode (degree mode off) for batch evaluation.
+func (c *Calculator) SetRad() {
+	c.degMode = false
+}

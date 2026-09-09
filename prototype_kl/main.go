@@ -36,6 +36,7 @@ func main() {
 	version := flag.Bool("version", false, "print version and exit")
 	eng := flag.Bool("eng", false, "engineering notation for output")
 	verify := flag.Bool("verify", false, "run the self-test battery")
+	rad := flag.Bool("rad", false, "trig in radians (default)")
 	flag.Parse()
 
 	if *version {
@@ -65,12 +66,12 @@ func main() {
 		}
 		defer f.Close()
 		c := calc.NewBatch(f, os.Stdout)
+		if *state != "" {
+			_ = c.LoadState(*state)
+		}
 		c.SetDisplay(*prec, *sci, *deg)
 		if *eng {
 			c.Eng()
-		}
-		if *state != "" {
-			_ = c.LoadState(*state)
 		}
 		c.Run()
 		if *state != "" {
@@ -86,6 +87,9 @@ func main() {
 		if *eng {
 			c.Eng()
 		}
+		if *rad {
+			c.SetRad()
+		}
 		if *state != "" {
 			_ = c.LoadState(*state)
 		}
@@ -100,12 +104,15 @@ func main() {
 	if *eval != "" {
 		var out bytes.Buffer
 		c := calc.NewBatch(strings.NewReader(*eval), &out)
-		c.SetDisplay(*prec, *sci, *deg)
-		if *eng {
-			c.Eng()
-		}
 		if *state != "" {
 			_ = c.LoadState(*state)
+		}
+		c.SetDisplay(*prec, *sci, *deg)
+		if *rad {
+			c.SetRad()
+		}
+		if *eng {
+			c.Eng()
 		}
 		c.Run()
 		if strings.TrimSpace(out.String()) == "" {

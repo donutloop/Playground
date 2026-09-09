@@ -19,6 +19,10 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"0.1 + 0.2", "0.3"},
 		{"sqrt(16)", "4"},
 		{"min(3, 1, 2)", "1"},
+		{"log2(8)", "3"},
+		{"atan2(1, 1)", "0.785398163397448"},
+		{"gcd(12, 18)", "6"},
+		{"lcm(4, 6)", "12"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

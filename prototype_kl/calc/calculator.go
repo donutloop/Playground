@@ -32,6 +32,7 @@ type Calculator struct {
 	redoStack []state
 	quiet     bool
 	lastExpr  string
+	eng       bool
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -193,6 +194,15 @@ func (c *Calculator) handle(line string) (bool, error) {
 	case "fix":
 		c.sci = false
 		fmt.Fprintln(c.out, "scientific notation off")
+		return false, nil
+	case "eng":
+		c.eng = true
+		c.sci = false
+		fmt.Fprintln(c.out, "engineering notation on")
+		return false, nil
+	case "std":
+		c.eng = false
+		fmt.Fprintln(c.out, "standard notation")
 		return false, nil
 	case "prec":
 		return false, fmt.Errorf("usage: prec <n> (1..17 significant digits)")

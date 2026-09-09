@@ -14,6 +14,9 @@ func Format(v float64) string {
 
 // format renders v according to the calculator's display settings.
 func (c *Calculator) format(v float64) string {
+	if c.eng {
+		return formatEng(v, c.prec)
+	}
 	return formatPrec(v, c.prec, c.sci)
 }
 

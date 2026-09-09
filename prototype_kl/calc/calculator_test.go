@@ -293,3 +293,10 @@ func TestLastCommand(t *testing.T) {
 		t.Errorf("last missing:\n%s", got)
 	}
 }
+
+func TestEngNotation(t *testing.T) {
+	got := run(t, "12345\neng\n12345\n")
+	if !strings.Contains(got, "12.345e3") {
+		t.Errorf("eng missing:\n%s", got)
+	}
+}

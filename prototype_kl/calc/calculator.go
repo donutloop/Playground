@@ -21,6 +21,8 @@ type Calculator struct {
 	vars    map[string]float64
 	ans     float64
 	hasAns  bool
+	memory  float64
+	hasMem  bool
 	history []string
 	in      *bufio.Reader
 	out     io.Writer
@@ -84,6 +86,8 @@ func (c *Calculator) handle(line string) (bool, error) {
 		}
 		fmt.Fprintln(c.out, Format(c.ans))
 		return false, nil
+	case "ms", "m+", "m-", "mr", "mc", "mem":
+		return false, c.memoryCommand(strings.ToLower(line))
 	}
 
 	for _, stmt := range splitStatements(line) {
@@ -164,6 +168,8 @@ func (c *Calculator) substitute(expr string) string {
 		}
 		if c.hasAns && t.text == "ans" {
 			b.WriteString(strconv.FormatFloat(c.ans, 'g', -1, 64))
+		} else if c.hasMem && t.text == "mem" {
+			b.WriteString(strconv.FormatFloat(c.memory, 'g', -1, 64))
 		} else if v, ok := c.vars[t.text]; ok {
 			b.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
 		} else {
@@ -208,7 +214,7 @@ functions    sqrt cbrt abs floor ceil round trunc sin cos tan asin acos atan
 variables    name = expression    e.g. x = 3 + 2 ; then use x anywhere
 ans          last result; usable in later expressions
 statements   separate with ';'   e.g. x = 2; x * 3
-commands     help, vars, history, clear, quit/exit`)
+commands     help, vars, history, clear, mem, ms, m+, m-, mr, mc, quit/exit`)
 }
 
 func (c *Calculator) printVars() {

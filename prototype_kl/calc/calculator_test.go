@@ -101,3 +101,33 @@ func TestQuit(t *testing.T) {
 		t.Errorf("help/banner missing:\n%s", got)
 	}
 }
+
+func TestMemoryRegisters(t *testing.T) {
+	got := run(t, "10\nms\n5\nm+\nmem\nmr\nmc\nmem\n")
+	for _, want := range []string{
+		"memory = 10", // ms
+		"memory = 15", // m+ (10 + 5)
+		"15",          // mem
+		"15",          // mr
+		"memory cleared",
+		"memory is empty", // mem after mc
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("memory flow missing %q:\n%s", want, got)
+		}
+	}
+}
+
+func TestMemInExpression(t *testing.T) {
+	got := run(t, "7\nms\nmem * 2\n")
+	if !strings.Contains(got, "14") {
+		t.Errorf("mem not usable in expressions:\n%s", got)
+	}
+}
+
+func TestMPlusBeforeAnyResult(t *testing.T) {
+	got := run(t, "m+\n")
+	if !strings.Contains(got, "no previous result") {
+		t.Errorf("expected error, got:\n%s", got)
+	}
+}

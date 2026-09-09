@@ -4,13 +4,15 @@ import "math"
 
 // Supported operators as constants to ensure consistency across lexer, parser, and evaluator.
 const (
-	OpAdd    = '+'
-	OpSub    = '-'
-	OpMul    = '*'
-	OpDiv    = '/'
-	OpLParen = '('
-	OpRParen = ')'
-	OpComma  = ','
+	OpAdd       = '+'
+	OpSub       = '-'
+	OpMul       = '*'
+	OpDiv       = '/'
+	OpLParen    = '('
+	OpRParen    = ')'
+	OpComma     = ','
+	OpFactorial = '!'
+	OpPercent   = '%'
 )
 
 // Supported functions for built-in math operations.

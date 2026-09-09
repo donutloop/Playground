@@ -57,6 +57,20 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 	case *FunctionNode:
 		return e.callFunction(n)
 
+	case *PostfixNode:
+		v, err := e.Evaluate(n.Right)
+		if err != nil {
+			return 0, err
+		}
+		switch n.Op {
+		case '!':
+			return factorial(v)
+		case '%':
+			return v / 100, nil
+		default:
+			return 0, &EvalError{Err: fmt.Errorf("unknown postfix operator %q", n.Op), Message: "postfix evaluation failed"}
+		}
+
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unknown node type %T", node), Message: "evaluation failed"}
 	}

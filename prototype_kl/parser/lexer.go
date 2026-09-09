@@ -19,6 +19,8 @@ const (
 	TokenComma
 	TokenFunction
 	TokenConstant
+	TokenFactorial
+	TokenPercent
 	TokenEOF
 )
 
@@ -61,6 +63,10 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 			tokens = append(tokens, Token{Type: TokenMultiply, Value: string(char), Pos: l.pos})
 		case OpDiv:
 			tokens = append(tokens, Token{Type: TokenDivide, Value: string(char), Pos: l.pos})
+		case OpFactorial:
+			tokens = append(tokens, Token{Type: TokenFactorial, Value: string(char), Pos: l.pos})
+		case OpPercent:
+			tokens = append(tokens, Token{Type: TokenPercent, Value: string(char), Pos: l.pos})
 		case OpLParen:
 			tokens = append(tokens, Token{Type: TokenLParen, Value: string(char), Pos: l.pos})
 		case OpRParen:

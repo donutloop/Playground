@@ -31,10 +31,18 @@ type FunctionNode struct {
 	Args []Node // positional argument expressions
 }
 
+// PostfixNode represents a postfix operator applied to a primary expression:
+// '!' (factorial) or '%' (percent).
+type PostfixNode struct {
+	Op    byte // '!' or '%'
+	Right Node
+}
+
 func (n *NumberNode) isNode()   {}
 func (n *BinaryOpNode) isNode() {}
 func (n *UnaryOpNode) isNode()  {}
 func (n *FunctionNode) isNode() {}
+func (n *PostfixNode) isNode()  {}
 
 // Parser converts tokens into an AST.
 type Parser struct {
@@ -135,10 +143,33 @@ func (p *Parser) parseUnary() (Node, error) {
 			Right: right,
 		}, nil
 	}
-	return p.parsePrimary()
+	return p.parsePostfix()
 }
 
 // parsePrimary handles numbers, parentheses, and function calls.
+
+// parsePostfix parses a primary expression followed by any number of
+// postfix operators ('!' factorial and '%' percent). Postfix binds tighter
+// than multiplication, so 3 * 4! is 3 * (4!).
+func (p *Parser) parsePostfix() (Node, error) {
+	node, err := p.parsePrimary()
+	if err != nil {
+		return nil, err
+	}
+	for {
+		switch p.current().Type {
+		case TokenFactorial:
+			p.consume()
+			node = &PostfixNode{Op: '!', Right: node}
+		case TokenPercent:
+			p.consume()
+			node = &PostfixNode{Op: '%', Right: node}
+		default:
+			return node, nil
+		}
+	}
+}
+
 func (p *Parser) parsePrimary() (Node, error) {
 	token := p.consume()
 	switch token.Type {

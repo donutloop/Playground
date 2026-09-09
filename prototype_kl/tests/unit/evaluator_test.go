@@ -50,6 +50,12 @@ func TestEvaluator(t *testing.T) {
 		{"E", "e", 2.718281828459045, false},
 		{"PiExpr", "2 * pi", 6.283185307179586, false},
 		{"PiSin", "sin(pi / 2)", 1, false},
+		{"FactorialPostfix", "5!", 120, false},
+		{"FactorialPostfixPrecedence", "3 * 4!", 72, false},
+		{"FactorialPostfixParen", "(3 + 4)!", 5040, false},
+		{"Percent", "50%", 0.5, false},
+		{"PercentAdd", "200% + 10", 12, false},
+		{"PercentNested", "100% * 2", 2, false},
 		{"Eln", "ln(e)", 1, false},
 	}
 

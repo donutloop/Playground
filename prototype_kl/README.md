@@ -69,6 +69,11 @@ x = 5
 | Memory       | `MS`, `M+`, `M-`, `MR`, `MC`, and `mem` in expressions |
 | Persistence  | state saved to `.calc-state.json` across sessions |
 
+## Documentation
+
+- [CHANGELOG.md](CHANGELOG.md) — one section per commit/feature.
+- [docs/adr](docs/adr/) — architecture decision records.
+
 ## Development
 
 Each feature is developed and committed separately, and `make test` must pass

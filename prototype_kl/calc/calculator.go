@@ -24,6 +24,7 @@ type Calculator struct {
 	memory    float64
 	hasMem    bool
 	history   []string
+	results   []string
 	statePath string
 	degMode   bool
 	sci       bool
@@ -243,6 +244,7 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	c.ans = v
 	c.hasAns = true
 	c.lastExpr = stmt
+	c.results = append(c.results, c.format(v))
 	fmt.Fprintln(c.out, c.format(v))
 	return false, nil
 }
@@ -292,6 +294,7 @@ func (c *Calculator) assign(name, expr string) error {
 		return err
 	}
 	c.vars[name] = v
+	c.results = append(c.results, name+" = "+c.format(v))
 	fmt.Fprintf(c.out, "%s = %s\n", name, c.format(v))
 	return nil
 }
@@ -423,7 +426,11 @@ func (c *Calculator) printHistory() {
 		return
 	}
 	for i, stmt := range c.history {
-		fmt.Fprintf(c.out, "%2d  %s\n", i+1, stmt)
+		if i < len(c.results) {
+			fmt.Fprintf(c.out, "%2d  %s = %s\n", i+1, stmt, c.results[i])
+		} else {
+			fmt.Fprintf(c.out, "%2d  %s\n", i+1, stmt)
+		}
 	}
 }
 

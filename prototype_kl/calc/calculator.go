@@ -112,6 +112,10 @@ func (c *Calculator) snapshot() state {
 		Ans:     c.ans,
 		HasAns:  c.hasAns,
 		History: hist,
+		DegMode: c.degMode,
+		Sci:     c.sci,
+		Eng:     c.eng,
+		Prec:    c.prec,
 	}
 }
 
@@ -123,6 +127,12 @@ func (c *Calculator) restore(st state) {
 	c.ans = st.Ans
 	c.hasAns = st.HasAns
 	c.history = st.History
+	c.degMode = st.DegMode
+	c.sci = st.Sci
+	c.eng = st.Eng
+	if st.Prec >= 1 && st.Prec <= 17 {
+		c.prec = st.Prec
+	}
 }
 
 // handle processes one input line: commands, assignments, or expressions.

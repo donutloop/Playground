@@ -49,3 +49,9 @@ func formatPrec(v float64, prec int, sci bool) string {
 	}
 	return s
 }
+
+// FormatPrec renders v with the given significant digits, optionally in
+// scientific notation. It backs the one-shot CLI display flags.
+func FormatPrec(v float64, prec int, sci bool) string {
+	return formatPrec(v, prec, sci)
+}

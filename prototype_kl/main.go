@@ -26,7 +26,13 @@ func main() {
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
 	prec := flag.Int("prec", 15, "significant digits for --eval output (1..17)")
 	sci := flag.Bool("sci", false, "scientific notation for --eval output")
+	demo := flag.Bool("demo", false, "run a guided tour")
 	flag.Parse()
+
+	if *demo {
+		calc.Demo(os.Stdout)
+		return
+	}
 
 	if *eval != "" {
 		v, err := parser.Evaluate(*eval)

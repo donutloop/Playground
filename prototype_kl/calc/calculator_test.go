@@ -194,3 +194,26 @@ func TestNestedDegree(t *testing.T) {
 		t.Errorf("nested degree transform missing:\n%s", got)
 	}
 }
+
+func TestHistoryRecall(t *testing.T) {
+	got := run(t, "1 + 1\n2 + 2\n@2\n")
+	// @2 recalls history entry 2 (1 + 1) -> 2
+	if !strings.Contains(got, "2") {
+		t.Errorf("@N recall failed:\n%s", got)
+	}
+}
+
+func TestUndo(t *testing.T) {
+	got := run(t, "x = 5\nx * 2\nundo\nx\n")
+	// after undo of "x * 2", x is still 5; evaluating x gives 5
+	if !strings.Contains(got, "5") {
+		t.Errorf("undo failed:\n%s", got)
+	}
+}
+
+func TestUndoEmpty(t *testing.T) {
+	got := run(t, "undo\n")
+	if !strings.Contains(got, "nothing to undo") {
+		t.Errorf("expected error, got:\n%s", got)
+	}
+}

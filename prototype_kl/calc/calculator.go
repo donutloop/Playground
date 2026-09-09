@@ -26,6 +26,7 @@ type Calculator struct {
 	history   []string
 	statePath string
 	degMode   bool
+	undoStack []state
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -77,6 +78,34 @@ func (c *Calculator) Run() {
 	}
 }
 
+// snapshot returns a copy of the full session state for undo.
+func (c *Calculator) snapshot() state {
+	vars := make(map[string]float64, len(c.vars))
+	for k, v := range c.vars {
+		vars[k] = v
+	}
+	hist := make([]string, len(c.history))
+	copy(hist, c.history)
+	return state{
+		Vars:    vars,
+		Memory:  c.memory,
+		HasMem:  c.hasMem,
+		Ans:     c.ans,
+		HasAns:  c.hasAns,
+		History: hist,
+	}
+}
+
+// restore resets the calculator to a saved snapshot.
+func (c *Calculator) restore(st state) {
+	c.vars = st.Vars
+	c.memory = st.Memory
+	c.hasMem = st.HasMem
+	c.ans = st.Ans
+	c.hasAns = st.HasAns
+	c.history = st.History
+}
+
 // handle processes one input line: commands, assignments, or expressions.
 func (c *Calculator) handle(line string) (bool, error) {
 	switch strings.ToLower(line) {
@@ -112,6 +141,14 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.degMode = false
 		fmt.Fprintln(c.out, "trig in radians")
 		return false, nil
+	case "undo":
+		if len(c.undoStack) == 0 {
+			return false, fmt.Errorf("nothing to undo")
+		}
+		c.restore(c.undoStack[len(c.undoStack)-1])
+		c.undoStack = c.undoStack[:len(c.undoStack)-1]
+		fmt.Fprintln(c.out, "undone")
+		return false, nil
 	}
 
 	for _, stmt := range splitStatements(line) {
@@ -133,6 +170,10 @@ func (c *Calculator) handle(line string) (bool, error) {
 
 // process handles a single statement: assignment or expression.
 func (c *Calculator) process(stmt string) (bool, error) {
+	c.undoStack = append(c.undoStack, c.snapshot())
+	if stmt[0] == '@' {
+		return false, c.recall(stmt)
+	}
 	if name, expr, ok := parseAssignment(stmt); ok {
 		return false, c.assign(name, expr)
 	}
@@ -145,6 +186,33 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	c.hasAns = true
 	fmt.Fprintln(c.out, Format(v))
 	return false, nil
+}
+
+// recall re-evaluates a history entry by index: @N refers to entry N (1-based).
+func (c *Calculator) recall(stmt string) error {
+	n := 0
+	for i := 1; i < len(stmt); i++ {
+		d := stmt[i]
+		if d < '0' || d > '9' {
+			return fmt.Errorf("expected @<number>, got %q", stmt)
+		}
+		n = n*10 + int(d-'0')
+	}
+	if n < 1 || n > len(c.history) {
+		return fmt.Errorf("no history entry %d", n)
+	}
+	line := c.history[n-1]
+	if name, expr, ok := parseAssignment(line); ok {
+		return c.assign(name, expr)
+	}
+	v, err := c.eval(line)
+	if err != nil {
+		return err
+	}
+	c.ans = v
+	c.hasAns = true
+	fmt.Fprintln(c.out, Format(v))
+	return nil
 }
 
 // assign defines a user variable. Function names, constants, and "ans" are

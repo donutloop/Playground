@@ -38,7 +38,7 @@ func Demo(w io.Writer) {
 
 	var out bytes.Buffer
 	New(strings.NewReader(script), &out).Run()
-	fmt.Fprintln(w, "Math Calculator - guided tour\n")
+	fmt.Fprintf(w, "Math Calculator - guided tour\n\n")
 	io.WriteString(w, out.String())
 	fmt.Fprintln(w, "\nCommands: help, vars, history, undo, redo, status, reset, quit")
 }

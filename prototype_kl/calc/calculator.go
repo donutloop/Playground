@@ -426,13 +426,17 @@ func memName(c *Calculator) string {
 
 func (c *Calculator) printHelp() {
 	fmt.Fprintln(c.out, `
-expressions  arithmetic with + - * / ( ), constants pi/e, and functions
+expressions  arithmetic with + - * / ^ ( ), constants pi/e, and functions
+postfix      ! factorial, % percent        (2 ^ 3 == 8, 5! == 120, 50% == 0.5)
 functions    sqrt cbrt abs floor ceil round trunc sin cos tan asin acos atan
              sinh cosh tanh ln log exp pow(x,y) hypot(x,y) min(a,...) max(a,...) fact(n)
 variables    name = expression    e.g. x = 3 + 2 ; then use x anywhere
-ans          last result; usable in later expressions
+ans/mem      last result and memory, usable in expressions
 statements   separate with ';'   e.g. x = 2; x * 3
-commands     help, vars, history, clear, deg/rad, mem, ms, m+, m-, mr, mc, quit/exit`)
+history      @N recalls entry N; undo / redo revert and restore
+display      deg/rad, sci/fix, eng/std, prec <n>, status, last
+memory       ms, m+, m-, mr, mc
+commands     help, vars, history, status, reset, clear, quit/exit`)
 }
 
 func (c *Calculator) printVars() {

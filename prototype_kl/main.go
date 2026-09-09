@@ -35,10 +35,20 @@ func main() {
 	deg := flag.Bool("deg", false, "trig in degrees for --eval")
 	version := flag.Bool("version", false, "print version and exit")
 	eng := flag.Bool("eng", false, "engineering notation for output")
+	verify := flag.Bool("verify", false, "run the self-test battery")
 	flag.Parse()
 
 	if *version {
 		fmt.Println("math calculator", Version)
+		return
+	}
+
+	if *verify {
+		passed, failed := calc.Verify(os.Stdout)
+		if failed > 0 {
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "verify: %d ok\n", passed)
 		return
 	}
 

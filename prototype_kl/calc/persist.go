@@ -13,6 +13,10 @@ type state struct {
 	Ans     float64            `json:"ans"`
 	HasAns  bool               `json:"has_ans"`
 	History []string           `json:"history"`
+	DegMode bool               `json:"deg_mode"`
+	Sci     bool               `json:"sci"`
+	Eng     bool               `json:"eng"`
+	Prec    int                `json:"prec"`
 }
 
 // saveState writes the calculator session to path.
@@ -24,6 +28,10 @@ func (c *Calculator) saveState(path string) error {
 		Ans:     c.ans,
 		HasAns:  c.hasAns,
 		History: c.history,
+		DegMode: c.degMode,
+		Sci:     c.sci,
+		Eng:     c.eng,
+		Prec:    c.prec,
 	}
 	data, err := json.MarshalIndent(&st, "", "  ")
 	if err != nil {
@@ -54,5 +62,11 @@ func (c *Calculator) loadState(path string) error {
 	c.ans = st.Ans
 	c.hasAns = st.HasAns
 	c.history = st.History
+	c.degMode = st.DegMode
+	c.sci = st.Sci
+	c.eng = st.Eng
+	if st.Prec >= 1 && st.Prec <= 17 {
+		c.prec = st.Prec
+	}
 	return nil
 }

@@ -13,12 +13,13 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"prototype_kl/calc"
-	"prototype_kl/parser"
 )
 
 func main() {
@@ -48,16 +49,15 @@ func main() {
 	}
 
 	if *eval != "" {
-		expr := *eval
-		if *deg {
-			expr = calc.ApplyDeg(expr)
-		}
-		v, err := parser.Evaluate(expr)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		var out bytes.Buffer
+		c := calc.NewBatch(strings.NewReader(*eval), &out)
+		c.SetDisplay(*prec, *sci, *deg)
+		c.Run()
+		if strings.TrimSpace(out.String()) == "" {
+			fmt.Fprintln(os.Stderr, "error: empty evaluation")
 			os.Exit(1)
 		}
-		fmt.Println(calc.FormatPrec(v, *prec, *sci))
+		fmt.Print(out.String())
 		return
 	}
 

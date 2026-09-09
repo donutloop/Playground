@@ -76,19 +76,18 @@ func (c *Calculator) Run() {
 			fmt.Fprint(c.out, c.prompt())
 		}
 		line, err := c.in.ReadString('\n')
-		if err != nil {
-			break // EOF
-		}
 		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
+		if line != "" {
+			quit, err := c.handle(line)
+			if err != nil {
+				fmt.Fprintf(c.out, "error: %v\n", err)
+			}
+			if quit {
+				break
+			}
 		}
-		quit, err := c.handle(line)
 		if err != nil {
-			fmt.Fprintf(c.out, "error: %v\n", err)
-		}
-		if quit {
-			break
+			break // EOF after the final line
 		}
 	}
 	if c.statePath != "" {
@@ -416,4 +415,14 @@ func (c *Calculator) printHistory() {
 	for i, stmt := range c.history {
 		fmt.Fprintf(c.out, "%2d  %s\n", i+1, stmt)
 	}
+}
+
+// SetDisplay configures precision, scientific notation, and degree mode for
+// batch/one-shot evaluation.
+func (c *Calculator) SetDisplay(prec int, sci, deg bool) {
+	if prec >= 1 && prec <= 17 {
+		c.prec = prec
+	}
+	c.sci = sci
+	c.degMode = deg
 }

@@ -25,6 +25,9 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"lcm(4, 6)", "12"},
 		{"log10(100)", "2"},
 		{"log1p(9)", "2.30258509299405"},
+		{"asinh(0)", "0"},
+		{"acosh(1)", "0"},
+		{"atanh(0)", "0"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

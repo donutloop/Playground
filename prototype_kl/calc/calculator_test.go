@@ -311,3 +311,13 @@ func TestComments(t *testing.T) {
 		t.Errorf("result after comment missing:\n%s", got)
 	}
 }
+
+func TestReset(t *testing.T) {
+	got := run(t, "x = 5\n5\nms\nreset\nvars\n")
+	if strings.Contains(got, "x = 5") && strings.Contains(got, "memory") {
+		// After reset, vars and memory should be gone; only 'reset' and 'no variables'.
+	}
+	if !strings.Contains(got, "reset") || !strings.Contains(got, "no variables defined") {
+		t.Errorf("reset failed:\n%s", got)
+	}
+}

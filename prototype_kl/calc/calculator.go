@@ -155,6 +155,18 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.hasAns = false
 		fmt.Fprintln(c.out, "cleared")
 		return false, nil
+	case "reset":
+		c.vars = make(map[string]float64)
+		c.hasAns = false
+		c.memory = 0
+		c.hasMem = false
+		c.history = nil
+		c.results = nil
+		c.undoStack = nil
+		c.redoStack = nil
+		c.lastExpr = ""
+		fmt.Fprintln(c.out, "reset")
+		return false, nil
 	case "history":
 		c.printHistory()
 		return false, nil

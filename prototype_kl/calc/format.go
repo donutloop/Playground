@@ -31,7 +31,13 @@ func formatPrec(v float64, prec int, sci bool) string {
 	}
 
 	if sci {
-		return strconv.FormatFloat(v, 'e', prec-1, 64)
+		s := strconv.FormatFloat(v, 'e', prec-1, 64)
+		if i := strings.IndexByte(s, 'e'); i >= 0 {
+			mantissa := strings.TrimRight(s[:i], "0")
+			mantissa = strings.TrimRight(mantissa, ".")
+			s = mantissa + s[i:]
+		}
+		return s
 	}
 
 	s := strconv.FormatFloat(v, 'g', prec, 64)

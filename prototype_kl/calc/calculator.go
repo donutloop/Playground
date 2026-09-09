@@ -450,8 +450,9 @@ func (c *Calculator) printHelp() {
 	fmt.Fprintln(c.out, `
 expressions  arithmetic with + - * / ^ ( ), constants pi/e, and functions
 postfix      ! factorial, % percent        (2 ^ 3 == 8, 5! == 120, 50% == 0.5)
-functions    sqrt cbrt abs floor ceil round trunc sin cos tan asin acos atan
-             sinh cosh tanh ln log exp pow(x,y) hypot(x,y) min(a,...) max(a,...) fact(n)
+functions    sqrt cbrt abs floor ceil round trunc sin cos tan asin acos atan atan2
+             asinh acosh atanh sinh cosh tanh ln log log2 log10 log1p exp exp2 expm1
+             pow(x,y) hypot(x,y) min(a,...) max(a,...) gcd lcm gamma fact(n)
 variables    name = expression    e.g. x = 3 + 2 ; then use x anywhere
 ans/mem      last result and memory, usable in expressions
 statements   separate with ';'   e.g. x = 2; x * 3

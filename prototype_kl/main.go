@@ -26,7 +26,8 @@ import (
 const Version = "1.0.0"
 
 func main() {
-	eval := flag.String("eval", "", "evaluate one expression and print the result")
+	var evals []string
+	flag.Var(&multiFlag{&evals}, "eval", "evaluate an expression and print the result; may be given multiple times")
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
 	prec := flag.Int("prec", 15, "significant digits for --eval output (1..17)")
 	sci := flag.Bool("sci", false, "scientific notation for --eval output")
@@ -80,7 +81,7 @@ func main() {
 		return
 	}
 
-	if *eval == "-" {
+	if len(evals) == 1 && evals[0] == "-" {
 		var out bytes.Buffer
 		c := calc.NewBatch(os.Stdin, &out)
 		c.SetDisplay(*prec, *sci, *deg)
@@ -101,9 +102,9 @@ func main() {
 		return
 	}
 
-	if *eval != "" {
+	if len(evals) > 0 {
 		var out bytes.Buffer
-		c := calc.NewBatch(strings.NewReader(*eval), &out)
+		c := calc.NewBatch(strings.NewReader(strings.Join(evals, ";")), &out)
 		if *state != "" {
 			_ = c.LoadState(*state)
 		}
@@ -132,4 +133,16 @@ func main() {
 		c = calc.New(os.Stdin, os.Stdout)
 	}
 	c.Run()
+}
+
+// multiFlag accumulates a repeatable string flag.
+type multiFlag struct{ list *[]string }
+
+func (m multiFlag) String() string {
+	return strings.Join(*m.list, ",")
+}
+
+func (m multiFlag) Set(v string) error {
+	*m.list = append(*m.list, v)
+	return nil
 }

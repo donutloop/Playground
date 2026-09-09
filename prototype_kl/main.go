@@ -53,7 +53,9 @@ func main() {
 			os.Exit(1)
 		}
 		defer f.Close()
-		calc.NewBatch(f, os.Stdout).Run()
+		c := calc.NewBatch(f, os.Stdout)
+		c.SetDisplay(*prec, *sci, *deg)
+		c.Run()
 		return
 	}
 

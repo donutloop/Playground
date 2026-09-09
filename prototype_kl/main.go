@@ -124,6 +124,9 @@ func main() {
 		if *state != "" {
 			_ = c.SaveState(*state)
 		}
+		if c.ErrorCount() > 0 {
+			os.Exit(1)
+		}
 		return
 	}
 

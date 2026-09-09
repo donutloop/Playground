@@ -34,6 +34,7 @@ type Calculator struct {
 	quiet     bool
 	lastExpr  string
 	eng       bool
+	errCount  int
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -82,6 +83,7 @@ func (c *Calculator) Run() {
 		if line != "" {
 			quit, err := c.handle(line)
 			if err != nil {
+				c.errCount++
 				fmt.Fprintf(c.out, "error: %v\n", err)
 			}
 			if quit {
@@ -485,6 +487,11 @@ func (c *Calculator) printHistory() {
 
 // SetDisplay configures precision, scientific notation, and degree mode for
 // batch/one-shot evaluation.
+// ErrorCount returns the number of evaluation errors seen by Run.
+func (c *Calculator) ErrorCount() int {
+	return c.errCount
+}
+
 func (c *Calculator) SetDisplay(prec int, sci, deg bool) {
 	if prec >= 1 && prec <= 17 {
 		c.prec = prec

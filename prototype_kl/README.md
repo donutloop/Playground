@@ -72,6 +72,8 @@ x = 5
 | Formatting   | `sci`, `fix`, `prec <n>`, `status`, `last` |
 | Batch/CLI    | `--eval`, `--deg`, `--prec`, `--sci`, `--file`, `--demo`, `--version` |
 | Engineering  | `eng`/`std` notation; `history` shows results |
+| Operators    | `^` exponent; `!` factorial; `%` percent |
+| Scripting    | `--state` sharing, `--verify`, `make bench` |
 
 ## Documentation
 

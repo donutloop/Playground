@@ -5,6 +5,46 @@ newest first. Each commit runs `go test ./...` before landing.
 Entries are grouped per commit,
 newest first. Each commit runs `go test ./...` before landing.
 
+## [33] state-aware one-shot eval/file
+- `--eval`/`--file` load and save `--state` so scripts share variables.
+
+## [32] --verify self-test battery
+- Runs known-good expressions through parser + formatting; non-zero exit on failure.
+
+## [31] '^' exponent operator
+- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
+
+## [30] persist display settings
+- deg/sci/eng/prec survive restarts in the state file.
+
+## [29] --eng engineering notation
+- One-shot output uses multiples-of-3 exponents.
+
+## [28] make bench/install targets
+- `make bench` runs benchmarks; `make install` installs the binary.
+Entries are grouped per commit,
+newest first. Each commit runs `go test ./...` before landing.
+Entries are grouped per commit,
+newest first. Each commit runs `go test ./...` before landing.
+
+## [33] state-aware one-shot eval/file
+- `--eval`/`--file` load and save `--state` so scripts share variables.
+
+## [32] --verify self-test battery
+- Runs known-good expressions through parser + formatting; non-zero exit on failure.
+
+## [31] '^' exponent operator
+- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
+
+## [30] persist display settings
+- deg/sci/eng/prec survive restarts in the state file.
+
+## [29] --eng engineering notation
+- One-shot output uses multiples-of-3 exponents.
+
+## [28] make bench/install targets
+- `make bench` runs benchmarks; `make install` installs the binary.
+
 ## [22] history shows results
 - `history` lists `expr = result` pairs.
 
@@ -18,6 +58,46 @@ Entries are grouped per commit,
 newest first. Each commit runs `go test ./...` before landing.
 Entries are grouped per commit,
 newest first. Each commit runs `go test ./...` before landing.
+
+## [33] state-aware one-shot eval/file
+- `--eval`/`--file` load and save `--state` so scripts share variables.
+
+## [32] --verify self-test battery
+- Runs known-good expressions through parser + formatting; non-zero exit on failure.
+
+## [31] '^' exponent operator
+- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
+
+## [30] persist display settings
+- deg/sci/eng/prec survive restarts in the state file.
+
+## [29] --eng engineering notation
+- One-shot output uses multiples-of-3 exponents.
+
+## [28] make bench/install targets
+- `make bench` runs benchmarks; `make install` installs the binary.
+Entries are grouped per commit,
+newest first. Each commit runs `go test ./...` before landing.
+Entries are grouped per commit,
+newest first. Each commit runs `go test ./...` before landing.
+
+## [33] state-aware one-shot eval/file
+- `--eval`/`--file` load and save `--state` so scripts share variables.
+
+## [32] --verify self-test battery
+- Runs known-good expressions through parser + formatting; non-zero exit on failure.
+
+## [31] '^' exponent operator
+- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
+
+## [30] persist display settings
+- deg/sci/eng/prec survive restarts in the state file.
+
+## [29] --eng engineering notation
+- One-shot output uses multiples-of-3 exponents.
+
+## [28] make bench/install targets
+- `make bench` runs benchmarks; `make install` installs the binary.
 
 ## [22] history shows results
 - `history` lists `expr = result` pairs.

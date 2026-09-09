@@ -69,7 +69,13 @@ func main() {
 		if *eng {
 			c.Eng()
 		}
+		if *state != "" {
+			_ = c.LoadState(*state)
+		}
 		c.Run()
+		if *state != "" {
+			_ = c.SaveState(*state)
+		}
 		return
 	}
 
@@ -80,12 +86,18 @@ func main() {
 		if *eng {
 			c.Eng()
 		}
+		if *state != "" {
+			_ = c.LoadState(*state)
+		}
 		c.Run()
 		if strings.TrimSpace(out.String()) == "" {
 			fmt.Fprintln(os.Stderr, "error: empty evaluation")
 			os.Exit(1)
 		}
 		fmt.Print(out.String())
+		if *state != "" {
+			_ = c.SaveState(*state)
+		}
 		return
 	}
 

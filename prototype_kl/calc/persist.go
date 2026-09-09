@@ -70,3 +70,13 @@ func (c *Calculator) loadState(path string) error {
 	}
 	return nil
 }
+
+// LoadState loads a persisted session from path (missing file is not an error).
+func (c *Calculator) LoadState(path string) error {
+	return c.loadState(path)
+}
+
+// SaveState writes the current session to path.
+func (c *Calculator) SaveState(path string) error {
+	return c.saveState(path)
+}

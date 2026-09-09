@@ -24,6 +24,8 @@ import (
 func main() {
 	eval := flag.String("eval", "", "evaluate one expression and print the result")
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
+	prec := flag.Int("prec", 15, "significant digits for --eval output (1..17)")
+	sci := flag.Bool("sci", false, "scientific notation for --eval output")
 	flag.Parse()
 
 	if *eval != "" {
@@ -32,7 +34,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println(calc.Format(v))
+		fmt.Println(calc.FormatPrec(v, *prec, *sci))
 		return
 	}
 

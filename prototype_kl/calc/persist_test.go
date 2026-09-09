@@ -28,3 +28,24 @@ func TestPersistDisplaySettings(t *testing.T) {
 		}
 	}
 }
+
+func TestDisplayFlagsAfterLoad(t *testing.T) {
+	path := t.TempDir() + "/dl.json"
+	var out1 bytes.Buffer
+	c, err := NewPersistent(strings.NewReader("quit\n"), &out1, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Run() // saves default state (deg off)
+
+	var out2 bytes.Buffer
+	c2, err := NewPersistent(strings.NewReader("sin(30)\nquit\n"), &out2, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c2.SetDisplay(15, false, true) // --deg must survive the load
+	c2.Run()
+	if !strings.Contains(out2.String(), "0.5") {
+		t.Errorf("--deg dropped by state load:\n%s", out2.String())
+	}
+}

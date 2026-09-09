@@ -27,10 +27,22 @@ func main() {
 	prec := flag.Int("prec", 15, "significant digits for --eval output (1..17)")
 	sci := flag.Bool("sci", false, "scientific notation for --eval output")
 	demo := flag.Bool("demo", false, "run a guided tour")
+	file := flag.String("file", "", "evaluate expressions from a file (batch)")
 	flag.Parse()
 
 	if *demo {
 		calc.Demo(os.Stdout)
+		return
+	}
+
+	if *file != "" {
+		f, err := os.Open(*file)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		defer f.Close()
+		calc.NewBatch(f, os.Stdout).Run()
 		return
 	}
 

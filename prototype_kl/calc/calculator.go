@@ -30,6 +30,7 @@ type Calculator struct {
 	prec      int
 	undoStack []state
 	redoStack []state
+	quiet     bool
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -42,6 +43,14 @@ func New(reader io.Reader, writer io.Writer) *Calculator {
 		in:   bufio.NewReader(reader),
 		out:  writer,
 	}
+}
+
+// NewBatch returns a quiet calculator for scripting: no banner, prompts, or
+// state persistence.
+func NewBatch(reader io.Reader, writer io.Writer) *Calculator {
+	c := New(reader, writer)
+	c.quiet = true
+	return c
 }
 
 // NewPersistent returns a calculator that loads a saved session from path and
@@ -58,9 +67,13 @@ func NewPersistent(reader io.Reader, writer io.Writer, path string) (*Calculator
 // Run starts the interactive loop. It returns when input reaches EOF or the
 // user types "quit"/"exit".
 func (c *Calculator) Run() {
-	fmt.Fprintln(c.out, "Math Calculator - type 'help' for commands, 'quit' to exit.")
+	if !c.quiet {
+		fmt.Fprintln(c.out, "Math Calculator - type 'help' for commands, 'quit' to exit.")
+	}
 	for {
-		fmt.Fprint(c.out, c.prompt())
+		if !c.quiet {
+			fmt.Fprint(c.out, c.prompt())
+		}
 		line, err := c.in.ReadString('\n')
 		if err != nil {
 			break // EOF

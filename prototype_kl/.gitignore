@@ -1,0 +1,6 @@
+# build artifact
+/calculator
+
+# persisted calculator state
+*.calc-state.json
+calc-state.json

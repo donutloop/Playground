@@ -199,9 +199,19 @@ func (c *Calculator) handle(line string) (bool, error) {
 		if len(c.undoStack) == 0 {
 			return false, fmt.Errorf("nothing to undo")
 		}
+		c.redoStack = append(c.redoStack, c.snapshot())
 		c.restore(c.undoStack[len(c.undoStack)-1])
 		c.undoStack = c.undoStack[:len(c.undoStack)-1]
 		fmt.Fprintln(c.out, "undone")
+		return false, nil
+	case "redo":
+		if len(c.redoStack) == 0 {
+			return false, fmt.Errorf("nothing to redo")
+		}
+		c.undoStack = append(c.undoStack, c.snapshot())
+		c.restore(c.redoStack[len(c.redoStack)-1])
+		c.redoStack = c.redoStack[:len(c.redoStack)-1]
+		fmt.Fprintln(c.out, "redone")
 		return false, nil
 	case "sci":
 		c.sci = true

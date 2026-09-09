@@ -121,6 +121,10 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Atan(args[0]), nil
 	case "atan2":
 		return math.Atan2(args[0], args[1]), nil
+	case "gcd":
+		return gcd(args[0], args[1]), nil
+	case "lcm":
+		return lcm(args[0], args[1]), nil
 	case "sinh":
 		return math.Sinh(args[0]), nil
 	case "cosh":
@@ -163,6 +167,31 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 }
 
 // factorial computes n! for a non-negative integer argument.
+func gcd(a, b float64) float64 {
+	ia, ib := int64(a), int64(b)
+	if ia < 0 {
+		ia = -ia
+	}
+	if ib < 0 {
+		ib = -ib
+	}
+	if ia == 0 || ib == 0 {
+		return 1
+	}
+	for ib != 0 {
+		ia, ib = ib, ia%ib
+	}
+	return float64(ia)
+}
+
+func lcm(a, b float64) float64 {
+	if a == 0 || b == 0 {
+		return 0
+	}
+	g := gcd(a, b)
+	return float64(int64(a) / int64(g) * int64(b))
+}
+
 func factorial(x float64) (float64, error) {
 	if x < 0 {
 		return 0, &EvalError{Err: ErrFactorial, Message: fmt.Sprintf("factorial of negative number %v", x)}

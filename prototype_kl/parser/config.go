@@ -36,6 +36,8 @@ var SupportedFunctions = map[string]int{
 	"acos":  1,
 	"atan":  1,
 	"atan2": 2,
+	"gcd":   2,
+	"lcm":   2,
 	"sinh":  1,
 	"cosh":  1,
 	"tanh":  1,

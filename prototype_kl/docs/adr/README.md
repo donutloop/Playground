@@ -9,3 +9,4 @@ decision, and its consequences.
 | [0002](0002-variable-resolution.md) | Token-level variable resolution, no regex |
 | [0003](0003-persistence.md) | JSON state file for cross-session persistence |
 | [0004](0004-workflow.md) | One commit per feature, tests before commit |
+| [0005](0005-cli-and-operators.md) | CLI modes and extended operators |

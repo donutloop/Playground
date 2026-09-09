@@ -23,6 +23,7 @@ import (
 
 func main() {
 	eval := flag.String("eval", "", "evaluate one expression and print the result")
+	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
 	flag.Parse()
 
 	if *eval != "" {
@@ -35,6 +36,10 @@ func main() {
 		return
 	}
 
-	c := calc.New(os.Stdin, os.Stdout)
+	c, err := calc.NewPersistent(os.Stdin, os.Stdout, *state)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not load state %s: %v\n", *state, err)
+		c = calc.New(os.Stdin, os.Stdout)
+	}
 	c.Run()
 }

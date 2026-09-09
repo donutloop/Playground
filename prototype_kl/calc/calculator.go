@@ -18,14 +18,15 @@ import (
 // package evaluates them. This keeps the parser's own lexer untouched while
 // giving the calculator first-class variables.
 type Calculator struct {
-	vars    map[string]float64
-	ans     float64
-	hasAns  bool
-	memory  float64
-	hasMem  bool
-	history []string
-	in      *bufio.Reader
-	out     io.Writer
+	vars      map[string]float64
+	ans       float64
+	hasAns    bool
+	memory    float64
+	hasMem    bool
+	history   []string
+	statePath string
+	in        *bufio.Reader
+	out       io.Writer
 }
 
 // New returns a Calculator reading lines from reader and writing to writer.
@@ -35,6 +36,17 @@ func New(reader io.Reader, writer io.Writer) *Calculator {
 		in:   bufio.NewReader(reader),
 		out:  writer,
 	}
+}
+
+// NewPersistent returns a calculator that loads a saved session from path and
+// persists it back when the session ends.
+func NewPersistent(reader io.Reader, writer io.Writer, path string) (*Calculator, error) {
+	c := New(reader, writer)
+	c.statePath = path
+	if err := c.loadState(path); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 // Run starts the interactive loop. It returns when input reaches EOF or the
@@ -58,6 +70,9 @@ func (c *Calculator) Run() {
 		if quit {
 			break
 		}
+	}
+	if c.statePath != "" {
+		_ = c.saveState(c.statePath)
 	}
 }
 

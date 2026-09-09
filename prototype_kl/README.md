@@ -66,6 +66,8 @@ x = 5
 | Statements   | separate with `;` — `y = 2; y * 3`         |
 | Commands     | `help`, `vars`, `history`, `clear`, `quit` |
 | Formatting   | floating-point noise hidden (`0.1+0.2` → `0.3`) |
+| Memory       | `MS`, `M+`, `M-`, `MR`, `MC`, and `mem` in expressions |
+| Persistence  | state saved to `.calc-state.json` across sessions |
 
 ## Development
 

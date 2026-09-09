@@ -2,6 +2,7 @@ package calc
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"testing"
 )
@@ -129,5 +130,37 @@ func TestMPlusBeforeAnyResult(t *testing.T) {
 	got := run(t, "m+\n")
 	if !strings.Contains(got, "no previous result") {
 		t.Errorf("expected error, got:\n%s", got)
+	}
+}
+
+func TestPersistentSession(t *testing.T) {
+	path := t.TempDir() + "/state.json"
+	var out1 bytes.Buffer
+	c, err := NewPersistent(strings.NewReader("x = 5\nms\nquit\n"), &out1, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Run()
+
+	var out2 bytes.Buffer
+	c2, err := NewPersistent(strings.NewReader("x * 3\nmem\nhistory\nquit\n"), &out2, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c2.Run()
+	if !strings.Contains(out2.String(), "15") { // x persisted and used
+		t.Errorf("var not persisted:\n%s", out2.String())
+	}
+	if !strings.Contains(out2.String(), "5") { // memory persisted (mem)
+		t.Errorf("memory not persisted:\n%s", out2.String())
+	}
+}
+
+func TestPersistentLoadError(t *testing.T) {
+	path := t.TempDir() + "/bad.json"
+	os.WriteFile(path, []byte("{not json"), 0o644)
+	_, err := NewPersistent(strings.NewReader("quit\n"), &bytes.Buffer{}, path)
+	if err == nil {
+		t.Fatal("expected error on corrupt state file")
 	}
 }

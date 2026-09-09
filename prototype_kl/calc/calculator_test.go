@@ -264,3 +264,17 @@ func TestHelpUnknown(t *testing.T) {
 		t.Errorf("unknown topic not rejected:\n%s", got)
 	}
 }
+
+func TestStatus(t *testing.T) {
+	got := run(t, "deg\nsci\nstatus\n")
+	if !strings.Contains(got, "degrees") || !strings.Contains(got, "scientific") {
+		t.Errorf("status missing:\n%s", got)
+	}
+}
+
+func TestModePrompt(t *testing.T) {
+	got := run(t, "deg\n")
+	if !strings.Contains(got, "deg> ") {
+		t.Errorf("mode prompt missing:\n%s", got)
+	}
+}

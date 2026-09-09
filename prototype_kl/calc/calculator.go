@@ -59,7 +59,7 @@ func NewPersistent(reader io.Reader, writer io.Writer, path string) (*Calculator
 func (c *Calculator) Run() {
 	fmt.Fprintln(c.out, "Math Calculator - type 'help' for commands, 'quit' to exit.")
 	for {
-		fmt.Fprint(c.out, "> ")
+		fmt.Fprint(c.out, c.prompt())
 		line, err := c.in.ReadString('\n')
 		if err != nil {
 			break // EOF
@@ -154,6 +154,9 @@ func (c *Calculator) handle(line string) (bool, error) {
 	case "rad":
 		c.degMode = false
 		fmt.Fprintln(c.out, "trig in radians")
+		return false, nil
+	case "status":
+		c.status()
 		return false, nil
 	case "undo":
 		if len(c.undoStack) == 0 {
@@ -323,6 +326,42 @@ func parseAssignment(line string) (name, expr string, ok bool) {
 // splitStatements splits a line on ';' into separate statements.
 func splitStatements(line string) []string {
 	return strings.Split(line, ";")
+}
+
+// prompt renders the interactive prompt with active modes, e.g. "deg> ".
+func (c *Calculator) prompt() string {
+	var b strings.Builder
+	if c.degMode {
+		b.WriteString("deg")
+	}
+	if c.sci {
+		b.WriteString(" sci")
+	}
+	b.WriteString("> ")
+	return b.String()
+}
+
+// status prints the current calculator configuration.
+func (c *Calculator) status() {
+	fmt.Fprintf(c.out, "trig: %s\n", modeName(c.degMode, "degrees", "radians"))
+	fmt.Fprintf(c.out, "notation: %s\n", modeName(c.sci, "scientific", "fixed"))
+	fmt.Fprintf(c.out, "precision: %d\n", c.prec)
+	fmt.Fprintf(c.out, "memory: %s\n", memName(c))
+	fmt.Fprintf(c.out, "variables: %d\n", len(c.vars))
+}
+
+func modeName(on bool, yes, no string) string {
+	if on {
+		return yes
+	}
+	return no
+}
+
+func memName(c *Calculator) string {
+	if !c.hasMem {
+		return "empty"
+	}
+	return c.format(c.memory)
 }
 
 func (c *Calculator) printHelp() {

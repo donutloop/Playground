@@ -119,6 +119,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Acos(args[0]), nil
 	case "atan":
 		return math.Atan(args[0]), nil
+	case "atan2":
+		return math.Atan2(args[0], args[1]), nil
 	case "sinh":
 		return math.Sinh(args[0]), nil
 	case "cosh":

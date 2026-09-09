@@ -18,7 +18,7 @@ func TestLexer(t *testing.T) {
 		{"Whitespace", " 1 + 2 ", 4, false}, // 1, +, 2, EOF
 		{"InvalidChar", "1 @ 2", 0, true},
 		{"EmptyString", "", 1, false}, // EOF
-		{"Sqrt", "sqrt", 2, false},        // Function, EOF
+		{"Sqrt", "sqrt", 2, false},    // Function, EOF
 		{"Abs", "abs", 2, false},
 		{"Floor", "floor", 2, false},
 		{"Ceil", "ceil", 2, false},

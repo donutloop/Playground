@@ -39,6 +39,7 @@ func TestEvaluator(t *testing.T) {
 		{"Ln", "ln(1)", 0, false},
 		{"Log", "log(100)", 2, false},
 		{"Log2", "log2(8)", 3, false},
+		{"Atan2", "atan2(1, 1)", 0.7853981633974483, false},
 		{"Exp", "exp(0)", 1, false},
 		{"Pow", "pow(2, 10)", 1024, false},
 		{"Hypot", "hypot(3, 4)", 5, false},

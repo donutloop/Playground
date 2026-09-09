@@ -1,4 +1,4 @@
-.PHONY: build test run fmt vet clean
+.PHONY: build test run fmt vet clean bench install
 
 build:
 	go build -o calculator main.go
@@ -14,6 +14,12 @@ fmt:
 
 vet:
 	go vet ./...
+
+bench:
+	go test ./calc/ ./parser/ -bench . -benchmem
+
+install:
+	go install .
 
 clean:
 	rm -f calculator

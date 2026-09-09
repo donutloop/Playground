@@ -250,3 +250,17 @@ func TestContextualError(t *testing.T) {
 		t.Errorf("contextual error missing:\n%s", got)
 	}
 }
+
+func TestHelpTopic(t *testing.T) {
+	got := run(t, "help pow\n")
+	if !strings.Contains(got, "pow(x, y)") {
+		t.Errorf("help topic missing:\n%s", got)
+	}
+}
+
+func TestHelpUnknown(t *testing.T) {
+	got := run(t, "help nope\n")
+	if !strings.Contains(got, "no help") {
+		t.Errorf("unknown topic not rejected:\n%s", got)
+	}
+}

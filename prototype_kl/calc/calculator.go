@@ -111,6 +111,9 @@ func (c *Calculator) restore(st state) {
 
 // handle processes one input line: commands, assignments, or expressions.
 func (c *Calculator) handle(line string) (bool, error) {
+	if strings.HasPrefix(strings.ToLower(line), "help ") {
+		return false, c.help(line[5:])
+	}
 	if n, ok := parsePrec(line); ok {
 		if n < 1 || n > 17 {
 			return false, fmt.Errorf("prec must be 1..17")

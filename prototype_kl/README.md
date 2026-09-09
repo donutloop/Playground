@@ -68,6 +68,9 @@ x = 5
 | Formatting   | floating-point noise hidden (`0.1+0.2` → `0.3`) |
 | Memory       | `MS`, `M+`, `M-`, `MR`, `MC`, and `mem` in expressions |
 | Persistence  | state saved to `.calc-state.json` across sessions |
+| Recall/undo  | `@N` re-evaluates history entry N; `undo` / `redo` |
+| Formatting   | `sci`, `fix`, `prec <n>`, `status`, `last` |
+| Batch/CLI    | `--eval`, `--deg`, `--prec`, `--sci`, `--file`, `--demo` |
 
 ## Documentation
 

@@ -127,6 +127,9 @@ func (c *Calculator) restore(st state) {
 
 // handle processes one input line: commands, assignments, or expressions.
 func (c *Calculator) handle(line string) (bool, error) {
+	if strings.HasPrefix(line, "#") {
+		return false, nil // comment
+	}
 	if strings.HasPrefix(strings.ToLower(line), "help ") {
 		return false, c.help(line[5:])
 	}

@@ -300,3 +300,14 @@ func TestEngNotation(t *testing.T) {
 		t.Errorf("eng missing:\n%s", got)
 	}
 }
+
+func TestComments(t *testing.T) {
+	got := run(t, "# setup\n1 + 1\n")
+	// comment produces no output line; result still 2
+	if strings.Contains(got, "error") {
+		t.Errorf("comment caused error:\n%s", got)
+	}
+	if !strings.Contains(got, "2") {
+		t.Errorf("result after comment missing:\n%s", got)
+	}
+}

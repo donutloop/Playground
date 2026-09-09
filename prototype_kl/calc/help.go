@@ -29,6 +29,8 @@ var helpTopics = map[string]string{
 	"asinh":     "asinh(x): inverse hyperbolic sine",
 	"acosh":     "acosh(x): inverse hyperbolic cosine (x >= 1)",
 	"atanh":     "atanh(x): inverse hyperbolic tangent (-1 < x < 1)",
+	"expm1":     "expm1(x): e^x - 1 (accurate for small x)",
+	"exp2":      "exp2(x): 2 raised to x",
 	"log":       "log(x): base-10 log of x (x > 0)",
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",

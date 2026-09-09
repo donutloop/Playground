@@ -404,10 +404,20 @@ func (c *Calculator) prompt() string {
 // status prints the current calculator configuration.
 func (c *Calculator) status() {
 	fmt.Fprintf(c.out, "trig: %s\n", modeName(c.degMode, "degrees", "radians"))
-	fmt.Fprintf(c.out, "notation: %s\n", modeName(c.sci, "scientific", "fixed"))
+	fmt.Fprintf(c.out, "notation: %s\n", c.displayMode())
 	fmt.Fprintf(c.out, "precision: %d\n", c.prec)
 	fmt.Fprintf(c.out, "memory: %s\n", memName(c))
 	fmt.Fprintf(c.out, "variables: %d\n", len(c.vars))
+}
+
+func (c *Calculator) displayMode() string {
+	if c.eng {
+		return "engineering"
+	}
+	if c.sci {
+		return "scientific"
+	}
+	return "fixed"
 }
 
 func modeName(on bool, yes, no string) string {

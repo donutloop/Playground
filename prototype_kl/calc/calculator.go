@@ -468,3 +468,9 @@ func (c *Calculator) SetDisplay(prec int, sci, deg bool) {
 	c.sci = sci
 	c.degMode = deg
 }
+
+// Eng enables engineering notation for batch/one-shot evaluation.
+func (c *Calculator) Eng() {
+	c.eng = true
+	c.sci = false
+}

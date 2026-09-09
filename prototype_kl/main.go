@@ -34,6 +34,7 @@ func main() {
 	file := flag.String("file", "", "evaluate expressions from a file (batch)")
 	deg := flag.Bool("deg", false, "trig in degrees for --eval")
 	version := flag.Bool("version", false, "print version and exit")
+	eng := flag.Bool("eng", false, "engineering notation for output")
 	flag.Parse()
 
 	if *version {
@@ -55,6 +56,9 @@ func main() {
 		defer f.Close()
 		c := calc.NewBatch(f, os.Stdout)
 		c.SetDisplay(*prec, *sci, *deg)
+		if *eng {
+			c.Eng()
+		}
 		c.Run()
 		return
 	}
@@ -63,6 +67,9 @@ func main() {
 		var out bytes.Buffer
 		c := calc.NewBatch(strings.NewReader(*eval), &out)
 		c.SetDisplay(*prec, *sci, *deg)
+		if *eng {
+			c.Eng()
+		}
 		c.Run()
 		if strings.TrimSpace(out.String()) == "" {
 			fmt.Fprintln(os.Stderr, "error: empty evaluation")

@@ -23,6 +23,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"atan2(1, 1)", "0.785398163397448"},
 		{"gcd(12, 18)", "6"},
 		{"lcm(4, 6)", "12"},
+		{"log10(100)", "2"},
+		{"log1p(9)", "2.30258509299405"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

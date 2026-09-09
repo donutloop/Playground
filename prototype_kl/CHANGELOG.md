@@ -5,6 +5,30 @@ newest first. Each commit runs `go test ./...` before landing.
 Entries are grouped per commit,
 newest first. Each commit runs `go test ./...` before landing.
 
+## [22] history shows results
+- `history` lists `expr = result` pairs.
+
+## [21] engineering notation
+- `eng`/`std` render exponents in multiples of 3.
+
+## [20] --eval calc engine + EOF fix
+- `--eval` supports variables, `;` multi-statement, display flags.
+- Final input line without a newline is no longer dropped.
+Entries are grouped per commit,
+newest first. Each commit runs `go test ./...` before landing.
+Entries are grouped per commit,
+newest first. Each commit runs `go test ./...` before landing.
+
+## [22] history shows results
+- `history` lists `expr = result` pairs.
+
+## [21] engineering notation
+- `eng`/`std` render exponents in multiples of 3.
+
+## [20] --eval calc engine + EOF fix
+- `--eval` supports variables, `;` multi-statement, display flags.
+- Final input line without a newline is no longer dropped.
+
 ## [18] --deg eval flag and 'last' command
 - `--eval --deg` evaluates trig in degrees.
 - `last` prints the most recent expression and result.

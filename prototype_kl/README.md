@@ -70,7 +70,8 @@ x = 5
 | Persistence  | state saved to `.calc-state.json` across sessions |
 | Recall/undo  | `@N` re-evaluates history entry N; `undo` / `redo` |
 | Formatting   | `sci`, `fix`, `prec <n>`, `status`, `last` |
-| Batch/CLI    | `--eval`, `--deg`, `--prec`, `--sci`, `--file`, `--demo` |
+| Batch/CLI    | `--eval`, `--deg`, `--prec`, `--sci`, `--file`, `--demo`, `--version` |
+| Engineering  | `eng`/`std` notation; `history` shows results |
 
 ## Documentation
 

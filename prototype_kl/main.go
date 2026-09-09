@@ -22,6 +22,9 @@ import (
 	"prototype_kl/calc"
 )
 
+// Version is the calculator release version.
+const Version = "1.0.0"
+
 func main() {
 	eval := flag.String("eval", "", "evaluate one expression and print the result")
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
@@ -30,7 +33,13 @@ func main() {
 	demo := flag.Bool("demo", false, "run a guided tour")
 	file := flag.String("file", "", "evaluate expressions from a file (batch)")
 	deg := flag.Bool("deg", false, "trig in degrees for --eval")
+	version := flag.Bool("version", false, "print version and exit")
 	flag.Parse()
+
+	if *version {
+		fmt.Println("math calculator", Version)
+		return
+	}
 
 	if *demo {
 		calc.Demo(os.Stdout)

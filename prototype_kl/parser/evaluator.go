@@ -145,6 +145,10 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return math.NaN(), ErrDomain
 		}
 		return math.Atanh(args[0]), nil
+	case "expm1":
+		return math.Expm1(args[0]), nil
+	case "exp2":
+		return math.Exp2(args[0]), nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

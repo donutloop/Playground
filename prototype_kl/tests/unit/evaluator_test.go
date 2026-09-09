@@ -47,6 +47,8 @@ func TestEvaluator(t *testing.T) {
 		{"Asinh", "asinh(0)", 0, false},
 		{"Acosh", "acosh(1)", 0, false},
 		{"Atanh", "atanh(0)", 0, false},
+		{"Expm1", "expm1(0)", 0, false},
+		{"Exp2", "exp2(3)", 8, false},
 		{"Exp", "exp(0)", 1, false},
 		{"Pow", "pow(2, 10)", 1024, false},
 		{"Hypot", "hypot(3, 4)", 5, false},

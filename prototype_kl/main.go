@@ -79,6 +79,24 @@ func main() {
 		return
 	}
 
+	if *eval == "-" {
+		var out bytes.Buffer
+		c := calc.NewBatch(os.Stdin, &out)
+		c.SetDisplay(*prec, *sci, *deg)
+		if *eng {
+			c.Eng()
+		}
+		if *state != "" {
+			_ = c.LoadState(*state)
+		}
+		c.Run()
+		fmt.Print(out.String())
+		if *state != "" {
+			_ = c.SaveState(*state)
+		}
+		return
+	}
+
 	if *eval != "" {
 		var out bytes.Buffer
 		c := calc.NewBatch(strings.NewReader(*eval), &out)

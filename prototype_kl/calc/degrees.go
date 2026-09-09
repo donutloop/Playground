@@ -63,3 +63,9 @@ func applyDeg(expr string) string {
 	}
 	return b.String()
 }
+
+// ApplyDeg rewrites trig calls to operate in degrees. It backs the --deg CLI
+// flag for one-shot evaluation.
+func ApplyDeg(expr string) string {
+	return applyDeg(expr)
+}

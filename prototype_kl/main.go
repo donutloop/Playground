@@ -28,6 +28,7 @@ func main() {
 	sci := flag.Bool("sci", false, "scientific notation for --eval output")
 	demo := flag.Bool("demo", false, "run a guided tour")
 	file := flag.String("file", "", "evaluate expressions from a file (batch)")
+	deg := flag.Bool("deg", false, "trig in degrees for --eval")
 	flag.Parse()
 
 	if *demo {
@@ -47,7 +48,11 @@ func main() {
 	}
 
 	if *eval != "" {
-		v, err := parser.Evaluate(*eval)
+		expr := *eval
+		if *deg {
+			expr = calc.ApplyDeg(expr)
+		}
+		v, err := parser.Evaluate(expr)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)

@@ -286,3 +286,10 @@ func TestRedo(t *testing.T) {
 		t.Errorf("redo failed:\n%s", got)
 	}
 }
+
+func TestLastCommand(t *testing.T) {
+	got := run(t, "1 + 2\nlast\n")
+	if !strings.Contains(got, "1 + 2 = 3") {
+		t.Errorf("last missing:\n%s", got)
+	}
+}

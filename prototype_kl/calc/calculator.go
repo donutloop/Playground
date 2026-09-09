@@ -31,6 +31,7 @@ type Calculator struct {
 	undoStack []state
 	redoStack []state
 	quiet     bool
+	lastExpr  string
 	in        *bufio.Reader
 	out       io.Writer
 }
@@ -169,6 +170,12 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.degMode = false
 		fmt.Fprintln(c.out, "trig in radians")
 		return false, nil
+	case "last":
+		if c.lastExpr == "" {
+			return false, fmt.Errorf("no expression yet")
+		}
+		fmt.Fprintf(c.out, "%s = %s\n", c.lastExpr, c.format(c.ans))
+		return false, nil
 	case "status":
 		c.status()
 		return false, nil
@@ -226,6 +233,7 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	}
 	c.ans = v
 	c.hasAns = true
+	c.lastExpr = stmt
 	fmt.Fprintln(c.out, c.format(v))
 	return false, nil
 }

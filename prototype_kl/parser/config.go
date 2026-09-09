@@ -13,6 +13,7 @@ const (
 	OpComma     = ','
 	OpFactorial = '!'
 	OpPercent   = '%'
+	OpPower     = '^'
 )
 
 // Supported functions for built-in math operations.

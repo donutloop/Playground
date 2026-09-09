@@ -110,14 +110,14 @@ func (p *Parser) parseExpression() (Node, error) {
 
 // parseTerm handles multiplication and division.
 func (p *Parser) parseTerm() (Node, error) {
-	left, err := p.parseUnary()
+	left, err := p.parseExponent()
 	if err != nil {
 		return nil, err
 	}
 
 	for p.current().Type == TokenMultiply || p.current().Type == TokenDivide {
 		token := p.consume()
-		right, err := p.parseUnary()
+		right, err := p.parseExponent()
 		if err != nil {
 			return nil, err
 		}
@@ -131,10 +131,33 @@ func (p *Parser) parseTerm() (Node, error) {
 }
 
 // parseUnary handles unary negation.
+
+// parseExponent parses a right-associative power operator '^' (binds tighter
+// than multiplication): 2 * 3^2 == 18.
+func (p *Parser) parseExponent() (Node, error) {
+	left, err := p.parseUnary()
+	if err != nil {
+		return nil, err
+	}
+	for {
+		switch p.current().Type {
+		case TokenPower:
+			p.consume()
+			right, err := p.parseExponent()
+			if err != nil {
+				return nil, err
+			}
+			left = &BinaryOpNode{Left: left, Op: OpPower, Right: right}
+		default:
+			return left, nil
+		}
+	}
+}
+
 func (p *Parser) parseUnary() (Node, error) {
 	if p.current().Type == TokenMinus {
 		token := p.consume()
-		right, err := p.parseUnary()
+		right, err := p.parseExponent()
 		if err != nil {
 			return nil, err
 		}

@@ -50,6 +50,8 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 				return 0, &EvalError{Err: ErrDivisionByZero, Message: "cannot divide by zero"}
 			}
 			return left / right, nil
+		case OpPower:
+			return math.Pow(left, right), nil
 		default:
 			return 0, &EvalError{Err: fmt.Errorf("unsupported binary operator %c", n.Op), Message: "binary operation failed"}
 		}

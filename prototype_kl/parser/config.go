@@ -8,10 +8,40 @@ const (
 	OpDiv    = '/'
 	OpLParen = '('
 	OpRParen = ')'
+	OpComma  = ','
 )
 
 // Supported functions for built-in math operations.
-var SupportedFunctions = []string{"sqrt", "abs", "floor", "ceil"}
+//
+// Arity 1: unary functions taking exactly one argument.
+// Arity 2: functions taking exactly two arguments.
+// Arity -1 (variadic): functions taking one or more arguments.
+var SupportedFunctions = map[string]int{
+	"sqrt":  1,
+	"cbrt":  1,
+	"abs":   1,
+	"floor": 1,
+	"ceil":  1,
+	"round": 1,
+	"trunc": 1,
+	"sin":   1,
+	"cos":   1,
+	"tan":   1,
+	"asin":  1,
+	"acos":  1,
+	"atan":  1,
+	"sinh":  1,
+	"cosh":  1,
+	"tanh":  1,
+	"ln":    1,
+	"log":   1, // base-10 log
+	"exp":   1,
+	"fact":  1,  // factorial
+	"pow":   2,  // pow(x, y)
+	"hypot": 2,  // hypot(x, y)
+	"min":   -1, // variadic
+	"max":   -1, // variadic
+}
 
 // Precision settings could be expanded here if rounding were required.
 const DefaultPrecision = 64

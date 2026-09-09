@@ -21,7 +21,7 @@ func TestEdgeCases(t *testing.T) {
 		{"DeeplyNested", "((((1))))", 1, nil},
 		{"MismatchedParen", "(1 + 2", 0, parser.ErrMismatchedParen},
 		{"SqrtNegative", "sqrt(-1)", 0, parser.ErrSqrtNegative},
-		{"UnknownFunction", "log(10)", 0, parser.ErrUnknownFunction},
+		{"UnknownFunction", "foo(10)", 0, parser.ErrUnknownFunction},
 		{"MissingParen", "sqrt(9", 0, parser.ErrMismatchedParen},
 	}
 

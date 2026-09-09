@@ -14,6 +14,10 @@ var (
 	ErrEmptyExpression  = errors.New("expression is empty")
 	ErrUnknownFunction  = errors.New("unknown function")
 	ErrSqrtNegative     = errors.New("sqrt of negative number")
+	ErrBadArity         = errors.New("wrong number of arguments")
+	ErrDomain           = errors.New("function domain error")
+	ErrOverflow         = errors.New("numeric overflow")
+	ErrFactorial        = errors.New("factorial of negative number")
 )
 
 // ParseError provides context about where the error occurred.

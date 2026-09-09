@@ -25,7 +25,7 @@ func TestParser(t *testing.T) {
 		{"FunctionCallFloor", "floor(2.9)", false},
 		{"FunctionCallCeil", "ceil(2.1)", false},
 		{"FunctionMissingParen", "sqrt 4", true},
-		{"FunctionUnknown", "log(10)", true},
+		{"FunctionUnknown", "foo(10)", true},
 	}
 
 	for _, tt := range tests {

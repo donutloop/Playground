@@ -23,7 +23,7 @@ func TestErrors(t *testing.T) {
 
 	t.Run("UnknownFunctionError", func(t *testing.T) {
 		// ErrUnknownFunction should be returned by lexer for unknown identifier
-		lexer := parser.NewLexer("log(10)")
+		lexer := parser.NewLexer("foo(10)")
 		_, err := lexer.Tokenize()
 		if err == nil {
 			t.Errorf("expected error for unknown function")

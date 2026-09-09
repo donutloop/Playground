@@ -25,10 +25,10 @@ type UnaryOpNode struct {
 	Right Node
 }
 
-// FunctionNode represents a built-in function call, e.g. sqrt(expr).
+// FunctionNode represents a built-in function call, e.g. sqrt(expr) or pow(x, y).
 type FunctionNode struct {
-	Name string    // one of: sqrt, abs, floor, ceil
-	Arg  Node      // the single argument expression
+	Name string // one of the supported functions
+	Args []Node // positional argument expressions
 }
 
 func (n *NumberNode) isNode()   {}
@@ -168,6 +168,14 @@ func (p *Parser) parsePrimary() (Node, error) {
 		return node, nil
 	case TokenFunction:
 		funcName := token.Value
+		arity, ok := SupportedFunctions[funcName]
+		if !ok {
+			return nil, &ParseError{
+				Err:     ErrUnknownFunction,
+				Pos:     token.Pos,
+				Message: fmt.Sprintf("unknown function %q", funcName),
+			}
+		}
 		if p.current().Type != TokenLParen {
 			return nil, &ParseError{
 				Err:     ErrUnexpectedToken,
@@ -176,19 +184,52 @@ func (p *Parser) parsePrimary() (Node, error) {
 			}
 		}
 		p.consume() // consume '('
-		arg, err := p.parseExpression()
-		if err != nil {
-			return nil, err
+		var args []Node
+		for {
+			arg, err := p.parseExpression()
+			if err != nil {
+				return nil, err
+			}
+			args = append(args, arg)
+			if p.current().Type == TokenComma {
+				p.consume() // consume ','
+				continue
+			}
+			break
 		}
 		if p.current().Type != TokenRParen {
 			return nil, &ParseError{
 				Err:     ErrMismatchedParen,
 				Pos:     p.current().Pos,
-				Message: "missing closing parenthesis after function argument",
+				Message: "missing closing parenthesis after function arguments",
 			}
 		}
 		p.consume() // consume RParen
-		return &FunctionNode{Name: funcName, Arg: arg}, nil
+
+		// Validate arity.
+		want := len(args)
+		if arity == 1 && want != 1 {
+			return nil, &ParseError{
+				Err:     ErrBadArity,
+				Pos:     token.Pos,
+				Message: fmt.Sprintf("%s expects 1 argument, got %d", funcName, want),
+			}
+		}
+		if arity == 2 && want != 2 {
+			return nil, &ParseError{
+				Err:     ErrBadArity,
+				Pos:     token.Pos,
+				Message: fmt.Sprintf("%s expects 2 arguments, got %d", funcName, want),
+			}
+		}
+		if arity == -1 && want < 2 {
+			return nil, &ParseError{
+				Err:     ErrBadArity,
+				Pos:     token.Pos,
+				Message: fmt.Sprintf("%s expects at least 2 arguments, got %d", funcName, want),
+			}
+		}
+		return &FunctionNode{Name: funcName, Args: args}, nil
 	default:
 		return nil, &ParseError{
 			Err:     ErrUnexpectedToken,

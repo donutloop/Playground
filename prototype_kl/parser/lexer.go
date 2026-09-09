@@ -16,6 +16,7 @@ const (
 	TokenDivide
 	TokenLParen
 	TokenRParen
+	TokenComma
 	TokenFunction
 	TokenEOF
 )
@@ -62,6 +63,8 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 			tokens = append(tokens, Token{Type: TokenLParen, Value: string(char), Pos: l.pos})
 		case OpRParen:
 			tokens = append(tokens, Token{Type: TokenRParen, Value: string(char), Pos: l.pos})
+		case OpComma:
+			tokens = append(tokens, Token{Type: TokenComma, Value: string(char), Pos: l.pos})
 		default:
 			if unicode.IsDigit(rune(char)) || char == '.' {
 				start := l.pos
@@ -78,14 +81,7 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 				}
 				value := l.input[start:l.pos]
 				// Check if it's a supported function
-				supported := false
-				for _, f := range SupportedFunctions {
-					if f == value {
-						supported = true
-						break
-					}
-				}
-				if !supported {
+				if _, ok := SupportedFunctions[value]; !ok {
 					return nil, &ParseError{Err: ErrUnknownFunction, Pos: start, Message: fmt.Sprintf("unknown function %q", value)}
 				}
 				tokens = append(tokens, Token{Type: TokenFunction, Value: value, Pos: start})

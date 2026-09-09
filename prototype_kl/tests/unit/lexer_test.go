@@ -22,7 +22,7 @@ func TestLexer(t *testing.T) {
 		{"Abs", "abs", 2, false},
 		{"Floor", "floor", 2, false},
 		{"Ceil", "ceil", 2, false},
-		{"UnknownFunction", "log", 0, true},
+		{"UnknownFunction", "foo", 0, true},
 		{"CaseSensitive", "Sqrt", 0, true},
 		{"FunctionWithWhitespace", " sqrt ", 2, false},
 		{"FunctionThenOperator", "sqrt+1", 4, false}, // Function, Plus, Number, EOF

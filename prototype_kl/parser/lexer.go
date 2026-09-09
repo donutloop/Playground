@@ -87,8 +87,13 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 			}
 			if unicode.IsLetter(rune(char)) {
 				start := l.pos
-				for l.pos < len(l.input) && unicode.IsLetter(rune(l.input[l.pos])) {
-					l.pos++
+				for l.pos < len(l.input) {
+					ch := l.input[l.pos]
+					if unicode.IsLetter(rune(ch)) || unicode.IsDigit(rune(ch)) || ch == '_' {
+						l.pos++
+						continue
+					}
+					break
 				}
 				value := l.input[start:l.pos]
 				// Constants take precedence: pi and e resolve to numeric values.

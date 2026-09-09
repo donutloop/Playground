@@ -40,6 +40,7 @@ var SupportedFunctions = map[string]int{
 	"tanh":  1,
 	"ln":    1,
 	"log":   1, // base-10 log
+	"log2":  1,
 	"exp":   1,
 	"fact":  1,  // factorial
 	"pow":   2,  // pow(x, y)

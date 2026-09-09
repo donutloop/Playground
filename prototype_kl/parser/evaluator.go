@@ -129,6 +129,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Log(args[0]), nil
 	case "log":
 		return math.Log10(args[0]), nil
+	case "log2":
+		return math.Log2(args[0]), nil
 	case "exp":
 		return math.Exp(args[0]), nil
 	case "pow":

@@ -179,7 +179,7 @@ Convert a value between units of the same physical dimension with
 
 Common units: length `m km cm mm nm mi ft in yd`; mass `kg g mg lb oz`;
 time `s min h hr day` (plus full singular/plural names). Converting across
-dimensions (e.g. `km` to `kg`) or unknown units are reported as errors, and
+dimensions (e.g. `km` to `kg`) or unknown units are reported as errors. Temperature units `c`/`celsius`, `f`/`fahrenheit`, `k`/`kelvin` are affine conversions (e.g. `convert(100, c, f)` -> 212), and
 `convert` itself is a reserved name.
 
 

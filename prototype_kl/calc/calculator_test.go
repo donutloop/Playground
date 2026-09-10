@@ -816,3 +816,26 @@ func TestFloorCeilN(t *testing.T) {
 		}
 	}
 }
+
+func TestTemperatureUnits(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"convert(100, c, f)", "212"},
+		{"convert(212, f, c)", "100"},
+		{"convert(0, c, k)", "273.15"},
+		{"convert(373.15, k, f)", "212"},
+		{"convert(32, f, c)", "0"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) || strings.Contains(got, "error") {
+			t.Errorf("%s = %q, want to contain %s", tc.in, got, tc.want)
+		}
+	}
+}
+
+func TestTemperatureStillLength(t *testing.T) {
+	got := run(t, "convert(5, ft, m)\n")
+	if !strings.Contains(got, "1.524") || strings.Contains(got, "error") {
+		t.Errorf("length conversion broken by offsets: %s", got)
+	}
+}

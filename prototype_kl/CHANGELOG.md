@@ -4,6 +4,12 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [74] temperature units
+- Added affine temperature units to `convert`: `c`/`celsius`, `f`/`fahrenheit`,
+  `k`/`kelvin` (e.g. `convert(100, c, f)` -> 212).
+- Generalized unitInfo with an `offset` field; conversion formula is now
+  `((value * scale) + offset - to.offset) / scale`.
+
 ## [73] gradians trig mode
 - Added a `grad` command and `--grad` CLI flag for gradian trig mode (200 in a
   full circle), completing the degrees/radians/gradians triad.

@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [43] ternary conditional operator
+- Added `cond ? a : b` with lowest precedence; nonzero cond selects a.
+- New tokens `?` and `:`, `TernaryNode` AST, and evaluator support.
+
 ## [42] softplus
 - Added `softplus(x)` = ln(1+e^x).
 

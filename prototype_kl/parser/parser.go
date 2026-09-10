@@ -44,6 +44,15 @@ func (n *UnaryOpNode) isNode()  {}
 func (n *FunctionNode) isNode() {}
 func (n *PostfixNode) isNode()  {}
 
+// TernaryNode represents cond ? then : else.
+type TernaryNode struct {
+	Cond Node
+	Then Node
+	Else Node
+}
+
+func (n *TernaryNode) isNode() {}
+
 // Parser converts tokens into an AST.
 type Parser struct {
 	tokens []Token
@@ -72,7 +81,7 @@ func (p *Parser) Parse() (Node, error) {
 	if len(p.tokens) == 0 || p.tokens[0].Type == TokenEOF {
 		return nil, ErrEmptyExpression
 	}
-	node, err := p.parseExpression()
+	node, err := p.parseTernary()
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +115,36 @@ func (p *Parser) parseExpression() (Node, error) {
 		}
 	}
 	return left, nil
+}
+
+// parseTernary parses a conditional expression: cond ? then : else.
+// It wraps parseExpression so ternary has the lowest precedence.
+func (p *Parser) parseTernary() (Node, error) {
+	cond, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	if p.current().Type != TokenQuestion {
+		return cond, nil
+	}
+	p.consume() // '?'
+	then, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	if p.current().Type != TokenColon {
+		return nil, &ParseError{
+			Err:     ErrUnexpectedToken,
+			Pos:     p.current().Pos,
+			Message: "expected ':' in ternary expression",
+		}
+	}
+	p.consume() // ':'
+	els, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	return &TernaryNode{Cond: cond, Then: then, Else: els}, nil
 }
 
 // parseTerm handles multiplication and division.

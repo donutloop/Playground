@@ -11,6 +11,8 @@ const (
 	OpLParen    = '('
 	OpRParen    = ')'
 	OpComma     = ','
+	OpQuestion  = '?'
+	OpColon     = ':'
 	OpFactorial = '!'
 	OpPercent   = '%'
 	OpPower     = '^'

@@ -245,3 +245,21 @@ func TestSoftplusPos(t *testing.T) {
 		t.Errorf("softplus(1) = %g, want %g", res, want)
 	}
 }
+
+// TestTernary verifies the conditional operator cond ? a : b.
+func TestTernary(t *testing.T) {
+	res, err := parser.Evaluate("1 ? 2 : 3")
+	if err != nil {
+		t.Fatalf("1 ? 2 : 3: %v", err)
+	}
+	if res != 2 {
+		t.Errorf("1 ? 2 : 3 = %v, want 2", res)
+	}
+	res, err = parser.Evaluate("0 ? 2 : 3")
+	if err != nil {
+		t.Fatalf("0 ? 2 : 3: %v", err)
+	}
+	if res != 3 {
+		t.Errorf("0 ? 2 : 3 = %v, want 3", res)
+	}
+}

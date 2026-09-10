@@ -73,6 +73,15 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 			return 0, &EvalError{Err: fmt.Errorf("unknown postfix operator %q", n.Op), Message: "postfix evaluation failed"}
 		}
 
+	case *TernaryNode:
+		cond, err := e.Evaluate(n.Cond)
+		if err != nil {
+			return 0, err
+		}
+		if cond != 0 {
+			return e.Evaluate(n.Then)
+		}
+		return e.Evaluate(n.Else)
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unknown node type %T", node), Message: "evaluation failed"}
 	}

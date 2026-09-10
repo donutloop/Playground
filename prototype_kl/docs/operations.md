@@ -14,6 +14,7 @@ update this file alongside code, tests, help, and verify coverage.
 | `^` | exponentiation (right-associative, binds tighter than `*`) |
 | `!` | postfix factorial |
 | `%` | postfix percent (`x / 100`) |
+| `cond ? a : b` | ternary conditional (nonzero cond selects a) |
 
 Parentheses `( )` group sub-expressions.
 

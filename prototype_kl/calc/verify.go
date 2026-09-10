@@ -31,6 +31,7 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"atanh(0)", "0"},
 		{"expm1(0)", "0"},
 		{"exp2(3)", "8"},
+		{"exp10(2)", "100"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

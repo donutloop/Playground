@@ -154,6 +154,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Expm1(args[0]), nil
 	case "exp2":
 		return math.Exp2(args[0]), nil
+	case "exp10":
+		return math.Pow(10, args[0]), nil
 	case "gamma":
 		if args[0] <= 0 && math.Mod(args[0], 1) == 0 {
 			return math.NaN(), ErrDomain

@@ -265,6 +265,13 @@ func TestHelpRsqrt(t *testing.T) {
 	}
 }
 
+func TestHelpExp10(t *testing.T) {
+	got := run(t, "help exp10\n")
+	if !strings.Contains(got, "exp10(x)") {
+		t.Errorf("exp10 help missing:\n%s", got)
+	}
+}
+
 func TestHelpUnknown(t *testing.T) {
 	got := run(t, "help nope\n")
 	if !strings.Contains(got, "no help") {

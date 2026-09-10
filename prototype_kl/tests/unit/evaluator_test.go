@@ -52,6 +52,8 @@ func TestEvaluator(t *testing.T) {
 		{"Atanh", "atanh(0)", 0, false},
 		{"Expm1", "expm1(0)", 0, false},
 		{"Exp2", "exp2(3)", 8, false},
+		{"Exp10", "exp10(2)", 100, false},
+		{"Exp10Neg", "exp10(-1)", 0.1, false},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},

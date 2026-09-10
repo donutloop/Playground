@@ -32,6 +32,7 @@ var helpTopics = map[string]string{
 	"atanh":     "atanh(x): inverse hyperbolic tangent (-1 < x < 1)",
 	"expm1":     "expm1(x): e^x - 1 (accurate for small x)",
 	"exp2":      "exp2(x): 2 raised to x",
+	"exp10":     "exp10(x): 10 raised to x",
 	"gamma":     "gamma(x): gamma function (not defined at non-positive integers)",
 	"mod":       "mod(a, b): remainder of a divided by b",
 	"sign":      "sign(x): -1, 0, or 1",

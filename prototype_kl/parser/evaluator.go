@@ -453,6 +453,20 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return s[n/2], nil
 		}
 		return (s[n/2-1] + s[n/2]) / 2, nil
+	case "mode":
+		best, bestCount := args[0], 1
+		for i := 0; i < len(args); i++ {
+			cnt := 0
+			for j := 0; j < len(args); j++ {
+				if args[j] == args[i] {
+					cnt++
+				}
+			}
+			if cnt > bestCount {
+				best, bestCount = args[i], cnt
+			}
+		}
+		return best, nil
 	case "sum":
 		return rangeSum(args[0], args[1]), nil
 	case "prod":

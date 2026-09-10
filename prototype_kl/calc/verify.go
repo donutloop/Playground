@@ -24,6 +24,7 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"count(1, 5)", "5"},
 		{"count(5, 2)", "0"},
 		{"round(2.5678, 2)", "2.57"},
+		{"mode(1, 2, 2, 3, 3, 3)", "3"},
 		{"stddev(2, 4, 4, 4, 5, 5, 7, 9)", "2"},
 		{"median(1, 3, 2)", "2"},
 		{"median(1, 2, 3, 4)", "2.5"},

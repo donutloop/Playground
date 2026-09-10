@@ -38,6 +38,7 @@ var helpTopics = map[string]string{
 
 	"stddev":    "stddev(a, b, ...): population standard deviation (sqrt of variance)",
 	"median":    "median(a, b, ...): middle value of the sorted values",
+	"mode":      "mode(a, b, ...): most frequent value (first on tie)",
 	"lcm":       "lcm(a, b): least common multiple",
 	"asinh":     "asinh(x): inverse hyperbolic sine",
 	"acosh":     "acosh(x): inverse hyperbolic cosine (x >= 1)",

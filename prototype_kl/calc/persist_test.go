@@ -68,3 +68,25 @@ func TestBaseSettingPersists(t *testing.T) {
 		t.Fatalf("base not persisted:\n%s", out.String())
 	}
 }
+
+func TestQuietSettingPersists(t *testing.T) {
+	path := t.TempDir() + "/quiet.json"
+	var buf bytes.Buffer
+	c := New(strings.NewReader("quiet\na=3\n"), &buf)
+	c.Run()
+	if err := c.SaveState(path); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	d := New(strings.NewReader("a=3\na*2\n"), &out)
+	if err := d.LoadState(path); err != nil {
+		t.Fatal(err)
+	}
+	d.Run()
+	if strings.Contains(out.String(), "a = 3") {
+		t.Fatalf("quiet not persisted:\n%s", out.String())
+	}
+	if !strings.Contains(out.String(), "6") {
+		t.Fatalf("result missing:\n%s", out.String())
+	}
+}

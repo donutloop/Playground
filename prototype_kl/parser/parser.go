@@ -139,8 +139,37 @@ func (p *Parser) parseLogical() (Node, error) {
 }
 
 // parseComparison parses a comparison: a < b or a > b, yielding 1 (true) or 0 (false).
-func (p *Parser) parseComparison() (Node, error) {
+func (p *Parser) parseBitwise() (Node, error) {
 	left, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	for {
+		token := p.current()
+		var op rune
+		switch token.Type {
+		case TokenShiftLeft:
+			op = OpShiftLeft
+		case TokenShiftRight:
+			op = OpShiftRight
+		case TokenBitAND:
+			op = OpAND
+		case TokenBitOR:
+			op = OpOR
+		default:
+			return left, nil
+		}
+		p.consume()
+		right, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+		left = &BinaryOpNode{Op: op, Left: left, Right: right}
+	}
+}
+
+func (p *Parser) parseComparison() (Node, error) {
+	left, err := p.parseBitwise()
 	if err != nil {
 		return nil, err
 	}
@@ -253,6 +282,14 @@ func (p *Parser) parseExponent() (Node, error) {
 }
 
 func (p *Parser) parseUnary() (Node, error) {
+	if p.current().Type == TokenTilde {
+		p.consume()
+		right, err := p.parseExponent()
+		if err != nil {
+			return nil, err
+		}
+		return &UnaryOpNode{Op: OpTilde, Right: right}, nil
+	}
 	if p.current().Type == TokenMinus {
 		token := p.consume()
 		right, err := p.parseExponent()

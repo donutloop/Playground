@@ -938,3 +938,23 @@ func TestLazyIfSkipsUntakenBranch(t *testing.T) {
 		t.Errorf("if(1, 0, 1/0) = %q, want 0", got)
 	}
 }
+
+func TestBitwiseOps(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"12 & 10", "8"},      // 1100 & 1010 = 1000
+		{"12 | 10", "14"},     // 1100 | 1010 = 1110
+		{"5 << 2", "20"},      // 101 << 2 = 10100
+		{"16 >> 3", "2"},      // 10000 >> 3 = 10
+		{"~5", "-6"},          // ~0101 = -0110
+		{"1 & 0", "0"},
+		{"3 | 4", "7"},
+		{"8 & 4", "0"},        // 1000 & 0100 = 0
+		{"2 << 4", "32"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, "> "+tc.want+"\n") {
+			t.Errorf("%s = %q, want %s", tc.in, got, tc.want)
+		}
+	}
+}

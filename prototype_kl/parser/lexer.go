@@ -34,6 +34,11 @@ const (
 	TokenNE
 	TokenAND
 	TokenOR
+	TokenBitAND
+	TokenBitOR
+	TokenTilde
+	TokenShiftLeft
+	TokenShiftRight
 )
 
 // Token represents a single lexical unit.
@@ -80,14 +85,14 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 				tokens = append(tokens, Token{Type: TokenAND, Value: "&&", Pos: l.pos})
 				l.pos++
 			} else {
-				return nil, fmt.Errorf("unexpected character '&'")
+				tokens = append(tokens, Token{Type: TokenBitAND, Value: string(char), Pos: l.pos})
 			}
 		case OpOR:
 			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '|' {
-				tokens = append(tokens, Token{Type: TokenOR, Value: "||", Pos: l.pos})
+			tokens = append(tokens, Token{Type: TokenOR, Value: "||", Pos: l.pos})
 				l.pos++
 			} else {
-				return nil, fmt.Errorf("unexpected character '|'")
+				tokens = append(tokens, Token{Type: TokenBitOR, Value: string(char), Pos: l.pos})
 			}
 		case OpEQ:
 			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
@@ -132,19 +137,27 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 		case OpColon:
 			tokens = append(tokens, Token{Type: TokenColon, Value: string(char), Pos: l.pos})
 		case OpLT:
-			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
+			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '<' {
+				tokens = append(tokens, Token{Type: TokenShiftLeft, Value: "<<", Pos: l.pos})
+				l.pos++
+			} else if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
 				tokens = append(tokens, Token{Type: TokenLE, Value: "<=", Pos: l.pos})
 				l.pos++
 			} else {
 				tokens = append(tokens, Token{Type: TokenLT, Value: string(char), Pos: l.pos})
 			}
 		case OpGT:
-			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
+			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '>' {
+				tokens = append(tokens, Token{Type: TokenShiftRight, Value: ">>", Pos: l.pos})
+				l.pos++
+			} else if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
 				tokens = append(tokens, Token{Type: TokenGE, Value: ">=", Pos: l.pos})
 				l.pos++
 			} else {
 				tokens = append(tokens, Token{Type: TokenGT, Value: string(char), Pos: l.pos})
 			}
+		case OpTilde:
+			tokens = append(tokens, Token{Type: TokenTilde, Value: string(char), Pos: l.pos})
 		default:
 			if unicode.IsDigit(rune(char)) || char == '.' {
 				start := l.pos

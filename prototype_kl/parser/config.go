@@ -26,6 +26,9 @@ const (
 	OpFactorial = '!'
 	OpPercent   = '%'
 	OpMod       = 0x20 // binary modulo (distinct from postfix percent and other ops)
+	OpTilde     = '~'
+	OpShiftLeft  = 0x30
+	OpShiftRight = 0x31
 	OpPower     = '^'
 )
 

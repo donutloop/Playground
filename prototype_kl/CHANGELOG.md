@@ -4,6 +4,12 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [83] bitwise operators
+
+- Single `&` (AND), `|` (OR), `~` (NOT), `<<` (left shift), `>>` (right shift).
+- Precedence: bind tighter than comparison and looser than addition.
+- `12 & 10` = 8, `12 | 10` = 14, `5 << 2` = 20, `16 >> 3` = 2, `~5` = -6.
+
 ## [82] recursive user-defined functions
 
 - `if(cond, then, else)` now evaluates `cond` at expansion time and expands only

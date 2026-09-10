@@ -27,6 +27,9 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 		if n.Op == '-' {
 			return -val, nil
 		}
+		if n.Op == OpTilde {
+			return float64(^int64(val)), nil
+		}
 		return 0, &EvalError{Err: fmt.Errorf("unsupported unary operator %c", n.Op), Message: "unary operation failed"}
 
 	case *BinaryOpNode:
@@ -98,6 +101,14 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 				return 1, nil
 			}
 			return 0, nil
+		case OpAND: // bitwise AND
+			return float64(int64(left) & int64(right)), nil
+		case OpOR: // bitwise OR
+			return float64(int64(left) | int64(right)), nil
+		case OpShiftLeft:
+			return float64(int64(left) << uint(int64(right)&63)), nil
+		case OpShiftRight:
+			return float64(int64(left) >> uint(int64(right)&63)), nil
 		default:
 			return 0, &EvalError{Err: fmt.Errorf("unsupported binary operator %c", n.Op), Message: "binary operation failed"}
 		}

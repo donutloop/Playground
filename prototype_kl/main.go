@@ -151,6 +151,12 @@ func main() {
 					fmt.Printf("{\"var\": %q, \"value\": %s}\n", name, c.FormatValue(v))
 				}
 			}
+			if *state != "" {
+				if err := c.SaveState(*state); err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+			}
 			return
 		}
 		c.Run()

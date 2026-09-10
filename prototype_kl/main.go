@@ -43,6 +43,10 @@ func main() {
 	verify := flag.Bool("verify", false, "run the self-test battery")
 	rad := flag.Bool("rad", false, "trig in radians (default)")
 	flag.Parse()
+	if *prec < 1 || *prec > 17 {
+		fmt.Fprintln(os.Stderr, "error: --prec must be 1..17")
+		os.Exit(1)
+	}
 	if *noState {
 		*state = ""
 	}

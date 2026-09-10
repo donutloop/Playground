@@ -55,6 +55,19 @@ Comparisons now parse inside parentheses and function arguments, so
 
 ## Formatting
 ## Statistics
+
+`avg(a, b, ...)` is the arithmetic mean. `var(a, b, ...)` is the population
+variance (mean squared deviation from the mean). `stddev(a, b, ...)` is the
+population standard deviation (square root of the variance). `median(a, b, ...)`
+is the middle value of the sorted values (average of the two middle values for
+an even count). All accept two or more arguments.
+
+    avg(2, 4, 6, 8)        # -> 5
+    var(2, 4, 4, 4, 5, 5, 7, 9)  # -> 4
+    stddev(2, 4, 4, 4, 5, 5, 7, 9) # -> 2
+    median(1, 3, 2)         # -> 2
+    median(1, 2, 3, 4)      # -> 2.5
+
 ## Clamping
 ## Interpolation
 ## Step function

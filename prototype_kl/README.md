@@ -67,7 +67,7 @@ x = 5
 | Range loops      | `sum(1, 100)` -> 5050; `prod(1, 10)` -> 3628800      |
 | Conditional      | `if(5 > 2, 100, 1)` -> 100; `if(0, 100, 42)` -> 42  |
 | Formatting       | `fix(3.14159, 2)` -> 3.14                            |
-| Statistics       | `avg(4, 8)` -> 6; `avg(1, 2, 3, 4)` -> 2.5         |
+| Statistics       | `avg(4, 8)` -> 6; `var(...)` population variance; `stddev(...)`; `median(1, 3, 2)` -> 2 |
 | Clamping         | `clamp(5, 1, 3)` -> 3                                |
 | Interpolation    | `lerp(0, 10, 0.5)` -> 5                             |
 | Step             | `step(5, 3)` -> 1; `step(2, 3)` -> 0                |

@@ -4,6 +4,11 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [72] statistics functions
+- Added `var(a, b, ...)` population variance, `stddev(a, b, ...)` population
+  standard deviation, and `median(a, b, ...)` middle value, all variadic with
+  at least two arguments.
+
 ## [71] floor(x, n) / ceil(x, n)
 - `floor(x, n)` and `ceil(x, n)` round down/up to n decimal places.
 ## [70] remap(x, lo, hi, nlo, nhi)

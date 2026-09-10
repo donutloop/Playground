@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"math"
+	"sort"
 )
 
 // Evaluator walks the AST and computes the numeric result.
@@ -415,6 +416,39 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			sum += a
 		}
 		return sum / float64(len(args)), nil
+	case "var":
+		mean := 0.0
+		for _, a := range args {
+			mean += a
+		}
+		mean /= float64(len(args))
+		v := 0.0
+		for _, a := range args {
+			d := a - mean
+			v += d * d
+		}
+		return v / float64(len(args)), nil
+	case "stddev":
+		mean := 0.0
+		for _, a := range args {
+			mean += a
+		}
+		mean /= float64(len(args))
+		v := 0.0
+		for _, a := range args {
+			d := a - mean
+			v += d * d
+		}
+		return math.Sqrt(v / float64(len(args))), nil
+	case "median":
+		s := make([]float64, len(args))
+		copy(s, args)
+		sort.Float64s(s)
+		n := len(s)
+		if n%2 == 1 {
+			return s[n/2], nil
+		}
+		return (s[n/2-1] + s[n/2]) / 2, nil
 	case "sum":
 		return rangeSum(args[0], args[1]), nil
 	case "prod":

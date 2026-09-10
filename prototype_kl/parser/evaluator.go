@@ -154,6 +154,17 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return math.NaN(), ErrDomain
 		}
 		return math.Gamma(args[0]), nil
+	case "mod":
+		return math.Mod(args[0], args[1]), nil
+	case "sign":
+		switch {
+		case args[0] > 0:
+			return 1, nil
+		case args[0] < 0:
+			return -1, nil
+		default:
+			return 0, nil
+		}
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

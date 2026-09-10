@@ -46,6 +46,8 @@ var SupportedFunctions = map[string]int{
 	"expm1": 1,
 	"exp2":  1,
 	"gamma": 1,
+	"mod":   2,
+	"sign":  1,
 	"sinh":  1,
 	"cosh":  1,
 	"tanh":  1,

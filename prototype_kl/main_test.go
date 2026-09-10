@@ -73,3 +73,14 @@ func TestVarsFlagListsVariables(t *testing.T) {
 		t.Errorf("--vars should list variables:\n%s", got)
 	}
 }
+
+func TestNoStateDisablesPersistence(t *testing.T) {
+	got := runMain(t.TempDir()+"/ns.json", "-eval", "x=5", "-eval", "x*2", "--no-state")
+	if !strings.Contains(got, "10") {
+		t.Errorf("--no-state should still evaluate:\n%s", got)
+	}
+	// The temp state file should not be created.
+	if _, err := os.Stat(t.TempDir() + "/ns.json"); err == nil {
+		t.Errorf("state file should not exist with --no-state")
+	}
+}

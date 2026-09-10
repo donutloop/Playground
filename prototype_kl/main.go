@@ -31,6 +31,7 @@ func main() {
 	base := flag.Int("base", 0, "output radix for integral results (2, 8, 16, or 0=decimal)")
 	flag.Var(&multiFlag{&evals}, "eval", "evaluate an expression and print the result; may be given multiple times")
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
+	noState := flag.Bool("no-state", false, "disable state persistence")
 	prec := flag.Int("prec", 15, "significant digits for --eval output (1..17)")
 	sci := flag.Bool("sci", false, "scientific notation for --eval output")
 	demo := flag.Bool("demo", false, "run a guided tour")
@@ -41,6 +42,9 @@ func main() {
 	verify := flag.Bool("verify", false, "run the self-test battery")
 	rad := flag.Bool("rad", false, "trig in radians (default)")
 	flag.Parse()
+	if *noState {
+		*state = ""
+	}
 
 	if *version {
 		fmt.Println("math calculator", Version)

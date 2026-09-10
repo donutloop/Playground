@@ -36,6 +36,8 @@ var helpTopics = map[string]string{
 	"sign":      "sign(x): -1, 0, or 1",
 	"clamp":     "clamp(x, lo, hi): bound x between lo and hi",
 	"lerp":      "lerp(a, b, t): linear interpolation a + (b-a)*t",
+	"fma":       "fma(a, b, c): fused multiply-add a*b+c",
+	"copysign":  "copysign(x, y): x with the sign of y",
 	"log":       "log(x): base-10 log of x (x > 0)",
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",

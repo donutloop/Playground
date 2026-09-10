@@ -185,6 +185,12 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.FMA(a, b, c), nil
 	case "copysign":
 		return math.Copysign(args[0], args[1]), nil
+	case "erf":
+		return math.Erf(args[0]), nil
+	case "erfc":
+		return math.Erfc(args[0]), nil
+	case "beta":
+		return math.Gamma(args[0]) * math.Gamma(args[1]) / math.Gamma(args[0]+args[1]), nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

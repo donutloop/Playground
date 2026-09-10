@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [71] floor(x, n) / ceil(x, n)
+- `floor(x, n)` and `ceil(x, n)` round down/up to n decimal places.
 ## [70] remap(x, lo, hi, nlo, nhi)
 - Added `remap(x, lo, hi, nlo, nhi)` mapping a value between ranges.
 ## [69] round(x, n) to n decimal places

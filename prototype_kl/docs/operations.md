@@ -62,6 +62,14 @@ Comparisons now parse inside parentheses and function arguments, so
 ## Easing
 ## Rounding
 ## Remapping
+## Floor / Ceil
+
+`floor(x)` rounds down to integer; `floor(x, n)` rounds down to n decimals.
+`ceil(x)` rounds up; `ceil(x, n)` rounds up to n decimals.
+
+    floor(3.14159)     # -> 3
+    ceil(3.14159, 2)   # -> 3.15
+
 
 `remap(x, lo, hi, nlo, nhi)` maps x from [lo, hi] to [nlo, nhi]:
 `nlo + (x - lo) * (nhi - nlo) / (hi - lo)`.

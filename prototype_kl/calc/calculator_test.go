@@ -746,3 +746,25 @@ func TestRemap(t *testing.T) {
 		}
 	}
 }
+
+// TestFloorCeilN checks floor/ceil to n decimal places.
+func TestFloorCeilN(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"floor(3.14159, 2)", "3.14"},
+		{"ceil(3.14159, 2)", "3.15"},
+		{"floor(3.14159)", "3"},
+		{"ceil(3.14159)", "4"},
+		{"floor(2.71828, 3)", "2.718"},
+		{"ceil(2.71828, 3)", "2.719"},
+		{"floor(1.5)", "1"},
+		{"ceil(1.5)", "2"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

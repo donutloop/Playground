@@ -357,6 +357,23 @@ func (c *Calculator) expand(s string) (string, error) {
 			i = end + 1
 			continue
 		}
+		if k < n && s[k] == '(' && (ident == "floor" || ident == "ceil") {
+			end := findMatchingParen(s, k)
+			if end < 0 {
+				return "", fmt.Errorf("unmatched '(' in call to %s", ident)
+			}
+			args := splitArgs(s[k+1 : end])
+			if len(args) == 2 {
+				x, digits := strings.TrimSpace(args[0]), strings.TrimSpace(args[1])
+				xE, err := c.expand(x)
+				if err != nil {
+					return "", err
+				}
+				b.WriteString(ident + "(" + xE + " * pow(10, " + digits + ")) / pow(10, " + digits + ")")
+				i = end + 1
+				continue
+			}
+		}
 		if k < n && s[k] == '(' && ident == "if" {
 			end := findMatchingParen(s, k)
 			if end < 0 {

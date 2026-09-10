@@ -75,6 +75,7 @@ x = 5
 | Easing           | `smoothstep(0.5, 0, 1)` -> 0.5                      |
 | Rounding         | `round(3.14159)` -> 3; `round(3.14159, 2)` -> 3.14 |
 | Remap            | `remap(5, 0, 10, 0, 100)` -> 50                    |
+| Floor/Ceil       | `floor(3.14159)` -> 3; `ceil(3.14159, 2)` -> 3.15 |
 | Booleans         | `and(5 > 2, 3 > 1)` -> 1; `not(0)` -> 1             |
 | Last result  | `ans` usable in later expressions          |
 | Statements   | separate with `;` — `y = 2; y * 3`         |

@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [48] deg/rad conversion functions
+- Added `deg(x)` radians-to-degrees and `rad(x)` degrees-to-radians.
+
 ## [47] logical && and || operators
 - Added `&&` and `||` returning 1 (true) or 0 (false).
 - Precedence: ternary < logical < comparison < arithmetic.

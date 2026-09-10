@@ -44,6 +44,8 @@ var SupportedFunctions = map[string]int{
 	"trunc":     1,
 	"sin":       1,
 	"sinc":      1,
+	"deg":       1,
+	"rad":       1,
 	"cos":       1,
 	"tan":       1,
 	"sec":       1,

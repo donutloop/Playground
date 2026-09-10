@@ -331,3 +331,21 @@ func TestLogical(t *testing.T) {
 		}
 	}
 }
+
+// TestDegRad verifies deg(x) and rad(x) conversions.
+func TestDegRad(t *testing.T) {
+	res, err := parser.Evaluate("deg(pi)")
+	if err != nil {
+		t.Fatalf("deg(pi): %v", err)
+	}
+	if math.Abs(res-180) > 1e-12 {
+		t.Errorf("deg(pi) = %v, want 180", res)
+	}
+	res, err = parser.Evaluate("rad(180)")
+	if err != nil {
+		t.Fatalf("rad(180): %v", err)
+	}
+	if math.Abs(res-math.Pi) > 1e-12 {
+		t.Errorf("rad(180) = %v, want pi", res)
+	}
+}

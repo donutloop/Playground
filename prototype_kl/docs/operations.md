@@ -55,6 +55,8 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `gamma(x)` | 1 | gamma function |
 | `sin(x)` | 1 | sine |
 | `sinc(x)` | 1 | cardinal sine sin(x)/x, sinc(0)=1 |
+| `deg(x)` | 1 | convert radians to degrees |
+| `rad(x)` | 1 | convert degrees to radians |
 | `cos(x)` | 1 | cosine |
 | `tan(x)` | 1 | tangent |
 | `sec(x)` | 1 | secant 1/cos(x) |

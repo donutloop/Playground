@@ -168,6 +168,10 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return 1, nil
 		}
 		return math.Sin(args[0]) / args[0], nil
+	case "deg":
+		return args[0] * 180 / math.Pi, nil
+	case "rad":
+		return args[0] * math.Pi / 180, nil
 	case "cos":
 		return math.Cos(args[0]), nil
 	case "tan":

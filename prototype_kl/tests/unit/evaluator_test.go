@@ -60,6 +60,11 @@ func TestEvaluator(t *testing.T) {
 		{"Csc", "csc(pi/2)", 1, false},
 		{"CscDomain", "csc(0)", 0, true},
 		{"CotDomain", "cot(0)", 0, true},
+		{"AsecDomain", "asec(0.5)", 0, true},
+		{"Acsc", "acsc(2)", math.Pi / 6, false},
+		{"AcscDomain", "acsc(0.5)", 0, true},
+		{"Acot", "acot(1)", math.Pi / 4, false},
+		{"AcotDomain", "acot(0)", 0, true},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},
@@ -134,5 +139,17 @@ func TestCot(t *testing.T) {
 	want := 1 / math.Tan(math.Pi/4)
 	if math.Abs(res-want) > 1e-15 {
 		t.Errorf("cot(pi/4) = %g, want %g", res, want)
+	}
+}
+
+// TestAsec verifies asec(x) = acos(1/x) within tolerance.
+func TestAsec(t *testing.T) {
+	res, err := parser.Evaluate("asec(2)")
+	if err != nil {
+		t.Fatalf("asec(2): %v", err)
+	}
+	want := math.Acos(0.5)
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("asec(2) = %g, want %g", res, want)
 	}
 }

@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [38] asec/acsc/acot inverse reciprocal trig
+- Added `asec(x)` = acos(1/x), `acsc(x)` = asin(1/x), `acot(x)` = atan(1/x).
+- Domain errors for |x| < 1 on asec/acsc and x=0 on acot.
+
 ## [37] sec/csc/cot reciprocal trig
 - Added `sec(x)` = 1/cos(x), `csc(x)` = 1/sin(x), `cot(x)` = 1/tan(x).
 - Domain errors at undefined points instead of silent infinities.

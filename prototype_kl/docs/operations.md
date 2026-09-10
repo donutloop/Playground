@@ -55,6 +55,9 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `sec(x)` | 1 | secant 1/cos(x) |
 | `csc(x)` | 1 | cosecant 1/sin(x) |
 | `cot(x)` | 1 | cotangent 1/tan(x) |
+| `asec(x)` | 1 | arcsecant acos(1/x) (|x| >= 1) |
+| `acsc(x)` | 1 | arccosecant asin(1/x) (|x| >= 1) |
+| `acot(x)` | 1 | arccotangent atan(1/x) (x != 0) |
 | `asin(x)` | 1 | arc sine |
 | `acos(x)` | 1 | arc cosine |
 | `atan(x)` | 1 | arc tangent |
@@ -102,3 +105,4 @@ also reported as errors rather than silent infinities.
 | `feat(parser): exp10 base-10 exponent function` | `exp10(x)` |
 | `feat(parser): sinc cardinal sine function` | `sinc(x)` |
 | `feat(parser): sec/csc/cot reciprocal trig functions` | `sec`, `csc`, `cot` |
+| `feat(parser): asec/acsc/acot inverse reciprocal trig` | `asec`, `acsc`, `acot` |

@@ -141,6 +141,21 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("cot undefined at x=%v", args[0])}
 		}
 		return 1 / t, nil
+	case "asec":
+		if math.Abs(args[0]) < 1 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("asec requires |x| >= 1, got %v", args[0])}
+		}
+		return math.Acos(1 / args[0]), nil
+	case "acsc":
+		if math.Abs(args[0]) < 1 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("acsc requires |x| >= 1, got %v", args[0])}
+		}
+		return math.Asin(1 / args[0]), nil
+	case "acot":
+		if args[0] == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: "acot undefined at x=0"}
+		}
+		return math.Atan(1 / args[0]), nil
 	case "asin":
 		return math.Asin(args[0]), nil
 	case "acos":

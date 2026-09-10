@@ -109,3 +109,22 @@ func TestJSONSettingPersists(t *testing.T) {
 		t.Fatalf("json mode not persisted:\n%s", out.String())
 	}
 }
+
+func TestCSVSettingPersists(t *testing.T) {
+	path := t.TempDir() + "/csv.json"
+	var buf bytes.Buffer
+	c := New(strings.NewReader("csv\n"), &buf)
+	c.Run()
+	if err := c.SaveState(path); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	d := New(strings.NewReader("1+1\n"), &out)
+	if err := d.LoadState(path); err != nil {
+		t.Fatal(err)
+	}
+	d.Run()
+	if !strings.Contains(out.String(), "value,2") {
+		t.Fatalf("csv mode not persisted:\n%s", out.String())
+	}
+}

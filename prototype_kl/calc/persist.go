@@ -20,6 +20,7 @@ type state struct {
 	Base    int                `json:"base"`
 	Quiet   bool               `json:"quiet"`
 	JSON    bool               `json:"json"`
+	CSV     bool               `json:"csv"`
 }
 
 // saveState writes the calculator session to path.
@@ -38,6 +39,7 @@ func (c *Calculator) saveState(path string) error {
 		Base:    c.base,
 		Quiet:   c.quietAssign,
 		JSON:    c.jsonMode,
+		CSV:     c.csvMode,
 	}
 	data, err := json.MarshalIndent(&st, "", "  ")
 	if err != nil {
@@ -76,6 +78,7 @@ func (c *Calculator) loadState(path string) error {
 		c.base = st.Base
 		c.quietAssign = st.Quiet
 		c.jsonMode = st.JSON
+		c.csvMode = st.CSV
 	}
 	return nil
 }

@@ -577,3 +577,27 @@ func TestClamp(t *testing.T) {
 		t.Errorf("clamp redefinition not rejected:\n%s", got)
 	}
 }
+
+// TestLerp checks linear interpolation lerp(a, b, t).
+func TestLerp(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"lerp(0, 10, 0.5)", "5"},
+		{"lerp(10, 20, 0.25)", "12.5"},
+		{"lerp(2, 4, 0)", "2"},
+		{"lerp(2, 4, 1)", "4"},
+		{"lerp(0, 100, 0.1)", "10"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+	// lerp is reserved.
+	got := run(t, "lerp(x) = x\n")
+	if !strings.Contains(got, "cannot define function") {
+		t.Errorf("lerp redefinition not rejected:\n%s", got)
+	}
+}

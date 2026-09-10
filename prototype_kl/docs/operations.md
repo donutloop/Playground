@@ -44,6 +44,14 @@ redefined. Definitions persist across saves like variables.
 ## Formatting
 ## Statistics
 ## Clamping
+## Interpolation
+
+`lerp(a, b, t)` linearly interpolates between a and b at fraction t:
+`a + (b - a) * t`.
+
+    lerp(0, 10, 0.5)   # -> 5
+    lerp(10, 20, 0.25) # -> 12.5
+
 
 `clamp(x, lo, hi)` bounds x into [lo, hi], expanding to `min(max(x, lo), hi)`.
 

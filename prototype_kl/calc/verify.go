@@ -42,6 +42,7 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"beta(1, 2)", "0.5"},
 		{"logb(8)", "3"},
 		{"nextafter(1, 2)", "1"},
+		{"ldexp(1, 3)", "8"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

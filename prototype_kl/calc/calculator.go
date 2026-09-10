@@ -480,7 +480,7 @@ expressions  arithmetic with + - * / ^ ( ), constants pi/e, and functions
 postfix      ! factorial, % percent        (2 ^ 3 == 8, 5! == 120, 50% == 0.5)
 functions    sqrt cbrt abs floor ceil round trunc sin cos tan asin acos atan atan2
              asinh acosh atanh sinh cosh tanh ln log log2 log10 log1p exp exp2 expm1
-             pow(x,y) hypot(x,y) min(a,...) max(a,...) gcd lcm gamma mod sign clamp lerp fma copysign erf erfc beta logb nextafter fact(n)
+             pow(x,y) hypot(x,y) min(a,...) max(a,...) gcd lcm gamma mod sign clamp lerp fma copysign erf erfc beta logb nextafter ldexp fact(n)
 variables    name = expression    e.g. x = 3 + 2 ; then use x anywhere
 ans/mem      last result and memory, usable in expressions
 statements   separate with ';'   e.g. x = 2; x * 3

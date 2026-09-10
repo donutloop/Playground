@@ -38,6 +38,7 @@ type Calculator struct {
 	csvMode     bool
 	lastExpr    string
 	eng         bool
+	expandDepth int
 	errCount    int
 	base        int
 	in          *bufio.Reader

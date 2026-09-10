@@ -4,6 +4,16 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [82] recursive user-defined functions
+
+- `if(cond, then, else)` now evaluates `cond` at expansion time and expands only
+  the taken branch, so recursive user functions terminate instead of killing the
+  process with exponential macro expansion.
+- Adds an expansion-depth guard (500) that turns runaway recursion into a
+  `recursion too deep` error rather than a stack overflow.
+- Verified: `fib(n) = if(n < 2, n, fib(n-1) + fib(n-2))` -> `fib(6)`=8, `fib(10)`=55.
+- `if(1, 0, 1/0)` now yields 0 (untaken branch not evaluated).
+
 ## [81] tree command: AST inspection
 - New `tree <expr>` command prints the abstract syntax tree (S-expression) of an
   expression after calc-macro expansion, e.g. `tree 7 % 3` -> `(mod 7 3)`.

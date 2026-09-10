@@ -35,6 +35,7 @@ var helpTopics = map[string]string{
 	"gcd":       "gcd(a, b): greatest common divisor",
 	"var":       "var(a, b, ...): population variance of the values",
 	"count":     "count(a, b): number of integers from floor(a) to floor(b)",
+	"if":        "if(cond, then, else): lazy conditional; enables recursive functions",
 	"countif":   "countif(cond, a, b): count integers x in [a,b] satisfying cond",
 	"sumif":     "sumif(cond, a, b): sum integers x in [a,b] satisfying cond",
 

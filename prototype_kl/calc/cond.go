@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"prototype_kl/parser"
 )
 
 // expandIf rewrites if(cond, then, else) into
@@ -13,22 +14,22 @@ import (
 func (c *Calculator) expandIf(inner string) (string, error) {
 	args := splitArgs(inner)
 	if len(args) != 3 {
-		return "", fmt.Errorf("if expects 3 argument(s) (cond, then, else), got %d", len(args))
+		return "", fmt.Errorf("if expects 3 arguments (cond, then, else)")
 	}
 	cond, then, els := strings.TrimSpace(args[0]), strings.TrimSpace(args[1]), strings.TrimSpace(args[2])
 	condE, err := c.expand(cond)
 	if err != nil {
 		return "", err
 	}
-	thenE, err := c.expand(then)
-	if err != nil {
-		return "", err
+	// Lazy branch selection: evaluate cond numerically; expand only the taken branch.
+	if v, err := parser.Evaluate(condE); err == nil {
+		if v != 0 {
+			return c.expand(then)
+		}
+		return c.expand(els)
 	}
-	elseE, err := c.expand(els)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("(%s) ? (%s) : (%s)", condE, thenE, elseE), nil
+	// cond not evaluable at expansion time: fall back to a lazy ternary.
+	return fmt.Sprintf("(%s ? %s : %s)", condE, then, els), nil
 }
 
 // expandAndOr rewrites and(a, b) into (a) && (b) and or(a, b) into (a) || (b),

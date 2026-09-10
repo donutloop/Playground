@@ -195,6 +195,11 @@ func (c *Calculator) defineFunc(name string, params []string, body string) error
 // User function calls are replaced with their parameter-bound bodies, wrapped
 // in parentheses to preserve precedence.
 func (c *Calculator) expand(s string) (string, error) {
+	c.expandDepth++
+	defer func() { c.expandDepth-- }()
+	if c.expandDepth > 500 {
+		return "", fmt.Errorf("recursion too deep")
+	}
 	var b strings.Builder
 	i := 0
 	n := len(s)

@@ -915,3 +915,26 @@ func TestTreeCommand(t *testing.T) {
 		}
 	}
 }
+
+func TestRecursiveFuncs(t *testing.T) {
+	got := run(t, `
+fib(n) = if(n < 2, n, fib(n-1) + fib(n-2))
+fib(0)
+fib(1)
+fib(6)
+fib(10)
+`)
+	for _, want := range []string{"0", "1", "8", "55"} {
+		if !strings.Contains(got, "> "+want+"\n") {
+			t.Errorf("fib result missing %q in:\n%s", want, got)
+		}
+	}
+}
+
+func TestLazyIfSkipsUntakenBranch(t *testing.T) {
+	// The else branch contains 1/0 which must not be evaluated when cond is true.
+	got := run(t, "if(1, 0, 1/0)\n")
+	if !strings.Contains(got, "> 0\n") {
+		t.Errorf("if(1, 0, 1/0) = %q, want 0", got)
+	}
+}

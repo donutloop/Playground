@@ -79,6 +79,19 @@ All accept two or more arguments.
     tree (17 % 5) + 2     -> (+ (mod 17 5) 2)
     tree 50%              -> (% 50)
 
+## Recursive user-defined functions
+
+`if(cond, then, else)` evaluates `cond` at expansion time and expands only the
+taken branch, so recursive functions terminate instead of overflowing:
+
+    fib(n) = if(n < 2, n, fib(n-1) + fib(n-2))
+    fib(6)       -> 8
+    fib(10)      -> 55
+
+Runaway recursion is capped by an expansion-depth guard (500) that reports
+`recursion too deep` rather than crashing. Because only the taken branch is
+expanded, `if(1, 0, 1/0)` safely yields 0.
+
 ## Conditional counting and summing
 
 `countif(cond, lo, hi)` counts how many integers `x` from `lo` to `hi`

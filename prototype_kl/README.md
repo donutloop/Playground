@@ -65,6 +65,8 @@ x = 5
 |--------------|-------------------------------------------|
 | Variables    | `x = 3 + 2` then use `x` anywhere          |
 | User functions | `f(x) = x^2 + 1` then call `f(3)`        |
+| Recursion      | `fib(n) = if(n < 2, n, fib(n-1) + fib(n-2))`; `fib(10)` -> 55 |
+| AST inspection | `tree 7 % 3` -> `(mod 7 3)`                  |
 | Unit conversion  | `convert(5, km, m)` -> 5000; `convert(60, min, s)` -> 3600; temperature `convert(100, c, f)` -> 212 |
 | Range loops      | `sum(1, 100)` -> 5050; `prod(1, 10)` -> 3628800; `count(1, 5)` -> 5 |
 | Conditional      | `if(5 > 2, 100, 1)` -> 100; `if(0, 100, 42)` -> 42  |

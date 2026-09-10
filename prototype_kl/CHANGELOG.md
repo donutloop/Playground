@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [65] parser: comparisons compose in sub-expressions
+- Comparisons now parse inside parentheses and function arguments.
+- Added `and(a, b)`, `or(a, b)`, `not(a)` boolean helpers.
 ## [64] step(x, edge) Heaviside step
 - Added `step(x, edge)` = 1 when x >= edge, else 0.
 ## [63] lerp(a, b, t) linear interpolation

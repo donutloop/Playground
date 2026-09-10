@@ -41,6 +41,18 @@ redefined. Definitions persist across saves like variables.
 ## Units & conversion
 ## Range loops
 ## Conditionals
+## Boolean helpers
+
+`and(a, b)`, `or(a, b)`, and `not(a)` combine conditions. They expand to the
+parser's `&&` / `||` operators and a ternary.
+
+    and(5 > 2, 3 > 1)  # -> 1
+    or(1 > 3, 5 > 2)   # -> 1
+    not(0)             # -> 1
+
+Comparisons now parse inside parentheses and function arguments, so
+`(5 > 2) ? 100 : 1` works and conditions compose freely.
+
 ## Formatting
 ## Statistics
 ## Clamping

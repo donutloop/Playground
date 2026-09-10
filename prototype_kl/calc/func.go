@@ -167,7 +167,7 @@ func replaceIdent(s, target, replacement string) string {
 
 // defineFunc validates and stores a user-defined function.
 func (c *Calculator) defineFunc(name string, params []string, body string) error {
-	if name == "ans" || name == "mem" || name == "pi" || name == "e" || name == "convert" || name == "if" || name == "clamp" || name == "lerp" || name == "step" {
+	if name == "ans" || name == "mem" || name == "pi" || name == "e" || name == "convert" || name == "if" || name == "and" || name == "or" || name == "not" || name == "clamp" || name == "lerp" || name == "step" {
 		return fmt.Errorf("cannot define function %q (reserved name)", name)
 	}
 	if _, ok := parser.SupportedFunctions[name]; ok {
@@ -263,6 +263,28 @@ func (c *Calculator) expand(s string) (string, error) {
 				return "", err
 			}
 			b.WriteString(clamped)
+			i = end + 1
+			continue
+		}
+		if k < n && s[k] == '(' && (ident == "and" || ident == "or") {
+			end := findMatchingParen(s, k)
+			if end < 0 {
+				return "", fmt.Errorf("unmatched '(' in call to %s", ident)
+			}
+			boolExpr, err := c.expandAndOr(s[k+1 : end], ident)
+			if err != nil {
+				return "", err
+			}
+			b.WriteString(boolExpr)
+			i = end + 1
+			continue
+		}
+		if k < n && s[k] == '(' && ident == "not" {
+			end := findMatchingParen(s, k)
+			if end < 0 {
+				return "", fmt.Errorf("unmatched '(' in call to not")
+			}
+			b.WriteString(s[k+1:end] + " ? 0 : 1")
 			i = end + 1
 			continue
 		}

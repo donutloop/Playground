@@ -625,3 +625,43 @@ func TestStep(t *testing.T) {
 		t.Errorf("step redefinition not rejected:\n%s", got)
 	}
 }
+
+// TestBoolFunctions checks and/or/not with comparison args.
+func TestBoolFunctions(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"and(5 > 2, 3 > 1)", "1"},
+		{"and(5 > 2, 1 > 3)", "0"},
+		{"or(1 > 3, 5 > 2)", "1"},
+		{"or(1 > 3, 2 > 5)", "0"},
+		{"not(0)", "1"},
+		{"not(5)", "0"},
+		{"and(1, 0)", "0"},
+		{"or(1, 0)", "1"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}
+
+// TestParenComparisons checks comparisons parse inside parens/args.
+func TestParenComparisons(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"(5 > 2) ? 100 : 1", "100"},
+		{"(2 > 5) ? 100 : 1", "1"},
+		{"(3 > 1) * 100", "100"},
+		{"if(5 > 2, 100, 1)", "100"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

@@ -303,7 +303,7 @@ func (p *Parser) parsePrimary() (Node, error) {
 	case TokenConstant:
 		return &NumberNode{Value: token.Constant}, nil
 	case TokenLParen:
-		node, err := p.parseExpression()
+		node, err := p.parseTernary()
 		if err != nil {
 			return nil, err
 		}
@@ -336,7 +336,7 @@ func (p *Parser) parsePrimary() (Node, error) {
 		p.consume() // consume '('
 		var args []Node
 		for {
-			arg, err := p.parseExpression()
+			arg, err := p.parseTernary()
 			if err != nil {
 				return nil, err
 			}

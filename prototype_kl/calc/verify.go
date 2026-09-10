@@ -32,6 +32,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"expm1(0)", "0"},
 		{"exp2(3)", "8"},
 		{"exp10(2)", "100"},
+		{"sinc(0)", "1"},
+		{"sinc(pi)", "3.898171832519375e-17"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

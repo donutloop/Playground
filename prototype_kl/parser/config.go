@@ -31,6 +31,7 @@ var SupportedFunctions = map[string]int{
 	"round":     1,
 	"trunc":     1,
 	"sin":       1,
+	"sinc":      1,
 	"cos":       1,
 	"tan":       1,
 	"asin":      1,

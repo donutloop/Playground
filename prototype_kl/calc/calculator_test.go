@@ -272,6 +272,13 @@ func TestHelpExp10(t *testing.T) {
 	}
 }
 
+func TestHelpSinc(t *testing.T) {
+	got := run(t, "help sinc\n")
+	if !strings.Contains(got, "sinc(x)") {
+		t.Errorf("sinc help missing:\n%s", got)
+	}
+}
+
 func TestHelpUnknown(t *testing.T) {
 	got := run(t, "help nope\n")
 	if !strings.Contains(got, "no help") {

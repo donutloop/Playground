@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"math"
 	"prototype_kl/parser"
 	"testing"
 )
@@ -54,6 +55,7 @@ func TestEvaluator(t *testing.T) {
 		{"Exp2", "exp2(3)", 8, false},
 		{"Exp10", "exp10(2)", 100, false},
 		{"Exp10Neg", "exp10(-1)", 0.1, false},
+		{"Sinc", "sinc(0)", 1, false},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},
@@ -104,5 +106,17 @@ func TestEvaluator(t *testing.T) {
 				t.Errorf("Evaluate() = %g, want %g", res, tt.want)
 			}
 		})
+	}
+}
+
+// TestSincNonZero verifies sinc(x) = sin(x)/x for nonzero x within tolerance.
+func TestSincNonZero(t *testing.T) {
+	res, err := parser.Evaluate("sinc(pi)")
+	if err != nil {
+		t.Fatalf("sinc(pi): %v", err)
+	}
+	want := math.Sin(math.Pi) / math.Pi
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("sinc(pi) = %g, want %g", res, want)
 	}
 }

@@ -114,6 +114,11 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Trunc(args[0]), nil
 	case "sin":
 		return math.Sin(args[0]), nil
+	case "sinc":
+		if args[0] == 0 {
+			return 1, nil
+		}
+		return math.Sin(args[0]) / args[0], nil
 	case "cos":
 		return math.Cos(args[0]), nil
 	case "tan":

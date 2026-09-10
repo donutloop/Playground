@@ -16,6 +16,7 @@ var helpTopics = map[string]string{
 	"round":     "round(x): round to nearest integer",
 	"trunc":     "trunc(x): truncate toward zero",
 	"sin":       "sin(x): sine of x (radians)",
+	"sinc":      "sinc(x): cardinal sine sin(x)/x, sinc(0)=1",
 	"cos":       "cos(x): cosine of x (radians)",
 	"tan":       "tan(x): tangent of x (radians)",
 	"asin":      "asin(x): arc sine of x",

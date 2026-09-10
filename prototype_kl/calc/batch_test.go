@@ -47,3 +47,12 @@ func TestJSONReplToggle(t *testing.T) {
 		t.Fatalf("json toggle should emit JSON value:\n%s", out.String())
 	}
 }
+
+func TestCSVReplToggle(t *testing.T) {
+	var out bytes.Buffer
+	c := New(strings.NewReader("csv\n1+1\n"), &out)
+	c.Run()
+	if !strings.Contains(out.String(), "value,2") {
+		t.Fatalf("csv toggle should emit value,2:\n%s", out.String())
+	}
+}

@@ -34,6 +34,7 @@ type Calculator struct {
 	quiet       bool
 	quietAssign bool
 	jsonMode    bool
+	csvMode     bool
 	lastExpr    string
 	eng         bool
 	errCount    int
@@ -258,6 +259,10 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.eng = false
 		fmt.Fprintln(c.out, "standard notation")
 		return false, nil
+	case "csv":
+		c.csvMode = !c.csvMode
+		fmt.Fprintf(c.out, "csv = %v\n", c.csvMode)
+		return false, nil
 	case "json":
 		c.jsonMode = !c.jsonMode
 		fmt.Fprintf(c.out, "json = %v\n", c.jsonMode)
@@ -306,7 +311,9 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	c.hasAns = true
 	c.lastExpr = stmt
 	c.results = append(c.results, c.format(v))
-	if c.jsonMode {
+	if c.csvMode {
+		fmt.Fprintf(c.out, "value,%s\n", c.format(v))
+	} else if c.jsonMode {
 		fmt.Fprintf(c.out, "{\"value\": %s}\n", c.format(v))
 	} else {
 		fmt.Fprintln(c.out, c.format(v))

@@ -208,6 +208,12 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Jn(int(args[0]), args[1]), nil
 	case "yn":
 		return math.Yn(int(args[0]), args[1]), nil
+	case "lgamma":
+		if args[0] <= 0 && math.Mod(args[0], 1) == 0 {
+			return math.NaN(), ErrDomain
+		}
+		l, _ := math.Lgamma(args[0])
+		return l, nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

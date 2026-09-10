@@ -62,6 +62,7 @@ var SupportedFunctions = map[string]int{
 	"signbit":   1,
 	"jn":        2,
 	"yn":        2,
+	"lgamma":    1,
 	"sinh":      1,
 	"cosh":      1,
 	"tanh":      1,

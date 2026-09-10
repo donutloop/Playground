@@ -432,6 +432,25 @@ func (c *Calculator) substitute(expr string) (string, error) {
 	return c.expand(expr)
 }
 
+
+// findAssignEq returns the index of the first '=' in s that is an assignment
+// operator (not part of ==, >=, <=, !=), or -1 if none.
+func findAssignEq(s string) int {
+	for i := 0; i < len(s); i++ {
+		if s[i] != '=' {
+			continue
+		}
+		if i+1 < len(s) && s[i+1] == '=' {
+			continue // part of ==
+		}
+		if i-1 >= 0 && (s[i-1] == '>' || s[i-1] == '<' || s[i-1] == '!' || s[i-1] == '=') {
+			continue // part of >=, <=, !=, ==
+		}
+		return i
+	}
+	return -1
+}
+
 // parseAssignment parses "name = expression" by reading the first identifier
 // token, then an '=' literal, then the remainder. It returns ok=false for any
 // other form (e.g. bare expressions).
@@ -443,7 +462,7 @@ func parseAssignment(line string) (name, expr string, ok bool) {
 	name = toks[0].text
 
 	rest := line[len(name):]
-	eq := strings.IndexByte(rest, '=')
+	eq := findAssignEq(rest)
 	if eq < 0 {
 		return "", "", false
 	}

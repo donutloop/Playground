@@ -851,3 +851,33 @@ func TestTemperatureStillLength(t *testing.T) {
 		t.Errorf("length conversion broken by offsets: %s", got)
 	}
 }
+
+func TestCountIfSumIf(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"countif(x > 3, 1, 10)", "7"},
+		{"countif(x >= 5, 1, 10)", "6"},
+		{"countif(x == 5, 1, 10)", "1"},
+		{"countif(x != 5, 1, 10)", "9"},
+		{"countif(x <= 2, 1, 10)", "2"},
+		{"countif(mod(x, 2) == 0, 1, 10)", "5"},
+		{"sumif(x > 3, 1, 10)", "49"},
+		{"sumif(x >= 5, 1, 10)", "45"},
+		{"sumif(x == 5, 1, 10)", "5"},
+		{"sumif(mod(x, 2) == 0, 1, 10)", "30"},
+		{"countif(x < 3, 1, 5)", "2"},
+		{"sumif(x < 3, 1, 5)", "3"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) || strings.Contains(got, "error") {
+			t.Errorf("%s = %q, want to contain %s", tc.in, got, tc.want)
+		}
+	}
+}
+
+func TestCountIfReserved(t *testing.T) {
+	got := run(t, "countif(x) = 5\n")
+	if !strings.Contains(got, "reserved") {
+		t.Errorf("countif should be a reserved name: %q", got)
+	}
+}

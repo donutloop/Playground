@@ -4,6 +4,13 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [79] conditional countif / sumif range loops
+- New `countif(cond, lo, hi)` counts integers `x` in `[lo, hi]` satisfying `cond`.
+- New `sumif(cond, lo, hi)` sums those `x` values.
+- `x` is a placeholder substituted into `cond` (e.g. `countif(x > 3, 1, 10)`).
+- Fixed assignment detection so `==`, `>=`, `<=`, `!=` are no longer mistaken
+  for `=` assignments, enabling comparisons inside expressions and calls.
+
 ## [78] range-loop step parameter
 - `sum(a, b)`, `prod(a, b)`, `count(a, b)` now accept an optional step:
   `sum(1, 10, 2)` sums every 2nd integer (25).

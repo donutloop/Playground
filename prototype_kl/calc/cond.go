@@ -2,6 +2,8 @@ package calc
 
 import (
 	"fmt"
+	"math"
+	"strconv"
 	"strings"
 )
 
@@ -41,4 +43,37 @@ func (c *Calculator) expandAndOr(inner, op string) (string, error) {
 		return fmt.Sprintf("(%s) && (%s)", a, b), nil
 	}
 	return fmt.Sprintf("(%s) || (%s)", a, b), nil
+}
+
+// expandCountIf builds 0 + (cond_1) + (cond_2) + ... where cond_i is cond with
+// x replaced by each integer i from floor(a) to floor(b). Each (cond_i) is a
+// comparison that evaluates to 1 (true) or 0 (false).
+func expandCountIf(cond string, a, b float64) string {
+	var buf strings.Builder
+	buf.WriteString("0")
+	lo, hi := math.Floor(a), math.Floor(b)
+	if hi < lo {
+		return buf.String()
+	}
+	for i := lo; i <= hi; i++ {
+		c := strings.ReplaceAll(cond, "x", strconv.FormatFloat(i, 'f', -1, 64))
+		fmt.Fprintf(&buf, " + (%s)", c)
+	}
+	return buf.String()
+}
+
+// expandSumIf builds 0 + (cond_1) * 1 + (cond_2) * 2 + ... summing the integer
+// value i when cond_i (x replaced by i) is true.
+func expandSumIf(cond string, a, b float64) string {
+	var buf strings.Builder
+	buf.WriteString("0")
+	lo, hi := math.Floor(a), math.Floor(b)
+	if hi < lo {
+		return buf.String()
+	}
+	for i := lo; i <= hi; i++ {
+		c := strings.ReplaceAll(cond, "x", strconv.FormatFloat(i, 'f', -1, 64))
+		fmt.Fprintf(&buf, " + (%s) * %v", c, i)
+	}
+	return buf.String()
 }

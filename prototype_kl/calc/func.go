@@ -167,7 +167,7 @@ func replaceIdent(s, target, replacement string) string {
 
 // defineFunc validates and stores a user-defined function.
 func (c *Calculator) defineFunc(name string, params []string, body string) error {
-	if name == "ans" || name == "mem" || name == "pi" || name == "e" || name == "convert" || name == "if" || name == "and" || name == "or" || name == "not" || name == "clamp" || name == "lerp" || name == "step" || name == "diff" || name == "pct" || name == "smoothstep" || name == "remap" || name == "var" || name == "stddev" || name == "median" || name == "count" || name == "mode" {
+	if name == "ans" || name == "mem" || name == "pi" || name == "e" || name == "convert" || name == "if" || name == "and" || name == "or" || name == "not" || name == "clamp" || name == "lerp" || name == "step" || name == "diff" || name == "pct" || name == "smoothstep" || name == "remap" || name == "var" || name == "stddev" || name == "median" || name == "count" || name == "mode" || name == "countif" || name == "sumif" {
 		return fmt.Errorf("cannot define function %q (reserved name)", name)
 	}
 	if _, ok := parser.SupportedFunctions[name]; ok {
@@ -384,6 +384,40 @@ func (c *Calculator) expand(s string) (string, error) {
 				return "", err
 			}
 			b.WriteString(condExpr)
+			i = end + 1
+			continue
+		}
+		if k < n && s[k] == '(' && (ident == "countif" || ident == "sumif") {
+			end := findMatchingParen(s, k)
+			if end < 0 {
+				return "", fmt.Errorf("unmatched '(' in call to %s", ident)
+			}
+			args := splitArgs(s[k+1 : end])
+			if len(args) != 3 {
+				return "", fmt.Errorf("%s expects 3 argument(s) (cond, a, b), got %d", ident, len(args))
+			}
+			cond, lo, hi := strings.TrimSpace(args[0]), strings.TrimSpace(args[1]), strings.TrimSpace(args[2])
+			loE, err := c.expand(lo)
+			if err != nil {
+				return "", err
+			}
+			hiE, err := c.expand(hi)
+			if err != nil {
+				return "", err
+			}
+			loNum, err := parser.Evaluate(loE)
+			if err != nil {
+				return "", fmt.Errorf("countif/sumif bounds must be numeric: %v", err)
+			}
+			hiNum, err := parser.Evaluate(hiE)
+			if err != nil {
+				return "", fmt.Errorf("countif/sumif bounds must be numeric: %v", err)
+			}
+			if ident == "countif" {
+				b.WriteString(expandCountIf(cond, loNum, hiNum))
+			} else {
+				b.WriteString(expandSumIf(cond, loNum, hiNum))
+			}
 			i = end + 1
 			continue
 		}

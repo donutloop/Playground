@@ -69,6 +69,17 @@ All accept two or more arguments.
     median(1, 3, 2)         # -> 2
     median(1, 2, 3, 4)      # -> 2.5
 
+## Conditional counting and summing
+
+`countif(cond, lo, hi)` counts how many integers `x` from `lo` to `hi`
+(inclusive) satisfy `cond`, where `x` is a placeholder substituted into `cond`.
+`sumif(cond, lo, hi)` sums the values of `x` that satisfy `cond`.
+
+    countif(x > 3, 1, 10)           # -> 7
+    countif(mod(x, 2) == 0, 1, 10)  # -> 5
+    sumif(x > 3, 1, 10)             # -> 49
+    sumif(x >= 5, 1, 10)            # -> 45
+
 ## Clamping
 ## Interpolation
 ## Step function

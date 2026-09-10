@@ -69,6 +69,16 @@ All accept two or more arguments.
     median(1, 3, 2)         # -> 2
     median(1, 2, 3, 4)      # -> 2.5
 
+## Abstract syntax tree inspection
+
+`tree <expr>` prints the AST (S-expression) of an expression after calc-macro
+`expansion, e.g.:
+
+    tree 7 % 3            -> (mod 7 3)
+    tree 2 + 3 * 4        -> (+ 2 (* 3 4))
+    tree (17 % 5) + 2     -> (+ (mod 17 5) 2)
+    tree 50%              -> (% 50)
+
 ## Conditional counting and summing
 
 `countif(cond, lo, hi)` counts how many integers `x` from `lo` to `hi`

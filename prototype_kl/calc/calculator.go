@@ -172,7 +172,11 @@ func (c *Calculator) handle(line string) (bool, error) {
 		fmt.Fprintf(c.out, "base = %d\n", b)
 		return false, nil
 	}
-	switch strings.ToLower(line) {
+	
+	if strings.HasPrefix(strings.ToLower(line), "tree ") {
+		return true, c.tree(strings.TrimSpace(line[5:]))
+	}
+switch strings.ToLower(line) {
 	case "help", "?":
 		c.printHelp()
 		return false, nil
@@ -635,4 +639,18 @@ func (c *Calculator) SetDeg() {
 func (c *Calculator) SetGrad() {
 	c.degMode = false
 	c.gradMode = true
+}
+
+// tree prints the AST of an expression after calc-macro expansion.
+func (c *Calculator) tree(expr string) error {
+	expanded, err := c.expand(expr)
+	if err != nil {
+		return err
+	}
+	node, err := parser.Parse(expanded)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintln(c.out, parser.Dump(node))
+	return nil
 }

@@ -4,6 +4,12 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [81] tree command: AST inspection
+- New `tree <expr>` command prints the abstract syntax tree (S-expression) of an
+  expression after calc-macro expansion, e.g. `tree 7 % 3` -> `(mod 7 3)`.
+- Adds `parser.Parse` (lex+parse without eval) and `parser.Dump` AST pretty-printer.
+- Supports Number, BinaryOp, UnaryOp, Function, Postfix (%%/!), Ternary nodes.
+
 ## [80] binary %% modulo operator
 - New binary modulo operator `%%` (e.g. `7 %% 3` -> 1), same precedence as `*` and `/`.
 - Postfix percent (e.g. `50%%` -> 0.5) still works; `%%` is treated as modulo when an operand follows.

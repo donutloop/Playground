@@ -900,3 +900,18 @@ func TestModuloOperator(t *testing.T) {
 		}
 	}
 }
+
+func TestTreeCommand(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"tree 7 % 3", "(mod 7 3)"},
+		{"tree 2 + 3 * 4", "(+ 2 (* 3 4))"},
+		{"tree (17 % 5) + 2", "(+ (mod 17 5) 2)"},
+		{"tree 50%", "(% 50)"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

@@ -48,6 +48,7 @@ var helpTopics = map[string]string{
 	"signbit":   "signbit(x): 1 if x has negative sign bit",
 	"jn":        "jn(n, x): Bessel J of order n",
 	"yn":        "yn(n, x): Bessel Y of order n",
+	"lgamma":    "lgamma(x): log-gamma ln(|Gamma(x)|)",
 	"log":       "log(x): base-10 log of x (x > 0)",
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",

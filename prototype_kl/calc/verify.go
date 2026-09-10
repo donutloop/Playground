@@ -47,6 +47,7 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"signbit(-0.0)", "1"},
 		{"jn(0, 1)", "0.765197686557967"},
 		{"yn(1, 1)", "-0.781212821300289"},
+		{"lgamma(5)", "3.17805383034795"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

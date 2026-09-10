@@ -54,4 +54,15 @@ feels great to use.
 
 - One commit per feature; do not bundle unrelated features.
 - Never commit failing tests; fix or drop them first.
-- Continue the loop even after pushes; there is no terminal state.
+- Continue the loop even after pushes.
+
+## Iteration contract (never stop)
+
+- Keep executing forever: after each feature is done, immediately begin the
+  next one from the mission list (conditionals, loops, user functions,
+  assignments, modes, units, formatting) or any remaining gap.
+- **Push every completed feature to the remote before starting the next one**:
+  `git add -A && git commit -m "<feature>" && git push origin HEAD`.
+- If the push fails or the remote diverged, `git pull --rebase origin HEAD`
+  and push again.
+- There is no terminal state; the loop continues indefinitely.

@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [60] fix(x, n) decimal rounding
+- Added `fix(x, n)` rounding x to n decimal places.
 ## [59] if conditional
 - Added `if(cond, then, else)` with lazy evaluation of the selected branch.
 - Nonzero cond selects then; zero selects else.

@@ -41,6 +41,13 @@ redefined. Definitions persist across saves like variables.
 ## Units & conversion
 ## Range loops
 ## Conditionals
+## Formatting
+
+`fix(x, n)` rounds x to n decimal places.
+
+    fix(3.14159, 2)  # -> 3.14
+    fix(2.71828, 3)  # -> 2.718
+
 
 `if(cond, then, else)` evaluates `then` when cond is nonzero, otherwise
 `else`. Only the selected branch is computed (lazy evaluation).

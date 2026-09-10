@@ -516,3 +516,22 @@ func TestIfArityError(t *testing.T) {
 		t.Errorf("if redefinition not rejected:\n%s", got)
 	}
 }
+
+// TestFixDigits checks rounding to n decimal places.
+func TestFixDigits(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"fix(3.14159, 2)", "3.14"},
+		{"fix(2.71828, 3)", "2.718"},
+		{"fix(1.5, 0)", "2"},
+		{"fix(-1.234, 2)", "-1.23"},
+		{"fix(123.456, 1)", "123.5"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

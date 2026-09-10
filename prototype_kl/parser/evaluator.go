@@ -404,6 +404,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return m, nil
 	case "fact":
 		return factorial(args[0])
+	case "fix":
+		return fixDigits(args[0], args[1]), nil
 	case "sum":
 		return rangeSum(args[0], args[1]), nil
 	case "prod":
@@ -454,6 +456,12 @@ func factorial(x float64) (float64, error) {
 		res *= i
 	}
 	return res, nil
+}
+
+// fixDigits rounds x to n decimal places.
+func fixDigits(x, n float64) float64 {
+	scale := math.Pow(10, math.Floor(n))
+	return math.Round(x*scale) / scale
 }
 
 // rangeSum sums the integers from floor(a) to floor(b) inclusive.

@@ -204,6 +204,10 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case "jn":
+		return math.Jn(int(args[0]), args[1]), nil
+	case "yn":
+		return math.Yn(int(args[0]), args[1]), nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

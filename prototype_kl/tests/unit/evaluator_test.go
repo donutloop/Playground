@@ -64,6 +64,8 @@ func TestEvaluator(t *testing.T) {
 		{"Ldexp", "ldexp(1, 3)", 8, false},
 		{"Dim", "dim(5, 3)", 2, false},
 		{"Signbit", "signbit(-0.0)", 1, false},
+		{"Jn", "jn(0, 1)", 0.7651976865579666, false},
+		{"Yn", "yn(1, 1)", -0.7812128213002887, false},
 		{"Exp", "exp(0)", 1, false},
 		{"Pow", "pow(2, 10)", 1024, false},
 		{"Hypot", "hypot(3, 4)", 5, false},

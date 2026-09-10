@@ -60,6 +60,8 @@ var SupportedFunctions = map[string]int{
 	"ldexp":     2,
 	"dim":       2,
 	"signbit":   1,
+	"jn":        2,
+	"yn":        2,
 	"sinh":      1,
 	"cosh":      1,
 	"tanh":      1,

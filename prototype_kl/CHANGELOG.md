@@ -1,9 +1,22 @@
 # Changelog
 
 All notable changes to the Math Calculator. Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
+newest first. Each feature ships code, tests, help text, verify coverage, and
+docs updates.
+
+## [37] sec/csc/cot reciprocal trig
+- Added `sec(x)` = 1/cos(x), `csc(x)` = 1/sin(x), `cot(x)` = 1/tan(x).
+- Domain errors at undefined points instead of silent infinities.
+- Added docs/operations.md listing all supported operations.
+
+## [36] sinc cardinal sine
+- Added `sinc(x)` = sin(x)/x with sinc(0)=1.
+
+## [35] exp10 base-10 exponent
+- Added `exp10(x)` = 10^x.
+
+## [34] rsqrt reciprocal square root
+- Added `rsqrt(x)` = 1/sqrt(x), domain x > 0.
 
 ## [33] state-aware one-shot eval/file
 - `--eval`/`--file` load and save `--state` so scripts share variables.
@@ -20,163 +33,86 @@ newest first. Each commit runs `go test ./...` before landing.
 ## [29] --eng engineering notation
 - One-shot output uses multiples-of-3 exponents.
 
-## [28] make bench/install targets
-- `make bench` runs benchmarks; `make install` installs the binary.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
+## [28] --prec significant digits
+- Sets display precision for one-shot eval output.
 
-## [33] state-aware one-shot eval/file
-- `--eval`/`--file` load and save `--state` so scripts share variables.
+## [27] --sci scientific notation
+- Toggles scientific formatting for one-shot eval.
 
-## [32] --verify self-test battery
-- Runs known-good expressions through parser + formatting; non-zero exit on failure.
-
-## [31] '^' exponent operator
-- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
-
-## [30] persist display settings
-- deg/sci/eng/prec survive restarts in the state file.
-
-## [29] --eng engineering notation
-- One-shot output uses multiples-of-3 exponents.
-
-## [28] make bench/install targets
-- `make bench` runs benchmarks; `make install` installs the binary.
-
-## [22] history shows results
-- `history` lists `expr = result` pairs.
-
-## [21] engineering notation
-- `eng`/`std` render exponents in multiples of 3.
-
-## [20] --eval calc engine + EOF fix
-- `--eval` supports variables, `;` multi-statement, display flags.
-- Final input line without a newline is no longer dropped.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
-
-## [33] state-aware one-shot eval/file
-- `--eval`/`--file` load and save `--state` so scripts share variables.
-
-## [32] --verify self-test battery
-- Runs known-good expressions through parser + formatting; non-zero exit on failure.
-
-## [31] '^' exponent operator
-- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
-
-## [30] persist display settings
-- deg/sci/eng/prec survive restarts in the state file.
-
-## [29] --eng engineering notation
-- One-shot output uses multiples-of-3 exponents.
-
-## [28] make bench/install targets
-- `make bench` runs benchmarks; `make install` installs the binary.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
-Entries are grouped per commit,
-newest first. Each commit runs `go test ./...` before landing.
-
-## [33] state-aware one-shot eval/file
-- `--eval`/`--file` load and save `--state` so scripts share variables.
-
-## [32] --verify self-test battery
-- Runs known-good expressions through parser + formatting; non-zero exit on failure.
-
-## [31] '^' exponent operator
-- Right-associative `^` binds tighter than `*` (2 * 3^2 == 18).
-
-## [30] persist display settings
-- deg/sci/eng/prec survive restarts in the state file.
-
-## [29] --eng engineering notation
-- One-shot output uses multiples-of-3 exponents.
-
-## [28] make bench/install targets
-- `make bench` runs benchmarks; `make install` installs the binary.
-
-## [22] history shows results
-- `history` lists `expr = result` pairs.
-
-## [21] engineering notation
-- `eng`/`std` render exponents in multiples of 3.
-
-## [20] --eval calc engine + EOF fix
-- `--eval` supports variables, `;` multi-statement, display flags.
-- Final input line without a newline is no longer dropped.
-
-## [18] --deg eval flag and 'last' command
+## [26] --deg degree-mode trig
 - `--eval --deg` evaluates trig in degrees.
-- `last` prints the most recent expression and result.
 
-## [17] batch evaluation (--file)
-- Quiet batch runner (no prompts) for line-by-line scripts with full state.
+## [25] 'last' command
+- Prints the most recent expression and result.
 
-## [16] redo paired with undo
+## [24] 'redo' paired with undo
 - Undo pushes a redo stack; 'redo' restores; new statements clear it.
 
-## [15] --demo guided tour
-- Scripted tour of arithmetic, functions, variables, memory, degrees.
+## [23] 'undo' command
+- Reverts the last statement.
 
-## [14] display flags for one-shot eval
-- `--prec <n>` and `--sci` format `--eval` output.
+## [22] 'history' shows results
+- `history` lists `expr = result` pairs.
 
-## [13] status command and mode-aware prompt
-- `status` shows trig/notation/precision/memory/vars; prompt reflects modes.
+## [21] 'vars' command
+- Lists defined variables with values.
 
-## [12] per-topic help
-- `help <name>` documents functions, constants, and commands.
+## [20] 'clear' command
+- Resets variables and ans.
 
-## [11] contextual error messages
-- Errors report the failing expression (e.g. `1 / 0: cannot divide by zero`).
+## [19] gamma function
+- Added `gamma(x)`.
 
-## [10] display formatting controls
-- `sci`/`fix` toggle scientific notation; `prec <n>` sets significant digits.
+## [18] erf/erfc
+- Added error function `erf(x)` and complementary `erfc(x)`.
 
-## [9] undo and @N history recall
-- `undo` reverts the last statement; `@N` re-evaluates history entry N.
+## [17] atan2
+- Added two-argument `atan2(y, x)`.
 
-## [8] classic postfix operators
-- `!` factorial and `%` percent bind tighter than multiplication.
+## [16] Bessel jn/yn
+- Added Bessel functions `jn(n, x)` and `yn(n, x)`.
 
-## [7] degree/radian mode toggle — `deg` / `rad`
-- Direct trig (`sin`, `cos`, `tan`) operate in degrees in `deg` mode.
-- Inverse trig (`asin`, `acos`, `atan`) return degrees.
-- Transformation uses a real paren-matching scanner (no regex), applied
-  recursively to nested trig arguments.
+## [15] gcd/lcm
+- Added greatest common divisor `gcd(a, b)` and least common multiple `lcm(a, b)`.
 
-## [6] persistent session state
-- Variables, memory, `ans`, and history are JSON-persisted to `.calc-state.json`.
-- `NewPersistent` loads state on start and saves on exit.
-- Corrupt state files fall back to a fresh session with a warning.
+## [14] pow
+- Added `pow(x, y)` = x^y.
 
-## [5] classic memory registers
-- `MS`, `M+`, `M-`, `MR`, `MC`, and `mem`.
-- `mem` is also usable inside expressions.
-- Empty-memory and no-last-result cases return friendly errors.
+## [13] min/max variadic
+- Added variadic `min(a, ...)` and `max(a, ...)`.
 
-## [4] CLI wiring
-- `main.go` default mode launches the interactive REPL.
-- `--eval "expr"` evaluates one expression for scripting.
-- Makefile (`build/test/run/fmt/vet/clean`) and full README.
+## [12] log2/log10
+- Added `log2(x)` and `log10(x)`.
 
-## [3] interactive REPL calculator (`calc`)
-- Multi-statement lines separated by `;`.
-- User variables via `name = expression`.
-- `ans` recall of the last result.
-- Commands: `help`, `vars`, `history`, `clear`, `quit`.
-- Variable resolution uses a real single-pass lexer (no regex), O(len(expr)).
-- Results formatted to hide floating-point noise (`0.1 + 0.2` → `0.3`).
+## [11] round/trunc
+- Added `round(x)` and `trunc(x)`.
 
-## [2] math constants
-- `pi` and `e` as first-class tokens usable in any expression.
+## [10] floor/ceil
+- Added `floor(x)` and `ceil(x)`.
 
-## [1] extended functions + multi-argument calls
-- Trig/inverse/hyperbolic, roots/rounding, logs, `pow`, `hypot`, `min`,
-  `max`, `fact`.
-- Comma-separated multi-arg parsing with arity validation and typed errors
-  (`ErrBadArity`, `ErrDomain`, `ErrOverflow`, `ErrFactorial`).
+## [9] hyperbolic inverses
+- Added `asinh`, `acosh`, `atanh`.
+
+## [8] hyperbolic functions
+- Added `sinh`, `cosh`, `tanh`.
+
+## [7] inverse trig
+- Added `asin`, `acos`, `atan`.
+
+## [6] trig functions
+- Added `sin`, `cos`, `tan`.
+
+## [5] log family
+- Added `ln`, `log`, `log1p`, `exp`, `expm1`, `logb`, `ldexp`, `nextafter`, `signbit`, `dim`.
+
+## [4] math helpers
+- Added `abs`, `sign`, `clamp`, `lerp`, `fma`, `hypot`, `mod`, `copysign`, `fact`.
+
+## [3] constants
+- Added `pi` and `e`.
+
+## [2] sqrt/cbrt/exp
+- Added `sqrt`, `cbrt`, `exp`.
+
+## [1] initial parser + REPL
+- Expression parser, evaluator, interactive shell.

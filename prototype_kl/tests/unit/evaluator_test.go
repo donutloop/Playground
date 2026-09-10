@@ -56,6 +56,10 @@ func TestEvaluator(t *testing.T) {
 		{"Exp10", "exp10(2)", 100, false},
 		{"Exp10Neg", "exp10(-1)", 0.1, false},
 		{"Sinc", "sinc(0)", 1, false},
+		{"Sec", "sec(0)", 1, false},
+		{"Csc", "csc(pi/2)", 1, false},
+		{"CscDomain", "csc(0)", 0, true},
+		{"CotDomain", "cot(0)", 0, true},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},
@@ -118,5 +122,17 @@ func TestSincNonZero(t *testing.T) {
 	want := math.Sin(math.Pi) / math.Pi
 	if math.Abs(res-want) > 1e-15 {
 		t.Errorf("sinc(pi) = %g, want %g", res, want)
+	}
+}
+
+// TestCot verifies cot(x) = 1/tan(x) within tolerance.
+func TestCot(t *testing.T) {
+	res, err := parser.Evaluate("cot(pi/4)")
+	if err != nil {
+		t.Fatalf("cot(pi/4): %v", err)
+	}
+	want := 1 / math.Tan(math.Pi/4)
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("cot(pi/4) = %g, want %g", res, want)
 	}
 }

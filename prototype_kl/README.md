@@ -77,7 +77,8 @@ x = 5
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — one section per commit/feature.
+- [CHANGELOG.md](CHANGELOG.md) — feature history.
+- [docs/operations.md](docs/operations.md) — every supported operation.
 - [docs/adr](docs/adr/) — architecture decision records.
 
 ## Development

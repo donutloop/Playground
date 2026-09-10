@@ -123,6 +123,24 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Cos(args[0]), nil
 	case "tan":
 		return math.Tan(args[0]), nil
+	case "sec":
+		c := math.Cos(args[0])
+		if c == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("sec undefined at x=%v", args[0])}
+		}
+		return 1 / c, nil
+	case "csc":
+		s := math.Sin(args[0])
+		if s == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("csc undefined at x=%v", args[0])}
+		}
+		return 1 / s, nil
+	case "cot":
+		t := math.Tan(args[0])
+		if t == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("cot undefined at x=%v", args[0])}
+		}
+		return 1 / t, nil
 	case "asin":
 		return math.Asin(args[0]), nil
 	case "acos":

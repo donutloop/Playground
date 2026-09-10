@@ -57,6 +57,7 @@ var SupportedFunctions = map[string]int{
 	"beta":      2,
 	"logb":      1,
 	"nextafter": 2,
+	"ldexp":     2,
 	"sinh":      1,
 	"cosh":      1,
 	"tanh":      1,

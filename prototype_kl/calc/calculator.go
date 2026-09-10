@@ -512,7 +512,7 @@ variables    name = expression    e.g. x = 3 + 2 ; then use x anywhere
 ans/mem      last result and memory, usable in expressions
 statements   separate with ';'   e.g. x = 2; x * 3
 history      @N recalls entry N; undo / redo revert and restore
-display      deg/rad, sci/fix, eng/std, prec <n>, base hex|dec|oct|bin, quiet, json, status, last
+display      deg/rad, sci/fix, eng/std, prec <n>, base hex|dec|oct|bin, quiet, json, csv, status, last
 memory       ms, m+, m-, mr, mc
 commands     help, vars, history, status, reset, clear, quit/exit`)
 }

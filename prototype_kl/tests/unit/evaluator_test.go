@@ -141,6 +141,13 @@ func TestEvaluator(t *testing.T) {
 		{"PowModDomain", "powmod(2, 3, 0)", 0, true},
 		{"PowModNegative", "powmod(2, -3, 5)", 0, true},
 		{"PowModNonInt", "powmod(2.5, 3, 5)", 0, true},
+		{"Collatz1", "collatz(1)", 0, false},
+		{"Collatz3", "collatz(3)", 7, false},
+		{"Collatz27", "collatz(27)", 111, false},
+		{"CollatzDomain", "collatz(0)", 0, true},
+		{"CollatzNegative", "collatz(-3)", 0, true},
+		{"CollatzNonInt", "collatz(2.5)", 0, true},
+		{"CollatzTooBig", "collatz(200000)", 0, true},
 	}
 
 	for _, tt := range tests {

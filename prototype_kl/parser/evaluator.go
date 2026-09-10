@@ -362,6 +362,27 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		}
 		return float64(reverseDigits(n)), nil
 
+	case "collatz":
+		// Collatz stopping time: steps to reach 1. collatz(3)=7, collatz(27)=111.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "collatz expects 1 argument"}
+		}
+		n, err := checkIntArg(args[0])
+		if err != nil {
+			return 0, err
+		}
+		if n <= 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: "collatz requires n >= 1"}
+		}
+		if n > 100000 {
+			return 0, &EvalError{Err: ErrDomain, Message: "collatz requires n <= 100000"}
+		}
+		steps, ok := collatz(n)
+		if !ok {
+			return 0, &EvalError{Err: ErrDomain, Message: "collatz exceeded step limit"}
+		}
+		return float64(steps), nil
+
 	case "powmod":
 		// modular exponentiation a^b mod m: powmod(2,10,1000)=24, powmod(3,4,7)=4.
 		if len(args) != 3 {
@@ -705,6 +726,24 @@ func powmod(a, b, m int64) int64 {
 		b >>= 1
 	}
 	return res
+}
+
+// collatz returns the number of Collatz steps to reach 1 from n (the stopping
+// time), and false if it exceeds the step guard. collatz(1) = 0.
+func collatz(n int64) (int64, bool) {
+	steps := int64(0)
+	for n != 1 {
+		if n%2 == 1 {
+			n = 3*n + 1
+		} else {
+			n /= 2
+		}
+		steps++
+		if steps > 10000 {
+			return 0, false
+		}
+	}
+	return steps, true
 }
 
 func factorial(x float64) (float64, error) {

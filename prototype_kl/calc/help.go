@@ -57,6 +57,7 @@ var helpTopics = map[string]string{
 	"ispal":     "ispal(n): 1 if n is a palindrome, else 0",
 	"fib":       "fib(n): the n-th Fibonacci number (fib(0)=0, fib(1)=1)",
 	"powmod":    "powmod(a, b, m): (a^b) mod m via fast modular exponentiation",
+	"collatz":   "collatz(n): Collatz stopping time — steps to reach 1 (collatz(3)=7)",
 	"asinh":     "asinh(x): inverse hyperbolic sine",
 	"acosh":     "acosh(x): inverse hyperbolic cosine (x >= 1)",
 	"atanh":     "atanh(x): inverse hyperbolic tangent (-1 < x < 1)",

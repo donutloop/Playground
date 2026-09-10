@@ -134,6 +134,7 @@ var SupportedFunctions = map[string]int{
 	"ispal":     1, // palindrome check
 	"fib":       1, // Fibonacci number
 	"powmod":    3, // modular exponentiation a^b mod m
+	"collatz":   1, // Collatz stopping time
 	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic

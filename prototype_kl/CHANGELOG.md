@@ -1,3 +1,12 @@
+## [90] Collatz stopping time: collatz
+
+- `collatz(n)` returns the number of Collatz steps to reach 1 (the stopping
+  time): collatz(1)=0, collatz(3)=7, collatz(27)=111.
+- Requires a positive integer n <= 100000; n <= 0, non-integer, or oversized
+  inputs are rejected as typed domain errors.
+- Uses a step guard (10000) so non-terminating inputs are reported rather than
+  looping forever.
+
 ## [89] modular exponentiation: powmod
 
 - `powmod(a, b, m)` computes (a^b) mod m using fast modular exponentiation

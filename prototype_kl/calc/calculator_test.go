@@ -1034,6 +1034,12 @@ func TestNumberTheoryFunctions(t *testing.T) {
 		{"powmod(7, 0, 5)", "1"},
 		{"powmod(4, 13, 497)", "445"},
 		{"powmod(2, 100, 97)", "16"},
+		{"collatz(1)", "0"},
+		{"collatz(2)", "1"},
+		{"collatz(3)", "7"},
+		{"collatz(4)", "2"},
+		{"collatz(6)", "8"},
+		{"collatz(27)", "111"},
 	}
 	for _, tc := range cases {
 		got := run(t, tc.in+"\n")

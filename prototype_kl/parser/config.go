@@ -75,6 +75,9 @@ var SupportedFunctions = map[string]int{
 	"sinh":      1,
 	"cosh":      1,
 	"tanh":      1,
+	"sech":      1,
+	"csch":      1,
+	"coth":      1,
 	"ln":        1,
 	"log":       1, // base-10 log
 	"log2":      1,

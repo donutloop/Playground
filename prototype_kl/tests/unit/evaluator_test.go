@@ -65,6 +65,9 @@ func TestEvaluator(t *testing.T) {
 		{"AcscDomain", "acsc(0.5)", 0, true},
 		{"Acot", "acot(1)", math.Pi / 4, false},
 		{"AcotDomain", "acot(0)", 0, true},
+		{"Sech", "sech(0)", 1, false},
+		{"CschDomain", "csch(0)", 0, true},
+		{"CothDomain", "coth(0)", 0, true},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},
@@ -151,5 +154,29 @@ func TestAsec(t *testing.T) {
 	want := math.Acos(0.5)
 	if math.Abs(res-want) > 1e-15 {
 		t.Errorf("asec(2) = %g, want %g", res, want)
+	}
+}
+
+// TestCsch verifies csch(x) = 1/sinh(x) within tolerance.
+func TestCsch(t *testing.T) {
+	res, err := parser.Evaluate("csch(1)")
+	if err != nil {
+		t.Fatalf("csch(1): %v", err)
+	}
+	want := 1 / math.Sinh(1)
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("csch(1) = %g, want %g", res, want)
+	}
+}
+
+// TestCoth verifies coth(x) = 1/tanh(x) within tolerance.
+func TestCoth(t *testing.T) {
+	res, err := parser.Evaluate("coth(1)")
+	if err != nil {
+		t.Fatalf("coth(1): %v", err)
+	}
+	want := 1 / math.Tanh(1)
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("coth(1) = %g, want %g", res, want)
 	}
 }

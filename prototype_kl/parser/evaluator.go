@@ -267,6 +267,20 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Cosh(args[0]), nil
 	case "tanh":
 		return math.Tanh(args[0]), nil
+	case "sech":
+		return 1 / math.Cosh(args[0]), nil
+	case "csch":
+		s := math.Sinh(args[0])
+		if s == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("csch undefined at x=%v", args[0])}
+		}
+		return 1 / s, nil
+	case "coth":
+		t := math.Tanh(args[0])
+		if t == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("coth undefined at x=%v", args[0])}
+		}
+		return 1 / t, nil
 	case "ln":
 		return math.Log(args[0]), nil
 	case "log":

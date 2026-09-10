@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [39] sech/csch/coth hyperbolic reciprocal
+- Added `sech(x)` = 1/cosh(x), `csch(x)` = 1/sinh(x), `coth(x)` = 1/tanh(x).
+- Domain errors at csch(0) and coth(0).
+
 ## [38] asec/acsc/acot inverse reciprocal trig
 - Added `asec(x)` = acos(1/x), `acsc(x)` = asin(1/x), `acot(x)` = atan(1/x).
 - Domain errors for |x| < 1 on asec/acsc and x=0 on acot.

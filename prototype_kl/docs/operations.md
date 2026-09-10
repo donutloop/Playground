@@ -45,6 +45,13 @@ redefined. Definitions persist across saves like variables.
 ## Statistics
 ## Clamping
 ## Interpolation
+## Step function
+
+`step(x, edge)` returns 1 when x >= edge, else 0.
+
+    step(5, 3)  # -> 1
+    step(2, 3)  # -> 0
+
 
 `lerp(a, b, t)` linearly interpolates between a and b at fraction t:
 `a + (b - a) * t`.

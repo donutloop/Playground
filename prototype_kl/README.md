@@ -70,6 +70,7 @@ x = 5
 | Statistics       | `avg(4, 8)` -> 6                                     |
 | Clamping         | `clamp(5, 1, 3)` -> 3                                |
 | Interpolation    | `lerp(0, 10, 0.5)` -> 5                             |
+| Step             | `step(5, 3)` -> 1; `step(2, 3)` -> 0                |
 | Last result  | `ans` usable in later expressions          |
 | Statements   | separate with `;` — `y = 2; y * 3`         |
 | Commands     | `help`, `vars`, `history`, `clear`, `quit` |

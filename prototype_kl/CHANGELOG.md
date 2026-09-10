@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [64] step(x, edge) Heaviside step
+- Added `step(x, edge)` = 1 when x >= edge, else 0.
 ## [63] lerp(a, b, t) linear interpolation
 - Added `lerp(a, b, t)` = a + (b - a) * t.
 ## [62] clamp(x, lo, hi)

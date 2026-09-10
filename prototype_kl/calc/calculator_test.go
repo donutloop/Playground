@@ -601,3 +601,27 @@ func TestLerp(t *testing.T) {
 		t.Errorf("lerp redefinition not rejected:\n%s", got)
 	}
 }
+
+// TestStep checks the Heaviside step function step(x, edge).
+func TestStep(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"step(5, 3)", "1"},
+		{"step(2, 3)", "0"},
+		{"step(3, 3)", "1"},
+		{"step(0, 0)", "1"},
+		{"step(-1, 0)", "0"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+	// step is reserved.
+	got := run(t, "step(x) = x\n")
+	if !strings.Contains(got, "cannot define function") {
+		t.Errorf("step redefinition not rejected:\n%s", got)
+	}
+}

@@ -161,6 +161,11 @@ func main() {
 				}
 				fmt.Printf("expr,%s,%s\n", e, c.FormatValue(v))
 			}
+			if *vars {
+				for name, v := range c.Vars() {
+					fmt.Printf("var,%s,%s\n", name, c.FormatValue(v))
+				}
+			}
 			return
 		}
 		if *json {

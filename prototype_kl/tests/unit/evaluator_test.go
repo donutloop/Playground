@@ -383,3 +383,19 @@ func TestFract(t *testing.T) {
 		}
 	}
 }
+
+// TestSoftsign verifies the softsign activation function.
+func TestSoftsign(t *testing.T) {
+	cases := []struct{ expr string; want float64 }{
+		{"softsign(1)", 0.5}, {"softsign(0)", 0}, {"softsign(-2)", -2.0 / 3.0},
+	}
+	for _, c := range cases {
+		res, err := parser.Evaluate(c.expr)
+		if err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if math.Abs(res-c.want) > 1e-12 {
+			t.Errorf("%s = %v, want %v", c.expr, res, c.want)
+		}
+	}
+}

@@ -326,6 +326,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return 1 / (1 + math.Exp(-args[0])), nil
 	case "softplus":
 		return math.Log(1 + math.Exp(args[0])), nil
+	case "softsign":
+		return args[0] / (1 + math.Abs(args[0])), nil
 	case "sech":
 		return 1 / math.Cosh(args[0]), nil
 	case "csch":

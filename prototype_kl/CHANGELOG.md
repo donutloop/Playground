@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [51] softsign activation
+- Added `softsign(x)` = x/(1+|x|).
+
 ## [50] fract(x) fractional part
 - Added `fract(x)` = x - floor(x), the nonnegative fractional part.
 

@@ -66,6 +66,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"root(16, 2)", "4"},
 		{"fract(3.5)", "0.5"},
 		{"fract(3)", "0"},
+		{"softsign(1)", "0.5"},
+		{"softsign(-2)", "-0.666666666666667"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

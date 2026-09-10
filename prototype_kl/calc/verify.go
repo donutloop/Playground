@@ -33,6 +33,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},
+		{"clamp(5, 0, 3)", "3"},
+		{"lerp(0, 10, 0.5)", "5"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

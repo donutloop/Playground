@@ -34,6 +34,8 @@ var helpTopics = map[string]string{
 	"gamma":     "gamma(x): gamma function (not defined at non-positive integers)",
 	"mod":       "mod(a, b): remainder of a divided by b",
 	"sign":      "sign(x): -1, 0, or 1",
+	"clamp":     "clamp(x, lo, hi): bound x between lo and hi",
+	"lerp":      "lerp(a, b, t): linear interpolation a + (b-a)*t",
 	"log":       "log(x): base-10 log of x (x > 0)",
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",

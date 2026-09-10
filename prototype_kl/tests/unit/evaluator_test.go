@@ -72,6 +72,7 @@ func TestEvaluator(t *testing.T) {
 		{"AcschDomain", "acsch(0)", 0, true},
 		{"AcothDomain", "acoth(1)", 0, true},
 		{"Logistic", "logistic(0)", 0.5, false},
+		{"Softplus", "softplus(0)", math.Log(2), false},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},
@@ -230,5 +231,17 @@ func TestLogisticPos(t *testing.T) {
 	want := 1 / (1 + math.Exp(-1))
 	if math.Abs(res-want) > 1e-15 {
 		t.Errorf("logistic(1) = %g, want %g", res, want)
+	}
+}
+
+// TestSoftplusPos verifies softplus(1) = ln(1+e) within tolerance.
+func TestSoftplusPos(t *testing.T) {
+	res, err := parser.Evaluate("softplus(1)")
+	if err != nil {
+		t.Fatalf("softplus(1): %v", err)
+	}
+	want := math.Log(1 + math.Exp(1))
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("softplus(1) = %g, want %g", res, want)
 	}
 }

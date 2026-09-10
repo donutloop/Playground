@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [42] softplus
+- Added `softplus(x)` = ln(1+e^x).
+
 ## [41] logistic sigmoid
 - Added `logistic(x)` = 1/(1+e^-x), the sigmoid function.
 - Prompts relocated from setup/prompts to root agents.md with new requirements.

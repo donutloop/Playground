@@ -48,6 +48,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"acoth(2)", "0.549306144334055"},
 		{"logistic(0)", "0.5"},
 		{"logistic(1)", "0.731058578630005"},
+		{"softplus(0)", "0.693147180559945"},
+		{"softplus(1)", "1.31326168751822"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

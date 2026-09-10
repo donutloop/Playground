@@ -307,6 +307,13 @@ func TestHelpLogistic(t *testing.T) {
 	}
 }
 
+func TestHelpSoftplus(t *testing.T) {
+	got := run(t, "help softplus\n")
+	if !strings.Contains(got, "softplus(x)") {
+		t.Errorf("softplus help missing:\n%s", got)
+	}
+}
+
 func TestHelpUnknown(t *testing.T) {
 	got := run(t, "help nope\n")
 	if !strings.Contains(got, "no help") {

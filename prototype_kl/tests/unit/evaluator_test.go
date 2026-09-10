@@ -399,3 +399,18 @@ func TestSoftsign(t *testing.T) {
 		}
 	}
 }
+
+// TestISqrt verifies the integer square root function.
+func TestISqrt(t *testing.T) {
+	res, err := parser.Evaluate("isqrt(10)")
+	if err != nil {
+		t.Fatalf("isqrt(10): %v", err)
+	}
+	if res != 3 {
+		t.Errorf("isqrt(10) = %v, want 3", res)
+	}
+	_, err = parser.Evaluate("isqrt(-1)")
+	if err == nil {
+		t.Errorf("isqrt(-1) should error")
+	}
+}

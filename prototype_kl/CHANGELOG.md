@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [52] isqrt integer square root
+- Added `isqrt(x)` = floor(sqrt(x)) for x >= 0.
+
 ## [51] softsign activation
 - Added `softsign(x)` = x/(1+|x|).
 

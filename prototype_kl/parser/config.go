@@ -36,6 +36,7 @@ const (
 var SupportedFunctions = map[string]int{
 	"sqrt":      1,
 	"rsqrt":     1,
+	"isqrt":     1,
 	"cbrt":      1,
 	"abs":       1,
 	"floor":     1,

@@ -37,6 +37,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 |----------|-------|---------|
 | `sqrt(x)` | 1 | square root (x >= 0) |
 | `rsqrt(x)` | 1 | reciprocal square root 1/sqrt(x) (x > 0) |
+| `isqrt(x)` | 1 | integer square root floor(sqrt(x)) (x >= 0) |
 | `cbrt(x)` | 1 | cube root |
 | `abs(x)` | 1 | absolute value |
 | `floor(x)` | 1 | largest integer <= x |

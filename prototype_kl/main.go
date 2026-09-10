@@ -27,6 +27,7 @@ const Version = "1.0.0"
 
 func main() {
 	var evals []string
+	base := flag.Int("base", 0, "output radix for integral results (2, 8, 16, or 0=decimal)")
 	flag.Var(&multiFlag{&evals}, "eval", "evaluate an expression and print the result; may be given multiple times")
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
 	prec := flag.Int("prec", 15, "significant digits for --eval output (1..17)")
@@ -114,6 +115,12 @@ func main() {
 		}
 		if *eng {
 			c.Eng()
+		}
+		if *base != 0 {
+			if err := c.SetBase(*base); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
 		}
 		c.Run()
 		if strings.TrimSpace(out.String()) == "" {

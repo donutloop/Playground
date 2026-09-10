@@ -35,6 +35,7 @@ type Calculator struct {
 	lastExpr  string
 	eng       bool
 	errCount  int
+	base      int
 	in        *bufio.Reader
 	out       io.Writer
 }

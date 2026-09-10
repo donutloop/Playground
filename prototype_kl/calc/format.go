@@ -1,6 +1,7 @@
 package calc
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -8,12 +9,68 @@ import (
 
 // Format renders a float64 with the default 15 significant digits, hiding
 // floating-point noise (e.g. 0.1 + 0.2 prints as 0.3).
+// SetBase selects an output radix (0 = decimal, or 2/8/16) for integral
+// results. Returns an error for unsupported bases.
+func (c *Calculator) SetBase(base int) error {
+	if base != 0 && base != 2 && base != 8 && base != 16 {
+		return fmt.Errorf("unsupported base %d", base)
+	}
+	c.base = base
+	return nil
+}
+
+// formatBase renders an integral value in the requested radix with a prefix.
+func formatBase(v float64, base int) string {
+	if v != math.Trunc(v) || math.IsNaN(v) || math.IsInf(v, 0) {
+		// Non-integral values fall back to decimal formatting.
+		return formatPrec(v, 15, false)
+	}
+	var prefix string
+	switch base {
+	case 2:
+		prefix = "0b"
+	case 8:
+		prefix = "0o"
+	case 16:
+		prefix = "0x"
+	}
+	iv := int64(v)
+	if iv == 0 {
+		return prefix + "0"
+	}
+	var neg bool
+	if iv < 0 {
+		neg = true
+		iv = -iv
+	}
+	digits := "0123456789abcdef"
+	var sb strings.Builder
+	for iv > 0 {
+		sb.WriteByte(digits[iv%int64(base)])
+		iv /= int64(base)
+	}
+	out := sb.String()
+	// reverse
+	var rev strings.Builder
+	for i := len(out) - 1; i >= 0; i-- {
+		rev.WriteByte(out[i])
+	}
+	res := rev.String()
+	if neg {
+		return "-" + prefix + res
+	}
+	return prefix + res
+}
+
 func Format(v float64) string {
 	return formatPrec(v, 15, false)
 }
 
 // format renders v according to the calculator's display settings.
 func (c *Calculator) format(v float64) string {
+	if c.base != 0 {
+		return formatBase(v, c.base)
+	}
 	if c.eng {
 		return formatEng(v, c.prec)
 	}

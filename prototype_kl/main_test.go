@@ -91,3 +91,10 @@ func TestJSONEvalOutput(t *testing.T) {
 		t.Errorf("JSON eval output missing values:\n%s", got)
 	}
 }
+
+func TestJSONEvalAssignment(t *testing.T) {
+	got := runMain(t.TempDir()+"/ja.json", "-eval", "x=5", "-eval", "x*2", "--json", "--no-state")
+	if !strings.Contains(got, `"assign": "x"`) || !strings.Contains(got, `"value": 10`) {
+		t.Errorf("JSON assignment output missing:\n%s", got)
+	}
+}

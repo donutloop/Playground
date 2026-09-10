@@ -325,6 +325,18 @@ func (c *Calculator) recall(stmt string) error {
 
 // assign defines a user variable. Function names, constants, and "ans" are
 // reserved.
+// AssignExpr assigns "name = expr" and returns the assigned value.
+func (c *Calculator) AssignExpr(line string) (string, float64, error) {
+	name, expr, ok := parseAssignment(line)
+	if !ok {
+		return "", 0, fmt.Errorf("not an assignment")
+	}
+	if err := c.assign(name, expr); err != nil {
+		return name, 0, err
+	}
+	return name, c.vars[name], nil
+}
+
 func (c *Calculator) assign(name, expr string) error {
 	if _, ok := parser.SupportedFunctions[name]; ok {
 		return fmt.Errorf("cannot assign to function name %q", name)

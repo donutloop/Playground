@@ -130,6 +130,15 @@ func main() {
 		}
 		if *json {
 			for _, e := range evals {
+				if strings.Contains(e, "=") {
+					name, v, err := c.AssignExpr(e)
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "{\"expr\": %q, \"error\": %q}\n", e, err.Error())
+						os.Exit(1)
+					}
+					fmt.Printf("{\"expr\": %q, \"assign\": %q, \"value\": %v}\n", e, name, v)
+					continue
+				}
 				v, err := c.EvalExpr(e)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "{\"expr\": %q, \"error\": %q}\n", e, err.Error())

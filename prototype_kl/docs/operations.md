@@ -327,6 +327,10 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `max(a, ...)` | variadic | largest value |
 | `gcd(a, b)` | 2 | greatest common divisor |
 | `lcm(a, b)` | 2 | least common multiple |
+| `isprime(x)` | 1 | 1 if x is prime, else 0 |
+| `prime(n)` | 1 | the n-th prime (1-indexed: prime(1)=2) |
+| `nextprime(n)` | 1 | the smallest prime >= n |
+| `divcount(n)` | 1 | number of positive divisors of n |
 | `pow(x, y)` | 2 | x^y |
 | `jn(n, x)` | 2 | Bessel J of order n |
 | `yn(n, x)` | 2 | Bessel Y of order n |

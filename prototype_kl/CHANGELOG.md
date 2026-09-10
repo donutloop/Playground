@@ -1,3 +1,13 @@
+## [85] number theory functions
+
+- `isprime(x)` returns 1 if x is prime, else 0 (x < 2 is not prime).
+- `prime(n)` returns the n-th prime (1-indexed: prime(1)=2, prime(2)=3, ...).
+- `nextprime(n)` returns the smallest prime >= n.
+- `divcount(n)` returns the number of positive divisors of n.
+- Implemented as parser-level built-ins (deterministic, verifyable).
+- Examples: isprime(17)=1, isprime(15)=0, prime(10)=29, nextprime(10)=11,
+  divcount(6)=4, divcount(12)=6.
+
 ## [84] generalized range loops (for-loop over integers)
 
 - `sum(i, lo, hi, expr)` sums `expr` over integer `i` in [lo, hi].

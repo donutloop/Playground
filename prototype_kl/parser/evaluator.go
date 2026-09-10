@@ -498,6 +498,48 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return rangeCount(args[0], args[1], 1), nil
 		}
 		return rangeCount(args[0], args[1], args[2]), nil
+	case "isprime":
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "isprime expects 1 argument"}
+		}
+		if isPrime(int64(args[0])) {
+			return 1, nil
+		}
+		return 0, nil
+
+	case "prime":
+		// nth prime, 1-indexed: prime(1)=2, prime(2)=3, prime(3)=5, ...
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "prime expects 1 argument"}
+		}
+		n := int64(args[0])
+		if n < 1 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("prime requires n >= 1, got %v", args[0])}
+		}
+		return float64(nthPrime(n)), nil
+
+	case "nextprime":
+		// smallest prime >= n: nextprime(1)=2, nextprime(10)=11.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "nextprime expects 1 argument"}
+		}
+		n := int64(args[0])
+		if n < 2 {
+			return 2, nil
+		}
+		return float64(nextPrime(n)), nil
+
+	case "divcount":
+		// number of positive divisors: divcount(6)=4, divcount(12)=6.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "divcount expects 1 argument"}
+		}
+		n := int64(args[0])
+		if n == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: "divcount(0) is undefined"}
+		}
+		return float64(divCount(n)), nil
+
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unsupported function %s", n.Name), Message: "function evaluation failed"}
 	}
@@ -602,4 +644,84 @@ func rangeCount(a, b, step float64) float64 {
 		cnt++
 	}
 	return float64(cnt)
+}
+
+// isPrime reports whether n is a prime number (n must be >= 0).
+func isPrime(n int64) bool {
+	if n < 2 {
+		return false
+	}
+	if n == 2 {
+		return true
+	}
+	if n%2 == 0 {
+		return false
+	}
+	for d := int64(3); d*d <= n; d += 2 {
+		if n%d == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// nthPrime returns the n-th prime (1-indexed): 2, 3, 5, 7, ...
+func nthPrime(n int64) int64 {
+	if n <= 0 {
+		return 0
+	}
+	count := int64(0)
+	candidate := int64(2)
+	for count < n {
+		if isPrime(candidate) {
+			count++
+			if count == n {
+				return candidate
+			}
+		}
+		candidate++
+	}
+	return 0
+}
+
+// nextPrime returns the smallest prime >= n (n must be >= 1).
+func nextPrime(n int64) int64 {
+	if n < 2 {
+		return 2
+	}
+	candidate := n
+	if candidate%2 == 0 && candidate != 2 {
+		candidate++
+	}
+	for {
+		if isPrime(candidate) {
+			return candidate
+		}
+		candidate += 2
+	}
+}
+
+// divCount returns the number of positive divisors of n (n != 0).
+func divCount(n int64) int64 {
+	if n == 0 {
+		return 0
+	}
+	if n < 0 {
+		n = -n
+	}
+	cnt := int64(1)
+	for d := int64(2); d*d <= n; d++ {
+		if n%d == 0 {
+			e := int64(0)
+			for n%d == 0 {
+				n /= d
+				e++
+			}
+			cnt *= (e + 1)
+		}
+	}
+	if n > 1 {
+		cnt *= 2
+	}
+	return cnt
 }

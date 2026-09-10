@@ -990,3 +990,25 @@ func TestRangeLoopWithVariables(t *testing.T) {
 		t.Errorf("combined loops = %q, want 20", got)
 	}
 }
+
+func TestNumberTheoryFunctions(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"isprime(17)", "1"},
+		{"isprime(15)", "0"},
+		{"isprime(1)", "0"},
+		{"prime(1)", "2"},
+		{"prime(10)", "29"},
+		{"nextprime(10)", "11"},
+		{"nextprime(2)", "2"},
+		{"divcount(6)", "4"},
+		{"divcount(12)", "6"},
+		{"divcount(1)", "1"},
+		{"prime(3) + nextprime(10)", "16"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, "> "+tc.want+"\n") {
+			t.Errorf("%s = %q, want to contain %s", tc.in, got, tc.want)
+		}
+	}
+}

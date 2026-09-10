@@ -123,6 +123,10 @@ var SupportedFunctions = map[string]int{
 	"median":    -1, // variadic: median of values
 	"mode":      -1, // variadic: most frequent value
 	"fix":       2,
+	"isprime":   1,
+	"prime":     1,
+	"nextprime": 1,
+	"divcount":  1,
 	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic

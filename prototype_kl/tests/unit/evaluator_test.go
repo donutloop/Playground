@@ -297,3 +297,20 @@ func TestCompare2(t *testing.T) {
 		}
 	}
 }
+
+// TestCompare3 verifies == and != comparisons.
+func TestCompare3(t *testing.T) {
+	cases := []struct{ expr string; want float64 }{
+		{"1==1", 1}, {"1==2", 0}, {"2!=1", 1}, {"2!=2", 0},
+		{"1==1 ? 3 : 4", 3}, {"5!", 120},
+	}
+	for _, c := range cases {
+		res, err := parser.Evaluate(c.expr)
+		if err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if res != c.want {
+			t.Errorf("%s = %v, want %v", c.expr, res, c.want)
+		}
+	}
+}

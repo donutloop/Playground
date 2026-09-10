@@ -72,8 +72,20 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 			tokens = append(tokens, Token{Type: TokenMultiply, Value: string(char), Pos: l.pos})
 		case OpDiv:
 			tokens = append(tokens, Token{Type: TokenDivide, Value: string(char), Pos: l.pos})
+		case OpEQ:
+			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
+				tokens = append(tokens, Token{Type: TokenEQ, Value: "==", Pos: l.pos})
+				l.pos++
+			} else {
+				return nil, fmt.Errorf("unexpected character '='")
+			}
 		case OpFactorial:
-			tokens = append(tokens, Token{Type: TokenFactorial, Value: string(char), Pos: l.pos})
+			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
+				tokens = append(tokens, Token{Type: TokenNE, Value: "!=", Pos: l.pos})
+				l.pos++
+			} else {
+				tokens = append(tokens, Token{Type: TokenFactorial, Value: string(char), Pos: l.pos})
+			}
 		case OpPercent:
 			tokens = append(tokens, Token{Type: TokenPercent, Value: string(char), Pos: l.pos})
 		case OpPower:

@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [46] == and != equality comparisons
+- Added `==` and `!=` with lexer peeking on '=' and '!'.
+- Factorial `!` preserved by peeking only when followed by '='.
+
 ## [45] <= and >= comparisons
 - Added two-character `<=` and `>=` with lexer peeking.
 - Distinct op values and token-type mapping fix precedence.

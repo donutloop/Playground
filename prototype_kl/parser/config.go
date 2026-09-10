@@ -17,8 +17,8 @@ const (
 	OpGT        = '>'
 	OpLE        = 0x1E
 	OpGE        = 0x1F
-	OpEQ        = 0x1D
-	OpNE        = 0x21
+	OpEQ        = '='
+	OpNE        = '!'
 	OpFactorial = '!'
 	OpPercent   = '%'
 	OpPower     = '^'

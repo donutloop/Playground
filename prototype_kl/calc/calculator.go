@@ -257,6 +257,10 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.eng = false
 		fmt.Fprintln(c.out, "standard notation")
 		return false, nil
+	case "quiet":
+		c.quietAssign = !c.quietAssign
+		fmt.Fprintf(c.out, "quiet = %v\n", c.quietAssign)
+		return false, nil
 	case "prec":
 		return false, fmt.Errorf("usage: prec <n> (1..17 significant digits)")
 	}

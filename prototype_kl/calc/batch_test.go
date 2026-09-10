@@ -26,3 +26,15 @@ func TestBatchNoTrailingNewline(t *testing.T) {
 		t.Errorf("final line without newline lost:\n%s", out.String())
 	}
 }
+
+func TestQuietReplCommand(t *testing.T) {
+	var out bytes.Buffer
+	c := New(strings.NewReader("quiet\na=3\na*2\n"), &out)
+	c.Run()
+	if strings.Contains(out.String(), "a = 3") {
+		t.Fatalf("quiet should suppress assignment echo:\n%s", out.String())
+	}
+	if !strings.Contains(out.String(), "6") {
+		t.Fatalf("result missing:\n%s", out.String())
+	}
+}

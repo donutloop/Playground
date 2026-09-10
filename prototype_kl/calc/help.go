@@ -34,6 +34,7 @@ var helpTopics = map[string]string{
 	"log1p":     "log1p(x): natural log of 1+x (x > -1)",
 	"gcd":       "gcd(a, b): greatest common divisor",
 	"var":       "var(a, b, ...): population variance of the values",
+	"count":     "count(a, b): number of integers from floor(a) to floor(b)",
 	"stddev":    "stddev(a, b, ...): population standard deviation (sqrt of variance)",
 	"median":    "median(a, b, ...): middle value of the sorted values",
 	"lcm":       "lcm(a, b): least common multiple",

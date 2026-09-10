@@ -453,6 +453,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return rangeSum(args[0], args[1]), nil
 	case "prod":
 		return rangeProd(args[0], args[1]), nil
+	case "count":
+		return rangeCount(args[0], args[1]), nil
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unsupported function %s", n.Name), Message: "function evaluation failed"}
 	}
@@ -538,4 +540,14 @@ func rangeProd(a, b float64) float64 {
 		p *= i
 	}
 	return p
+}
+
+// rangeCount returns the number of integers from floor(a) to floor(b)
+// inclusive (0 when b < a).
+func rangeCount(a, b float64) float64 {
+	lo, hi := math.Floor(a), math.Floor(b)
+	if hi < lo {
+		return 0
+	}
+	return hi - lo + 1
 }

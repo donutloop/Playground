@@ -21,6 +21,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"rsqrt(4)", "0.5"},
 		{"min(3, 1, 2)", "1"},
 		{"var(2, 4, 4, 4, 5, 5, 7, 9)", "4"},
+		{"count(1, 5)", "5"},
+		{"count(5, 2)", "0"},
 		{"stddev(2, 4, 4, 4, 5, 5, 7, 9)", "2"},
 		{"median(1, 3, 2)", "2"},
 		{"median(1, 2, 3, 4)", "2.5"},

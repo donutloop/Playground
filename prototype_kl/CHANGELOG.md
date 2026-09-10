@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [75] count range loop
+- Added `count(a, b)` returning the number of integers from floor(a) to floor(b)
+  (0 when b < a), completing the integer-range loop family (sum, prod, count).
+
 ## [74] temperature units
 - Added affine temperature units to `convert`: `c`/`celsius`, `f`/`fahrenheit`,
   `k`/`kelvin` (e.g. `convert(100, c, f)` -> 212).

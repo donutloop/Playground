@@ -43,3 +43,12 @@ func TestSetBaseRejectsUnknown(t *testing.T) {
 		t.Fatal("expected error for base 5")
 	}
 }
+
+func TestBareBaseShowsCurrent(t *testing.T) {
+	var out bytes.Buffer
+	c := New(strings.NewReader("base hex\nbase\n"), &out)
+	c.Run()
+	if !strings.Contains(out.String(), "base = 16") {
+		t.Fatalf("bare base should show current radix:\n%s", out.String())
+	}
+}

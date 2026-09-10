@@ -159,6 +159,10 @@ func (c *Calculator) handle(line string) (bool, error) {
 			fmt.Fprintln(c.out, err)
 			return false, nil
 		}
+		if strings.TrimSpace(line[4:]) == "" {
+			fmt.Fprintf(c.out, "base = %d\n", c.base)
+			return false, nil
+		}
 		c.base = b
 		fmt.Fprintf(c.out, "base = %d\n", b)
 		return false, nil

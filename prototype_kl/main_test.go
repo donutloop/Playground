@@ -105,3 +105,10 @@ func TestJSONVars(t *testing.T) {
 		t.Errorf("JSON vars output missing:\n%s", got)
 	}
 }
+
+func TestCSVEvalOutput(t *testing.T) {
+	got := runMain(t.TempDir()+"/c.json", "-eval", "x=5", "-eval", "x*2", "--csv", "--no-state")
+	if !strings.Contains(got, "assign,x,5") || !strings.Contains(got, "expr,x*2,10") {
+		t.Errorf("CSV eval output missing:\n%s", got)
+	}
+}

@@ -27,6 +27,7 @@ const Version = "1.0.0"
 
 func main() {
 	var evals []string
+	csv := flag.Bool("csv", false, "emit CSV results for --eval")
 	quiet := flag.Bool("quiet", false, "suppress assignment echoes")
 	json := flag.Bool("json", false, "emit JSON results for --eval")
 	vars := flag.Bool("vars", false, "list defined variables after evaluation")
@@ -142,6 +143,26 @@ func main() {
 			}
 		}
 		c.SetQuietAssign(*quiet)
+		if *csv {
+			for _, e := range evals {
+				if strings.Contains(e, "=") {
+					name, v, err := c.AssignExpr(e)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, err)
+						os.Exit(1)
+					}
+					fmt.Printf("assign,%s,%s\n", name, c.FormatValue(v))
+					continue
+				}
+				v, err := c.EvalExpr(e)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+				fmt.Printf("expr,%s,%s\n", e, c.FormatValue(v))
+			}
+			return
+		}
 		if *json {
 			for _, e := range evals {
 				if strings.Contains(e, "=") {

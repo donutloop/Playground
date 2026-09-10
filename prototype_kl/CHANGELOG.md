@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [50] fract(x) fractional part
+- Added `fract(x)` = x - floor(x), the nonnegative fractional part.
+
 ## [49] root(x, n) n-th root
 - Added `root(x, n)` = x^(1/n).
 

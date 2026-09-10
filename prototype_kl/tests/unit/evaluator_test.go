@@ -367,3 +367,19 @@ func TestRoot(t *testing.T) {
 		t.Errorf("root(16,2) = %v, want 4", res)
 	}
 }
+
+// TestFract verifies the fractional-part function.
+func TestFract(t *testing.T) {
+	cases := []struct{ expr string; want float64 }{
+		{"fract(3.5)", 0.5}, {"fract(3)", 0}, {"fract(-2.25)", 0.75},
+	}
+	for _, c := range cases {
+		res, err := parser.Evaluate(c.expr)
+		if err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if math.Abs(res-c.want) > 1e-12 {
+			t.Errorf("%s = %v, want %v", c.expr, res, c.want)
+		}
+	}
+}

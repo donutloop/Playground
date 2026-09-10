@@ -64,6 +64,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"rad(180)", "3.14159265358979"},
 		{"root(8, 3)", "2"},
 		{"root(16, 2)", "4"},
+		{"fract(3.5)", "0.5"},
+		{"fract(3)", "0"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

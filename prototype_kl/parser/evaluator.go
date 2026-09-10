@@ -155,6 +155,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Abs(args[0]), nil
 	case "floor":
 		return math.Floor(args[0]), nil
+	case "fract":
+		return args[0] - math.Floor(args[0]), nil
 	case "ceil":
 		return math.Ceil(args[0]), nil
 	case "round":

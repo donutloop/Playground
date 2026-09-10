@@ -39,6 +39,7 @@ var SupportedFunctions = map[string]int{
 	"cbrt":      1,
 	"abs":       1,
 	"floor":     1,
+	"fract":     1,
 	"ceil":      1,
 	"round":     1,
 	"trunc":     1,

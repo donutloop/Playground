@@ -40,6 +40,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `cbrt(x)` | 1 | cube root |
 | `abs(x)` | 1 | absolute value |
 | `floor(x)` | 1 | largest integer <= x |
+| `fract(x)` | 1 | fractional part x - floor(x) |
 | `ceil(x)` | 1 | smallest integer >= x |
 | `round(x)` | 1 | round to nearest integer |
 | `trunc(x)` | 1 | truncate toward zero |

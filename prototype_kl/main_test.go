@@ -98,3 +98,10 @@ func TestJSONEvalAssignment(t *testing.T) {
 		t.Errorf("JSON assignment output missing:\n%s", got)
 	}
 }
+
+func TestJSONVars(t *testing.T) {
+	got := runMain(t.TempDir()+"/jv.json", "-eval", "a=3", "-eval", "b=4", "--json", "--vars", "--no-state")
+	if !strings.Contains(got, `"var": "a"`) || !strings.Contains(got, `"var": "b"`) {
+		t.Errorf("JSON vars output missing:\n%s", got)
+	}
+}

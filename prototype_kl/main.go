@@ -146,6 +146,11 @@ func main() {
 				}
 				fmt.Printf("{\"expr\": %q, \"value\": %s}\n", e, c.FormatValue(v))
 			}
+			if *vars {
+				for name, v := range c.Vars() {
+					fmt.Printf("{\"var\": %q, \"value\": %s}\n", name, c.FormatValue(v))
+				}
+			}
 			return
 		}
 		c.Run()

@@ -495,6 +495,15 @@ func (c *Calculator) FormatValue(v float64) string {
 	return c.format(v)
 }
 
+// Vars returns a copy of the defined variables.
+func (c *Calculator) Vars() map[string]float64 {
+	out := make(map[string]float64, len(c.vars))
+	for k, v := range c.vars {
+		out[k] = v
+	}
+	return out
+}
+
 // PrintVars writes each defined variable to the output writer.
 func (c *Calculator) PrintVars() {
 	c.printVars()

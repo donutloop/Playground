@@ -475,6 +475,12 @@ func (c *Calculator) status() {
 	fmt.Fprintf(c.out, "precision: %d\n", c.prec)
 	fmt.Fprintf(c.out, "memory: %s\n", memName(c))
 	fmt.Fprintf(c.out, "variables: %d\n", len(c.vars))
+	if c.base != 0 {
+		fmt.Fprintf(c.out, "base: %d\n", c.base)
+	}
+	fmt.Fprintf(c.out, "quiet: %v\n", c.quietAssign)
+	fmt.Fprintf(c.out, "json: %v\n", c.jsonMode)
+	fmt.Fprintf(c.out, "csv: %v\n", c.csvMode)
 }
 
 func (c *Calculator) displayMode() string {

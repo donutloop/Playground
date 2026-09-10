@@ -56,3 +56,12 @@ func TestCSVReplToggle(t *testing.T) {
 		t.Fatalf("csv toggle should emit value,2:\n%s", out.String())
 	}
 }
+
+func TestStatusReportsModes(t *testing.T) {
+	var out bytes.Buffer
+	c := New(strings.NewReader("base hex\njson\nstatus\n"), &out)
+	c.Run()
+	if !strings.Contains(out.String(), "base: 16") || !strings.Contains(out.String(), "json: true") {
+		t.Fatalf("status should report modes:\n%s", out.String())
+	}
+}

@@ -280,3 +280,20 @@ func TestCompare(t *testing.T) {
 		}
 	}
 }
+
+// TestCompare2 verifies <= and >= comparisons.
+func TestCompare2(t *testing.T) {
+	cases := []struct{ expr string; want float64 }{
+		{"2<=2", 1}, {"3<=2", 0}, {"3>=4", 0}, {"4>=4", 1},
+		{"2<=2 ? 5 : 9", 5}, {"3>=4 ? 5 : 9", 9},
+	}
+	for _, c := range cases {
+		res, err := parser.Evaluate(c.expr)
+		if err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if res != c.want {
+			t.Errorf("%s = %v, want %v", c.expr, res, c.want)
+		}
+	}
+}

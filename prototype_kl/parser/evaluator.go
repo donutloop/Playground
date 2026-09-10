@@ -62,6 +62,16 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 				return 1, nil
 			}
 			return 0, nil
+		case OpLE:
+			if left <= right {
+				return 1, nil
+			}
+			return 0, nil
+		case OpGE:
+			if left >= right {
+				return 1, nil
+			}
+			return 0, nil
 		default:
 			return 0, &EvalError{Err: fmt.Errorf("unsupported binary operator %c", n.Op), Message: "binary operation failed"}
 		}

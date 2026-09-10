@@ -123,10 +123,21 @@ func (p *Parser) parseComparison() (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p.current().Type != TokenLT && p.current().Type != TokenGT {
+	if p.current().Type != TokenLT && p.current().Type != TokenGT &&
+		p.current().Type != TokenLE && p.current().Type != TokenGE {
 		return left, nil
 	}
 	op := rune(p.current().Value[0])
+	switch p.current().Type {
+	case TokenLT:
+		op = OpLT
+	case TokenGT:
+		op = OpGT
+	case TokenLE:
+		op = OpLE
+	case TokenGE:
+		op = OpGE
+	}
 	p.consume()
 	right, err := p.parseExpression()
 	if err != nil {

@@ -56,6 +56,7 @@ var helpTopics = map[string]string{
 	"rev":       "rev(n): decimal digits of n reversed (rev(120)=21)",
 	"ispal":     "ispal(n): 1 if n is a palindrome, else 0",
 	"fib":       "fib(n): the n-th Fibonacci number (fib(0)=0, fib(1)=1)",
+	"powmod":    "powmod(a, b, m): (a^b) mod m via fast modular exponentiation",
 	"asinh":     "asinh(x): inverse hyperbolic sine",
 	"acosh":     "acosh(x): inverse hyperbolic cosine (x >= 1)",
 	"atanh":     "atanh(x): inverse hyperbolic tangent (-1 < x < 1)",

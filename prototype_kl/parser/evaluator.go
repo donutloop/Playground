@@ -362,6 +362,28 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		}
 		return float64(reverseDigits(n)), nil
 
+	case "powmod":
+		// modular exponentiation a^b mod m: powmod(2,10,1000)=24, powmod(3,4,7)=4.
+		if len(args) != 3 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "powmod expects 3 arguments"}
+		}
+		ia, err := checkIntArg(args[0])
+		if err != nil {
+			return 0, err
+		}
+		ib, err := checkIntArg(args[1])
+		if err != nil {
+			return 0, err
+		}
+		im, err := checkIntArg(args[2])
+		if err != nil {
+			return 0, err
+		}
+		if im <= 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: "powmod requires m > 0"}
+		}
+		return float64(powmod(ia, ib, im)), nil
+
 	case "fib":
 		// Fibonacci number: fib(0)=0, fib(1)=1, fib(10)=55. Exact for n <= 97.
 		if len(args) != 1 {
@@ -668,6 +690,21 @@ func fib(n int64) int64 {
 		a, b = b, a+b
 	}
 	return b
+}
+
+// powmod computes (a^b) mod m using fast modular exponentiation, requiring
+// a, b >= 0 and m > 0. Each step keeps intermediate products reduced mod m.
+func powmod(a, b, m int64) int64 {
+	res := int64(1) % m
+	a %= m
+	for b > 0 {
+		if b&1 == 1 {
+			res = res * a % m
+		}
+		a = a * a % m
+		b >>= 1
+	}
+	return res
 }
 
 func factorial(x float64) (float64, error) {

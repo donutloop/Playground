@@ -135,6 +135,12 @@ func TestEvaluator(t *testing.T) {
 		{"FibDomain", "fib(2.5)", 0, true},
 		{"FibNegative", "fib(-1)", 0, true},
 		{"FibTooBig", "fib(100)", 0, true},
+		{"PowMod", "powmod(2, 10, 1000)", 24, false},
+		{"PowModZeroExp", "powmod(7, 0, 5)", 1, false},
+		{"PowModLarge", "powmod(2, 100, 97)", 16, false},
+		{"PowModDomain", "powmod(2, 3, 0)", 0, true},
+		{"PowModNegative", "powmod(2, -3, 5)", 0, true},
+		{"PowModNonInt", "powmod(2.5, 3, 5)", 0, true},
 	}
 
 	for _, tt := range tests {

@@ -1028,6 +1028,12 @@ func TestNumberTheoryFunctions(t *testing.T) {
 		{"fib(10)", "55"},
 		{"fib(20)", "6765"},
 		{"fib(30)", "832040"},
+		{"powmod(2, 10, 1000)", "24"},
+		{"powmod(3, 4, 7)", "4"},
+		{"powmod(5, 3, 13)", "8"},
+		{"powmod(7, 0, 5)", "1"},
+		{"powmod(4, 13, 497)", "445"},
+		{"powmod(2, 100, 97)", "16"},
 	}
 	for _, tc := range cases {
 		got := run(t, tc.in+"\n")

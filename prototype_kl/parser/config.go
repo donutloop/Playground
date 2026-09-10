@@ -133,6 +133,7 @@ var SupportedFunctions = map[string]int{
 	"rev":       1, // reverse decimal digits
 	"ispal":     1, // palindrome check
 	"fib":       1, // Fibonacci number
+	"powmod":    3, // modular exponentiation a^b mod m
 	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic

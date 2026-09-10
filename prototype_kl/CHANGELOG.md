@@ -1,3 +1,11 @@
+## [89] modular exponentiation: powmod
+
+- `powmod(a, b, m)` computes (a^b) mod m using fast modular exponentiation
+  (powmod(2, 10, 1000)=24, powmod(4, 13, 497)=445).
+- Requires a, b >= 0 and m > 0 as integers; negative, non-integer, or m <= 0
+  inputs are rejected as typed domain errors.
+- Keeps intermediate products reduced mod m, so large exponents stay fast.
+
 ## [88] Fibonacci: fib
 
 - `fib(n)` returns the n-th Fibonacci number (fib(0)=0, fib(1)=1,

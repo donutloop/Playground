@@ -338,6 +338,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `rev(n)` | 1 | decimal digits of n reversed (rev(120)=21) |
 | `ispal(n)` | 1 | 1 if n is a palindrome, else 0 |
 | `fib(n)` | 1 | n-th Fibonacci number (fib(0)=0, fib(1)=1); exact for n ≤ 97 |
+| `powmod(a, b, m)` | 3 | (a^b) mod m via fast modular exponentiation |
 | `jn(n, x)` | 2 | Bessel J of order n |
 | `yn(n, x)` | 2 | Bessel Y of order n |
 

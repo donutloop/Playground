@@ -62,6 +62,7 @@ var helpTopics = map[string]string{
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",
 	"hypot":     "hypot(x, y): sqrt(x^2 + y^2)",
+	"root":       "root(x, n): n-th root of x = x^(1/n)",
 	"min":       "min(a, b, ...): smallest of the values",
 	"max":       "max(a, b, ...): largest of the values",
 	"fact":      "fact(n): n! for integer n >= 0",

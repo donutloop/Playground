@@ -89,6 +89,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `lerp(a, b, t)` | 3 | linear interpolation a + (b-a)*t |
 | `fma(a, b, c)` | 3 | fused multiply-add a*b+c |
 | `hypot(x, y)` | 2 | sqrt(x^2 + y^2) |
+| `root(x, n)` | 2 | n-th root of x = x^(1/n) |
 | `mod(a, b)` | 2 | remainder a mod b |
 | `copysign(x, y)` | 2 | x with the sign of y |
 | `logb(x)` | 1 | binary exponent of x |

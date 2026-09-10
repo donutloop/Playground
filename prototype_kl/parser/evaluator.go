@@ -365,6 +365,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Pow(args[0], args[1]), nil
 	case "hypot":
 		return math.Hypot(args[0], args[1]), nil
+	case "root":
+		return math.Pow(args[0], 1/args[1]), nil
 	case "min":
 		m := args[0]
 		for _, v := range args[1:] {

@@ -104,6 +104,7 @@ var SupportedFunctions = map[string]int{
 	"fact":      1,  // factorial
 	"pow":       2,  // pow(x, y)
 	"hypot":     2,  // hypot(x, y)
+	"root":      2,
 	"min":       -1, // variadic
 	"max":       -1, // variadic
 }

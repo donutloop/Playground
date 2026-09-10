@@ -349,3 +349,21 @@ func TestDegRad(t *testing.T) {
 		t.Errorf("rad(180) = %v, want pi", res)
 	}
 }
+
+// TestRoot verifies the n-th root function.
+func TestRoot(t *testing.T) {
+	res, err := parser.Evaluate("root(8, 3)")
+	if err != nil {
+		t.Fatalf("root(8,3): %v", err)
+	}
+	if math.Abs(res-2) > 1e-12 {
+		t.Errorf("root(8,3) = %v, want 2", res)
+	}
+	res, err = parser.Evaluate("root(16, 2)")
+	if err != nil {
+		t.Fatalf("root(16,2): %v", err)
+	}
+	if math.Abs(res-4) > 1e-12 {
+		t.Errorf("root(16,2) = %v, want 4", res)
+	}
+}

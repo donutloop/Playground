@@ -66,3 +66,10 @@ func TestStdinEvalMode(t *testing.T) {
 		t.Errorf("stdin eval mode should chain ans:\n%s", buf.String())
 	}
 }
+
+func TestVarsFlagListsVariables(t *testing.T) {
+	got := runMain(t.TempDir()+"/v.json", "-eval", "a=3", "-eval", "b=4", "--vars")
+	if !strings.Contains(got, "a = 3") || !strings.Contains(got, "b = 4") {
+		t.Errorf("--vars should list variables:\n%s", got)
+	}
+}

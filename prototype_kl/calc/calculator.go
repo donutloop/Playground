@@ -472,6 +472,11 @@ memory       ms, m+, m-, mr, mc
 commands     help, vars, history, status, reset, clear, quit/exit`)
 }
 
+// PrintVars writes each defined variable to the output writer.
+func (c *Calculator) PrintVars() {
+	c.printVars()
+}
+
 func (c *Calculator) printVars() {
 	if len(c.vars) == 0 {
 		fmt.Fprintln(c.out, "no variables defined")

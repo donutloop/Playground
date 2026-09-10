@@ -27,6 +27,7 @@ const Version = "1.0.0"
 
 func main() {
 	var evals []string
+	vars := flag.Bool("vars", false, "list defined variables after evaluation")
 	base := flag.Int("base", 0, "output radix for integral results (2, 8, 16, or 0=decimal)")
 	flag.Var(&multiFlag{&evals}, "eval", "evaluate an expression and print the result; may be given multiple times")
 	state := flag.String("state", ".calc-state.json", "persist variables/history across sessions")
@@ -128,6 +129,9 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Print(out.String())
+		if *vars {
+			c.PrintVars()
+		}
 		if *state != "" {
 			_ = c.SaveState(*state)
 		}

@@ -68,6 +68,9 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `sech(x)` | 1 | hyperbolic secant 1/cosh(x) |
 | `csch(x)` | 1 | hyperbolic cosecant 1/sinh(x) |
 | `coth(x)` | 1 | hyperbolic cotangent 1/tanh(x) |
+| `asech(x)` | 1 | inverse hyperbolic secant acosh(1/x) (0<x<=1) |
+| `acsch(x)` | 1 | inverse hyperbolic cosecant asinh(1/x) (x!=0) |
+| `acoth(x)` | 1 | inverse hyperbolic cotangent atanh(1/x) (|x|>1) |
 | `asinh(x)` | 1 | inverse hyperbolic sine |
 | `acosh(x)` | 1 | inverse hyperbolic cosine (x >= 1) |
 | `atanh(x)` | 1 | inverse hyperbolic tangent (-1 < x < 1) |
@@ -110,3 +113,4 @@ also reported as errors rather than silent infinities.
 | `feat(parser): sec/csc/cot reciprocal trig functions` | `sec`, `csc`, `cot` |
 | `feat(parser): asec/acsc/acot inverse reciprocal trig` | `asec`, `acsc`, `acot` |
 | `feat(parser): sech/csch/coth hyperbolic reciprocal` | `sech`, `csch`, `coth` |
+| `feat(parser): asech/acsch/acoth inverse hyperbolic` | `asech`, `acsch`, `acoth` |

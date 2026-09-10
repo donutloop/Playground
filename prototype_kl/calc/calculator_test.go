@@ -293,6 +293,13 @@ func TestHelpSech(t *testing.T) {
 	}
 }
 
+func TestHelpAsech(t *testing.T) {
+	got := run(t, "help asech\n")
+	if !strings.Contains(got, "asech(x)") {
+		t.Errorf("asech help missing:\n%s", got)
+	}
+}
+
 func TestHelpUnknown(t *testing.T) {
 	got := run(t, "help nope\n")
 	if !strings.Contains(got, "no help") {

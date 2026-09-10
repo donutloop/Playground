@@ -281,6 +281,21 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("coth undefined at x=%v", args[0])}
 		}
 		return 1 / t, nil
+	case "asech":
+		if args[0] <= 0 || args[0] > 1 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("asech requires 0 < x <= 1, got %v", args[0])}
+		}
+		return math.Acosh(1 / args[0]), nil
+	case "acsch":
+		if args[0] == 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: "acsch undefined at x=0"}
+		}
+		return math.Asinh(1 / args[0]), nil
+	case "acoth":
+		if math.Abs(args[0]) <= 1 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("acoth requires |x| > 1, got %v", args[0])}
+		}
+		return math.Atanh(1 / args[0]), nil
 	case "ln":
 		return math.Log(args[0]), nil
 	case "log":

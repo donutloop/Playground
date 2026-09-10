@@ -4,6 +4,11 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [40] asech/acsch/acoth inverse hyperbolic reciprocal
+- Added `asech(x)` = acosh(1/x), `acsch(x)` = asinh(1/x), `acoth(x)` = atanh(1/x).
+- Domain errors for out-of-range inputs.
+- Added agents.md documenting the perpetual feature loop.
+
 ## [39] sech/csch/coth hyperbolic reciprocal
 - Added `sech(x)` = 1/cosh(x), `csch(x)` = 1/sinh(x), `coth(x)` = 1/tanh(x).
 - Domain errors at csch(0) and coth(0).

@@ -46,6 +46,8 @@ var helpTopics = map[string]string{
 	"ldexp":     "ldexp(x, n): x * 2^n",
 	"dim":       "dim(x, y): max(x-y, 0)",
 	"signbit":   "signbit(x): 1 if x has negative sign bit",
+	"jn":        "jn(n, x): Bessel J of order n",
+	"yn":        "yn(n, x): Bessel Y of order n",
 	"log":       "log(x): base-10 log of x (x > 0)",
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",

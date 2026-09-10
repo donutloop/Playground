@@ -45,6 +45,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"ldexp(1, 3)", "8"},
 		{"dim(5, 3)", "2"},
 		{"signbit(-0.0)", "1"},
+		{"jn(0, 1)", "0.765197686557967"},
+		{"yn(1, 1)", "-0.781212821300289"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

@@ -43,6 +43,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"logb(8)", "3"},
 		{"nextafter(1, 2)", "1"},
 		{"ldexp(1, 3)", "8"},
+		{"dim(5, 3)", "2"},
+		{"signbit(-0.0)", "1"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

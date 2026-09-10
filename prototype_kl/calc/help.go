@@ -44,6 +44,8 @@ var helpTopics = map[string]string{
 	"logb":      "logb(x): binary exponent of x",
 	"nextafter": "nextafter(x, y): next representable float toward y",
 	"ldexp":     "ldexp(x, n): x * 2^n",
+	"dim":       "dim(x, y): max(x-y, 0)",
+	"signbit":   "signbit(x): 1 if x has negative sign bit",
 	"log":       "log(x): base-10 log of x (x > 0)",
 	"exp":       "exp(x): e raised to x",
 	"pow":       "pow(x, y): x raised to y",

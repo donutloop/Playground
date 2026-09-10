@@ -28,6 +28,15 @@ func TestBaseBinary(t *testing.T) {
 	}
 }
 
+func TestBaseReplCommand(t *testing.T) {
+	var out bytes.Buffer
+	c := New(strings.NewReader("base hex\n255\nbase bin\n5\n"), &out)
+	c.Run()
+	if !strings.Contains(out.String(), "0xff") || !strings.Contains(out.String(), "0b101") {
+		t.Fatalf("base command output missing:\n%s", out.String())
+	}
+}
+
 func TestSetBaseRejectsUnknown(t *testing.T) {
 	c := New(strings.NewReader("1\n"), new(bytes.Buffer))
 	if err := c.SetBase(5); err == nil {

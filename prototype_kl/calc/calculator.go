@@ -154,6 +154,15 @@ func (c *Calculator) handle(line string) (bool, error) {
 		fmt.Fprintf(c.out, "precision = %d\n", n)
 		return false, nil
 	}
+	if b, ok, err := parseBase(line); ok {
+		if err != nil {
+			fmt.Fprintln(c.out, err)
+			return false, nil
+		}
+		c.base = b
+		fmt.Fprintf(c.out, "base = %d\n", b)
+		return false, nil
+	}
 	switch strings.ToLower(line) {
 	case "help", "?":
 		c.printHelp()

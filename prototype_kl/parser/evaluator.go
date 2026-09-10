@@ -340,6 +340,42 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		}
 		l, _ := math.Lgamma(args[0])
 		return l, nil
+	case "sumdigits":
+		// sum of decimal digits: sumdigits(1234)=10, sumdigits(0)=0.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "sumdigits expects 1 argument"}
+		}
+		n, err := checkIntArg(args[0])
+		if err != nil {
+			return 0, err
+		}
+		return float64(sumDigits(n)), nil
+
+	case "rev":
+		// reverse decimal digits, dropping leading zeros: rev(1234)=4321, rev(120)=21.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "rev expects 1 argument"}
+		}
+		n, err := checkIntArg(args[0])
+		if err != nil {
+			return 0, err
+		}
+		return float64(reverseDigits(n)), nil
+
+	case "ispal":
+		// palindrome check: 1 if n reads the same forward and backward, else 0.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "ispal expects 1 argument"}
+		}
+		n, err := checkIntArg(args[0])
+		if err != nil {
+			return 0, err
+		}
+		if n == reverseDigits(n) {
+			return 1, nil
+		}
+		return 0, nil
+
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":
@@ -583,6 +619,28 @@ func lcm(a, b float64) float64 {
 	}
 	g := gcd(a, b)
 	return float64(int64(a) / int64(g) * int64(b))
+}
+
+// sumDigits returns the sum of the decimal digits of a non-negative integer n.
+// sumDigits(0) = 0.
+func sumDigits(n int64) int64 {
+	sum := int64(0)
+	for n > 0 {
+		sum += n % 10
+		n /= 10
+	}
+	return sum
+}
+
+// reverseDigits returns the decimal digits of n reversed, dropping any leading
+// zeros of the reversed form (so rev(120) = 21). reverseDigits(0) = 0.
+func reverseDigits(n int64) int64 {
+	rev := int64(0)
+	for n > 0 {
+		rev = rev*10 + n%10
+		n /= 10
+	}
+	return rev
 }
 
 func factorial(x float64) (float64, error) {

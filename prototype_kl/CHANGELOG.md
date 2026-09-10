@@ -1,3 +1,13 @@
+## [87] digit functions: sumdigits / rev / ispal
+
+- `sumdigits(n)` returns the sum of the decimal digits of n (sumdigits(1234)=10).
+- `rev(n)` returns the decimal digits reversed, dropping leading zeros
+  (rev(1234)=4321, rev(120)=21).
+- `ispal(n)` returns 1 if n reads the same forward and backward, else 0
+  (ispal(121)=1, ispal(123)=0).
+- All accept non-negative integers; negative or non-integer inputs are
+  rejected as typed domain errors.
+
 ## [86] combinatorics: npr / ncr
 
 - `npr(n, r)` computes permutations n!/(n-r)! — ways to pick r ordered items

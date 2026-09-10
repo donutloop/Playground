@@ -119,6 +119,15 @@ func TestEvaluator(t *testing.T) {
 		{"NcrFull", "ncr(5, 5)", 1, false},
 		{"NprDomain", "npr(3, 5)", 0, true},
 		{"NcrDomain", "ncr(3, 4)", 0, true},
+		{"SumDigits", "sumdigits(1234)", 10, false},
+		{"SumDigitsZero", "sumdigits(0)", 0, false},
+		{"Rev", "rev(1234)", 4321, false},
+		{"RevTrailingZero", "rev(120)", 21, false},
+		{"IspalYes", "ispal(1221)", 1, false},
+		{"IspalNo", "ispal(123)", 0, false},
+		{"SumDigitsDomain", "sumdigits(2.5)", 0, true},
+		{"RevDomain", "rev(-5)", 0, true},
+		{"IspalDomain", "ispal(1.5)", 0, true},
 	}
 
 	for _, tt := range tests {

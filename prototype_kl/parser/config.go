@@ -129,6 +129,9 @@ var SupportedFunctions = map[string]int{
 	"divcount":  1,
 	"npr":       2, // permutations nPr(n, r)
 	"ncr":       2, // combinations nCr(n, r)
+	"sumdigits": 1, // sum of decimal digits
+	"rev":       1, // reverse decimal digits
+	"ispal":     1, // palindrome check
 	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic

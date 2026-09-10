@@ -334,6 +334,9 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `npr(n, r)` | 2 | permutations n!/(n-r)!: ways to pick r ordered items from n |
 | `ncr(n, r)` | 2 | combinations n!/(r!·(n-r)!): ways to pick r unordered items from n |
 | `pow(x, y)` | 2 | x^y |
+| `sumdigits(n)` | 1 | sum of the decimal digits of n |
+| `rev(n)` | 1 | decimal digits of n reversed (rev(120)=21) |
+| `ispal(n)` | 1 | 1 if n is a palindrome, else 0 |
 | `jn(n, x)` | 2 | Bessel J of order n |
 | `yn(n, x)` | 2 | Bessel Y of order n |
 

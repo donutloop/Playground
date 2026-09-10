@@ -1013,6 +1013,16 @@ func TestNumberTheoryFunctions(t *testing.T) {
 		{"ncr(10, 0)", "1"},
 		{"npr(5, 5)", "120"},
 		{"ncr(5, 5)", "1"},
+		{"sumdigits(1234)", "10"},
+		{"sumdigits(0)", "0"},
+		{"sumdigits(999)", "27"},
+		{"rev(1234)", "4321"},
+		{"rev(120)", "21"},
+		{"rev(0)", "0"},
+		{"ispal(121)", "1"},
+		{"ispal(1221)", "1"},
+		{"ispal(123)", "0"},
+		{"ispal(0)", "1"},
 	}
 	for _, tc := range cases {
 		got := run(t, tc.in+"\n")
@@ -1042,3 +1052,24 @@ func TestCombinatoricsDomain(t *testing.T) {
 		}
 	}
 }
+
+// TestDigitDomain verifies sumdigits/rev/ispal reject negative or non-integer
+// inputs with a domain error.
+func TestDigitDomain(t *testing.T) {
+	bad := []string{
+		"sumdigits(2.5)",
+		"sumdigits(-3)",
+		"rev(2.5)",
+		"rev(-3)",
+		"ispal(1.5)",
+		"ispal(-3)",
+	}
+	for _, in := range bad {
+		got := run(t, in+"\n")
+		if !strings.Contains(got, "error") {
+			t.Errorf("%s = %q, want a domain error", in, got)
+		}
+	}
+}
+
+

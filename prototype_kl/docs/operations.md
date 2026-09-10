@@ -21,6 +21,23 @@ update this file alongside code, tests, help, and verify coverage.
 | `&&`, `||` | logical and/or, returns 1 (true) or 0 (false) |
 
 Parentheses `( )` group sub-expressions.
+## User functions
+
+Define a function with parameters and a body expression, then call it with
+normal call syntax:
+
+    f(x) = x^2 + 1      # define f(x)
+    f(3)                # -> 10
+    g(a, b) = a * b + a # multi-parameter
+    g(3, 4)             # -> 15
+    g(g(2, 3), 5)       # nested calls -> 48
+
+Functions are expanded inline with their parameters bound to the evaluated
+arguments, so bodies may reference variables, built-in functions, and other
+user functions. A call with the wrong number of arguments is rejected, and
+reserved names (built-in functions, `pi`, `e`, `ans`, `mem`) cannot be
+redefined. Definitions persist across saves like variables.
+
 
 ## Constants
 

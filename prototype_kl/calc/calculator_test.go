@@ -377,3 +377,38 @@ func TestReset(t *testing.T) {
 		t.Errorf("reset failed:\n%s", got)
 	}
 }
+
+// TestUserFunctionDefinition checks defining and calling user functions.
+func TestUserFunctionDefinition(t *testing.T) {
+	got := run(t, "f(x) = x^2 + 1\nf(3)\nf(2) + 10\n")
+	if !strings.Contains(got, "f(x) defined") {
+		t.Errorf("missing definition echo:\n%s", got)
+	}
+	if !strings.Contains(got, "10") || !strings.Contains(got, "15") {
+		t.Errorf("function results missing (want 10 and 15):\n%s", got)
+	}
+}
+
+// TestUserFunctionMultiParam checks multi-parameter and nested calls.
+func TestUserFunctionMultiParam(t *testing.T) {
+	got := run(t, "g(a, b) = a * b + a\ng(3, 4)\ng(g(2, 3), 5)\n")
+	if !strings.Contains(got, "15") || !strings.Contains(got, "48") {
+		t.Errorf("multi-param results missing (want 15 and 48):\n%s", got)
+	}
+}
+
+// TestUserFunctionArity checks that wrong argument counts are rejected.
+func TestUserFunctionArity(t *testing.T) {
+	got := run(t, "h(x) = x + 1\nh(1, 2)\n")
+	if !strings.Contains(got, "expects 1 argument") {
+		t.Errorf("arity error not reported:\n%s", got)
+	}
+}
+
+// TestUserFunctionReserved checks reserved/builtin name rejection.
+func TestUserFunctionReserved(t *testing.T) {
+	got := run(t, "sin(x) = x + 1\npi(x) = x\n")
+	if !strings.Contains(got, "cannot redefine built-in function") {
+		t.Errorf("builtin redefinition not rejected:\n%s", got)
+	}
+}

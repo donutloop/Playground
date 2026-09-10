@@ -8,6 +8,7 @@ import (
 // state is the JSON-persisted session: variables, memory, last result, history.
 type state struct {
 	Vars    map[string]float64 `json:"vars"`
+	Funcs   map[string]funcDef `json:"funcs"`
 	Memory  float64            `json:"memory"`
 	HasMem  bool               `json:"has_mem"`
 	Ans     float64            `json:"ans"`
@@ -27,6 +28,7 @@ type state struct {
 func (c *Calculator) saveState(path string) error {
 	st := state{
 		Vars:    c.vars,
+		Funcs:   c.funcsState(),
 		Memory:  c.memory,
 		HasMem:  c.hasMem,
 		Ans:     c.ans,
@@ -64,6 +66,7 @@ func (c *Calculator) loadState(path string) error {
 	}
 	if st.Vars != nil {
 		c.vars = st.Vars
+	c.setFuncs(st.Funcs)
 	}
 	c.memory = st.Memory
 	c.hasMem = st.HasMem

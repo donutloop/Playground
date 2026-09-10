@@ -1,5 +1,10 @@
 # Changelog
 
+## [56] user-defined functions
+- Added user-defined functions: `f(x) = expr` defines a function; calls use normal syntax `f(2)`.
+- Parameters bind to evaluated arguments; bodies may reference variables, built-ins, and other user functions.
+- Arity mismatches and reserved-name redefinition are rejected.
+- Function definitions persist across saves and survive undo/redo.
 All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.

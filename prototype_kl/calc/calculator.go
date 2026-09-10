@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 
 	"prototype_kl/parser"
@@ -19,6 +18,7 @@ import (
 // giving the calculator first-class variables.
 type Calculator struct {
 	vars        map[string]float64
+	funcs        map[string]*funcDef
 	ans         float64
 	hasAns      bool
 	memory      float64
@@ -128,6 +128,7 @@ func (c *Calculator) snapshot() state {
 // restore resets the calculator to a saved snapshot.
 func (c *Calculator) restore(st state) {
 	c.vars = st.Vars
+	c.setFuncs(st.Funcs)
 	c.memory = st.Memory
 	c.hasMem = st.HasMem
 	c.ans = st.Ans
@@ -299,6 +300,9 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	if stmt[0] == '@' {
 		return false, c.recall(stmt)
 	}
+	if name, params, body, ok := parseFuncDef(stmt); ok {
+		return false, c.defineFunc(name, params, body)
+	}
 	if name, expr, ok := parseAssignment(stmt); ok {
 		return false, c.assign(name, expr)
 	}
@@ -372,7 +376,11 @@ func (c *Calculator) assign(name, expr string) error {
 	if name == "ans" {
 		return fmt.Errorf("'ans' is reserved")
 	}
-	expr = c.substitute(expr)
+	expanded, err := c.substitute(expr)
+	if err != nil {
+		return err
+	}
+	expr = expanded
 	v, err := c.eval(expr)
 	if err != nil {
 		return err
@@ -396,36 +404,22 @@ func (c *Calculator) eval(line string) (float64, error) {
 	if !c.hasAns && hasIdent(line, "ans") {
 		return 0, fmt.Errorf("no previous result yet")
 	}
-	line = c.substitute(line)
+	expanded, err := c.substitute(line)
+	if err != nil {
+		return 0, err
+	}
+	line = expanded
 	if c.degMode {
 		line = applyDeg(line)
 	}
 	return parser.Evaluate(line)
 }
-
-// substitute rewrites whole identifier tokens naming a defined variable or
-// "ans" to their numeric literals. Everything else is copied verbatim.
-func (c *Calculator) substitute(expr string) string {
-	toks := lexIdentifiers(expr)
-	var b strings.Builder
-	b.Grow(len(expr) + 16)
-
-	for _, t := range toks {
-		if !t.ident {
-			b.WriteString(t.text)
-			continue
-		}
-		if c.hasAns && t.text == "ans" {
-			b.WriteString(strconv.FormatFloat(c.ans, 'g', -1, 64))
-		} else if c.hasMem && t.text == "mem" {
-			b.WriteString(strconv.FormatFloat(c.memory, 'g', -1, 64))
-		} else if v, ok := c.vars[t.text]; ok {
-			b.WriteString(strconv.FormatFloat(v, 'g', -1, 64))
-		} else {
-			b.WriteString(t.text)
-		}
-	}
-	return b.String()
+// substitute expands user-defined function calls and rewrites variable
+// identifiers ("ans", "mem") to their numeric literals.
+func (c *Calculator) substitute(expr string) (string, error) {
+	// User-defined functions are expanded inline; variables, "ans", and "mem"
+	// are substituted to their numeric literals.
+	return c.expand(expr)
 }
 
 // parseAssignment parses "name = expression" by reading the first identifier

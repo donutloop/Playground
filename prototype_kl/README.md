@@ -62,6 +62,7 @@ x = 5
 | Feature      | Example                                   |
 |--------------|-------------------------------------------|
 | Variables    | `x = 3 + 2` then use `x` anywhere          |
+| User functions | `f(x) = x^2 + 1` then call `f(3)`        |
 | Last result  | `ans` usable in later expressions          |
 | Statements   | separate with `;` — `y = 2; y * 3`         |
 | Commands     | `help`, `vars`, `history`, `clear`, `quit` |

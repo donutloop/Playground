@@ -128,3 +128,27 @@ func TestCSVSettingPersists(t *testing.T) {
 		t.Fatalf("csv mode not persisted:\n%s", out.String())
 	}
 }
+
+// TestPersistUserFunctions checks that user-defined functions survive SaveState.
+func TestPersistUserFunctions(t *testing.T) {
+	var in bytes.Buffer
+	in.WriteString("f(x) = x^2 + 1\n")
+	var out bytes.Buffer
+	c := New(&in, &out)
+	c.Run()
+	path := t.TempDir() + "/funcs.json"
+	if err := c.SaveState(path); err != nil {
+		t.Fatal(err)
+	}
+	var in2 bytes.Buffer
+	in2.WriteString("f(3)\n")
+	var out2 bytes.Buffer
+	d := New(&in2, &out2)
+	if err := d.LoadState(path); err != nil {
+		t.Fatal(err)
+	}
+	d.Run()
+	if !strings.Contains(out2.String(), "10") {
+		t.Errorf("function not restored after load (want 10):\n%s", out2.String())
+	}
+}

@@ -72,6 +72,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"isqrt(9)", "3"},
 		{"swish(0)", "0"},
 		{"swish(1)", "0.731058578630005"},
+		{"isfinite(1)", "1"},
+		{"isfinite(2)", "1"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

@@ -335,6 +335,11 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return args[0] / (1 + math.Abs(args[0])), nil
 	case "swish":
 		return args[0] / (1 + math.Exp(-args[0])), nil
+	case "isfinite":
+		if math.IsInf(args[0], 0) || math.IsNaN(args[0]) {
+			return 0, nil
+		}
+		return 1, nil
 	case "sech":
 		return 1 / math.Cosh(args[0]), nil
 	case "csch":

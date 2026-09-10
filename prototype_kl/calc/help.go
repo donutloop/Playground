@@ -74,6 +74,7 @@ var helpTopics = map[string]string{
 	"softplus":  "softplus(x): ln(1+e^x)",
 	"softsign":  "softsign(x): x/(1+|x|)",
 	"swish":      "swish(x): x/(1+e^-x)",
+	"isfinite":   "isfinite(x): 1 if finite, 0 if infinite/NaN",
 	"sech":      "sech(x): hyperbolic secant 1/cosh(x)",
 	"csch":      "csch(x): hyperbolic cosecant 1/sinh(x)",
 	"coth":      "coth(x): hyperbolic cotangent 1/tanh(x)",

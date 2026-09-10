@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [54] isfinite predicate
+- Added `isfinite(x)` returning 1 (finite) or 0 (infinite/NaN).
+
 ## [53] swish activation
 - Added `swish(x)` = x/(1+e^-x).
 

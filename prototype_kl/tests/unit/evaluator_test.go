@@ -433,3 +433,14 @@ func TestSwish(t *testing.T) {
 		t.Errorf("swish(1) = %v, want %v", res, want)
 	}
 }
+
+// TestIsFinite verifies the isfinite predicate.
+func TestIsFinite(t *testing.T) {
+	res, err := parser.Evaluate("isfinite(1)")
+	if err != nil {
+		t.Fatalf("isfinite(1): %v", err)
+	}
+	if res != 1 {
+		t.Errorf("isfinite(1) = %v, want 1", res)
+	}
+}

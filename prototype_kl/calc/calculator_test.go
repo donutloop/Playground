@@ -258,6 +258,13 @@ func TestHelpTopic(t *testing.T) {
 	}
 }
 
+func TestHelpRsqrt(t *testing.T) {
+	got := run(t, "help rsqrt\n")
+	if !strings.Contains(got, "rsqrt(x)") {
+		t.Errorf("rsqrt help missing:\n%s", got)
+	}
+}
+
 func TestHelpUnknown(t *testing.T) {
 	got := run(t, "help nope\n")
 	if !strings.Contains(got, "no help") {

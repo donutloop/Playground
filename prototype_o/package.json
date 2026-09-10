@@ -1,0 +1,12 @@
+{
+  "name": "prototype_o",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && echo \"Run pnpm test --filter <package> for package tests\""
+  },
+  "packageManager": "pnpm@10.33.0"
+}

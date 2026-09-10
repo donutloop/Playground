@@ -95,6 +95,11 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return 0, &EvalError{Err: ErrSqrtNegative, Message: fmt.Sprintf("sqrt of negative number %v", args[0])}
 		}
 		return math.Sqrt(args[0]), nil
+	case "rsqrt":
+		if args[0] <= 0 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("rsqrt requires x > 0, got %v", args[0])}
+		}
+		return 1 / math.Sqrt(args[0]), nil
 	case "cbrt":
 		return math.Cbrt(args[0]), nil
 	case "abs":

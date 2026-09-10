@@ -8,6 +8,7 @@ import (
 // helpTopics maps function/constant/command names to one-line docs.
 var helpTopics = map[string]string{
 	"sqrt":      "sqrt(x): square root of x (x >= 0)",
+	"rsqrt":     "rsqrt(x): reciprocal square root 1/sqrt(x) (x > 0)",
 	"cbrt":      "cbrt(x): cube root of x",
 	"abs":       "abs(x): absolute value of x",
 	"floor":     "floor(x): largest integer <= x",

@@ -38,6 +38,22 @@ user functions. A call with the wrong number of arguments is rejected, and
 reserved names (built-in functions, `pi`, `e`, `ans`, `mem`) cannot be
 redefined. Definitions persist across saves like variables.
 
+## Units & conversion
+
+Convert a value between units of the same physical dimension with
+`convert(value, from, to)`. Supported dimensions: length (base meter), mass
+(base kilogram), time (base second).
+
+    convert(5, km, m)   # -> 5000
+    convert(1, ft, in)  # -> 12
+    convert(60, min, s) # -> 3600
+    convert(1, km, mi)  # -> 0.621371192237334
+
+Common units: length `m km cm mm nm mi ft in yd`; mass `kg g mg lb oz`;
+time `s min h hr day` (plus full singular/plural names). Converting across
+dimensions (e.g. `km` to `kg`) or unknown units are reported as errors, and
+`convert` itself is a reserved name.
+
 
 ## Constants
 

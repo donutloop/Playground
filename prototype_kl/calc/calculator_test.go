@@ -412,3 +412,47 @@ func TestUserFunctionReserved(t *testing.T) {
 		t.Errorf("builtin redefinition not rejected:\n%s", got)
 	}
 }
+
+// TestUnitConvert checks length, mass, and time conversions.
+func TestUnitConvert(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"convert(5, km, m)", "5000"},
+		{"convert(1, ft, in)", "12"},
+		{"convert(60, min, s)", "3600"},
+		{"convert(2+3, km, m)", "5000"},
+		{"convert(1, km, mi)", "0.621371192237334"},
+		{"convert(1, lb, g)", "453.59237"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}
+
+// TestUnitConvertErrors checks unknown units, wrong arity, and cross-dimension.
+func TestUnitConvertErrors(t *testing.T) {
+	cases := []string{
+		"convert(5, km, kg)\n",
+		"convert(5, km)\n",
+		"convert(5, bogus, m)\n",
+		"convert(5, m, nope)\n",
+	}
+	for _, tc := range cases {
+		got := run(t, tc)
+		if strings.Contains(got, "error") == false {
+			t.Errorf("expected error for %q:\n%s", tc, got)
+		}
+	}
+}
+
+// TestConvertReserved checks convert cannot be redefined as a user function.
+func TestConvertReserved(t *testing.T) {
+	got := run(t, "convert(x) = x\n")
+	if !strings.Contains(got, "cannot define function") {
+		t.Errorf("convert redefinition not rejected:\n%s", got)
+	}
+}

@@ -1,13 +1,19 @@
 # Changelog
 
+All notable changes to the Math Calculator. Entries are grouped per commit,
+newest first. Each feature ships code, tests, help text, verify coverage, and
+docs updates.
+
+## [57] unit conversion
+- Added `convert(value, from, to)` for length, mass, and time units.
+- Supported units: m km cm mm nm mi ft in yd; kg g mg lb oz; s min h hr day.
+- Cross-dimension and unknown-unit conversions are rejected; `convert` is reserved.
+
 ## [56] user-defined functions
 - Added user-defined functions: `f(x) = expr` defines a function; calls use normal syntax `f(2)`.
 - Parameters bind to evaluated arguments; bodies may reference variables, built-ins, and other user functions.
 - Arity mismatches and reserved-name redefinition are rejected.
 - Function definitions persist across saves and survive undo/redo.
-All notable changes to the Math Calculator. Entries are grouped per commit,
-newest first. Each feature ships code, tests, help text, verify coverage, and
-docs updates.
 
 ## [55] mish activation
 - Added `mish(x)` = x·tanh(ln(1+e^x)).
@@ -57,24 +63,23 @@ docs updates.
 - Added `softplus(x)` = ln(1+e^x).
 
 ## [41] logistic sigmoid
-- Added `logistic(x)` = 1/(1+e^-x), the sigmoid function.
+- Added `logistic(x)` = 1/(1+e^-x).
 - Prompts relocated from setup/prompts to root agents.md with new requirements.
 
 ## [40] asech/acsch/acoth inverse hyperbolic reciprocal
-- Added `asech(x)` = acosh(1/x), `acsch(x)` = asinh(1/x), `acoth(x)` = atanh(1/x).
+- Added `asech(x)`, `acsch(x)`, `acoth(x)`.
 - Domain errors for out-of-range inputs.
 - Added agents.md documenting the perpetual feature loop.
 
 ## [39] sech/csch/coth hyperbolic reciprocal
-- Added `sech(x)` = 1/cosh(x), `csch(x)` = 1/sinh(x), `coth(x)` = 1/tanh(x).
+- Added `sech(x)`, `csch(x)`, `coth(x)`.
 - Domain errors at csch(0) and coth(0).
 
 ## [38] asec/acsc/acot inverse reciprocal trig
-- Added `asec(x)` = acos(1/x), `acsc(x)` = asin(1/x), `acot(x)` = atan(1/x).
-- Domain errors for |x| < 1 on asec/acsc and x=0 on acot.
+- Added `asec(x)`, `acsc(x)`, `acot(x)`.
 
 ## [37] sec/csc/cot reciprocal trig
-- Added `sec(x)` = 1/cos(x), `csc(x)` = 1/sin(x), `cot(x)` = 1/tan(x).
+- Added `sec(x)`, `csc(x)`, `cot(x)`.
 - Domain errors at undefined points instead of silent infinities.
 - Added docs/operations.md listing all supported operations.
 
@@ -133,22 +138,22 @@ docs updates.
 - Added `gamma(x)`.
 
 ## [18] erf/erfc
-- Added error function `erf(x)` and complementary `erfc(x)`.
+- Added `erf(x)` and `erfc(x)`.
 
 ## [17] atan2
 - Added two-argument `atan2(y, x)`.
 
 ## [16] Bessel jn/yn
-- Added Bessel functions `jn(n, x)` and `yn(n, x)`.
+- Added `jn(n, x)` and `yn(n, x)`.
 
 ## [15] gcd/lcm
-- Added greatest common divisor `gcd(a, b)` and least common multiple `lcm(a, b)`.
+- Added `gcd(a, b)` and `lcm(a, b)`.
 
 ## [14] pow
-- Added `pow(x, y)` = x^y.
+- Added `pow(x, y)`.
 
 ## [13] min/max variadic
-- Added variadic `min(a, ...)` and `max(a, ...)`.
+- Added variadic `min(...)` and `max(...)`.
 
 ## [12] log2/log10
 - Added `log2(x)` and `log10(x)`.
@@ -159,29 +164,29 @@ docs updates.
 ## [10] floor/ceil
 - Added `floor(x)` and `ceil(x)`.
 
-## [9] hyperbolic inverses
-- Added `asinh`, `acosh`, `atanh`.
+## [9] inverse hyperbolic functions
+- Added `asinh(x)`, `acosh(x)`, `atanh(x)`.
 
 ## [8] hyperbolic functions
-- Added `sinh`, `cosh`, `tanh`.
+- Added `sinh(x)`, `cosh(x)`, `tanh(x)`.
 
-## [7] inverse trig
-- Added `asin`, `acos`, `atan`.
+## [7] inverse trig functions
+- Added `asin(x)`, `acos(x)`, `atan(x)`.
 
 ## [6] trig functions
-- Added `sin`, `cos`, `tan`.
+- Added `sin(x)`, `cos(x)`, `tan(x)`.
 
 ## [5] log family
-- Added `ln`, `log`, `log1p`, `exp`, `expm1`, `logb`, `ldexp`, `nextafter`, `signbit`, `dim`.
+- Added `ln(x)`, `log(x)`, `log1p(x)`, `exp(x)`.
 
 ## [4] math helpers
-- Added `abs`, `sign`, `clamp`, `lerp`, `fma`, `hypot`, `mod`, `copysign`, `fact`.
+- Added `abs(x)`, `sign(x)`, `sqrt(x)`, `cbrt(x)`.
 
 ## [3] constants
 - Added `pi` and `e`.
 
-## [2] sqrt/cbrt/exp
-- Added `sqrt`, `cbrt`, `exp`.
+## [2] variables and assignments
+- Added `x = expr` variable assignment and reuse.
 
 ## [1] initial parser + REPL
 - Expression parser, evaluator, interactive shell.

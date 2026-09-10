@@ -21,9 +21,13 @@ Be creative: prefer language-level features (conditionals, loops, user
 functions, assignments, modes, units, formatting) over plain math functions.
 Add math functions only when they genuinely expand the language.
 
+Think like somebody writing a brand-new calculator language in 2026: modern
+ergonomics, clean error messages, discoverable commands, and a REPL that
+feels great to use.
+
 ## The loop
 
-1. Pick a new feature (language-level first).
+1. Pick a new feature.
 2. Implement across the stack:
    - lexer/parser/evaluator for syntax and semantics.
    - `calc/help.go` — one-line help.

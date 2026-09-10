@@ -42,6 +42,8 @@ var helpTopics = map[string]string{
 	"prime":     "prime(n): the n-th prime (1-indexed: prime(1)=2, prime(2)=3, ...)",
 	"nextprime": "nextprime(n): the smallest prime >= n",
 	"divcount":  "divcount(n): number of positive divisors of n",
+	"npr":       "npr(n, r): permutations — ways to pick r ordered items from n (n!/(n-r)!)",
+	"ncr":       "ncr(n, r): combinations — ways to pick r unordered items from n (n!/(r!·(n-r)!))",
 	"sumif":     "sumif(cond, a, b): sum integers x in [a,b] satisfying cond",
 	"sum":       "sum(a, b): sum integers in [a,b]; sum(i, lo, hi[, step], expr): sum expr over integer i in [lo,hi] (generalized loop)",
 	"prod":      "prod(a, b): product of integers in [a,b]; prod(i, lo, hi[, step], expr): product of expr over integer i in [lo,hi]",

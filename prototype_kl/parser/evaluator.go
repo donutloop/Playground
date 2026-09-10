@@ -540,6 +540,20 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		}
 		return float64(divCount(n)), nil
 
+	case "npr":
+		// permutations nPr(n, r) = n! / (n-r)! : npr(5, 2)=20, npr(10, 3)=720.
+		if len(args) != 2 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "npr expects 2 arguments"}
+		}
+		return perm(args[0], args[1])
+
+	case "ncr":
+		// combinations nCr(n, r) = n! / (r! * (n-r)!) : ncr(5, 2)=10, ncr(10, 3)=120.
+		if len(args) != 2 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "ncr expects 2 arguments"}
+		}
+		return comb(args[0], args[1])
+
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unsupported function %s", n.Name), Message: "function evaluation failed"}
 	}
@@ -724,4 +738,64 @@ func divCount(n int64) int64 {
 		cnt *= 2
 	}
 	return cnt
+}
+
+// checkIntArg validates that x is a non-negative integer and returns its
+// int64 value. It returns an error when x is not an integer or is negative.
+func checkIntArg(x float64) (int64, error) {
+	if x < 0 {
+		return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("requires a non-negative integer, got %v", x)}
+	}
+	if x != math.Trunc(x) {
+		return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("requires an integer, got %v", x)}
+	}
+	return int64(x), nil
+}
+
+// perm computes the number of permutations nPr(n, r) = n! / (n-r)!,
+// the number of ways to pick r ordered items from n, using a multiplicative
+// loop that avoids huge intermediate factorials.
+func perm(n, r float64) (float64, error) {
+	in, err := checkIntArg(n)
+	if err != nil {
+		return 0, err
+	}
+	ir, err := checkIntArg(r)
+	if err != nil {
+		return 0, err
+	}
+	if ir > in {
+		return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("npr requires r <= n, got n=%d r=%d", in, ir)}
+	}
+	res := 1.0
+	for i := in - ir + 1; i <= in; i++ {
+		res *= float64(i)
+	}
+	return res, nil
+}
+
+// comb computes the number of combinations nCr(n, r) = n! / (r! * (n-r)!),
+// the number of ways to pick r unordered items from n. It uses the symmetric
+// multiplicative formula and reduces the loop to min(r, n-r) iterations.
+func comb(n, r float64) (float64, error) {
+	in, err := checkIntArg(n)
+	if err != nil {
+		return 0, err
+	}
+	ir, err := checkIntArg(r)
+	if err != nil {
+		return 0, err
+	}
+	if ir > in {
+		return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("ncr requires r <= n, got n=%d r=%d", in, ir)}
+	}
+	k := ir
+	if k > in/2 {
+		k = in - ir
+	}
+	res := 1.0
+	for i := int64(1); i <= k; i++ {
+		res = res * float64(in-k+i) / float64(i)
+	}
+	return res, nil
 }

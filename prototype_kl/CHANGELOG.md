@@ -1,3 +1,15 @@
+## [86] combinatorics: npr / ncr
+
+- `npr(n, r)` computes permutations n!/(n-r)! — ways to pick r ordered items
+  from n (e.g. npr(5, 2)=20).
+- `ncr(n, r)` computes combinations n!/(r!·(n-r)!) — ways to pick r unordered
+  items from n (e.g. ncr(5, 2)=10).
+- Both accept non-negative integers with r <= n; negative, non-integer, and
+  r > n inputs are rejected as typed domain errors.
+- Computed with multiplicative loops (no huge intermediate factorials) and
+  the symmetric ncr reduction min(r, n-r), so larger n/r values stay accurate.
+- Examples: npr(10, 3)=720, ncr(10, 5)=252, ncr(n, 0)=1, ncr(n, n)=1.
+
 ## [85] number theory functions
 
 - `isprime(x)` returns 1 if x is prime, else 0 (x < 2 is not prime).

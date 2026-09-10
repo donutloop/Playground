@@ -331,6 +331,8 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `prime(n)` | 1 | the n-th prime (1-indexed: prime(1)=2) |
 | `nextprime(n)` | 1 | the smallest prime >= n |
 | `divcount(n)` | 1 | number of positive divisors of n |
+| `npr(n, r)` | 2 | permutations n!/(n-r)!: ways to pick r ordered items from n |
+| `ncr(n, r)` | 2 | combinations n!/(r!·(n-r)!): ways to pick r unordered items from n |
 | `pow(x, y)` | 2 | x^y |
 | `jn(n, x)` | 2 | Bessel J of order n |
 | `yn(n, x)` | 2 | Bessel Y of order n |

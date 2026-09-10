@@ -1004,11 +1004,41 @@ func TestNumberTheoryFunctions(t *testing.T) {
 		{"divcount(12)", "6"},
 		{"divcount(1)", "1"},
 		{"prime(3) + nextprime(10)", "16"},
+		{"npr(5, 2)", "20"},
+		{"npr(10, 3)", "720"},
+		{"npr(5, 0)", "1"},
+		{"ncr(5, 2)", "10"},
+		{"ncr(10, 3)", "120"},
+		{"ncr(10, 5)", "252"},
+		{"ncr(10, 0)", "1"},
+		{"npr(5, 5)", "120"},
+		{"ncr(5, 5)", "1"},
 	}
 	for _, tc := range cases {
 		got := run(t, tc.in+"\n")
 		if !strings.Contains(got, "> "+tc.want+"\n") {
 			t.Errorf("%s = %q, want to contain %s", tc.in, got, tc.want)
+		}
+	}
+}
+
+// TestCombinatoricsDomain verifies npr/ncr reject invalid inputs (negative,
+// non-integer, or r > n) with typed errors rather than silently miscomputing.
+func TestCombinatoricsDomain(t *testing.T) {
+	bad := []string{
+		"npr(-1, 2)",
+		"npr(5, -1)",
+		"npr(5, 2.5)",
+		"npr(3, 5)",
+		"ncr(-2, 1)",
+		"ncr(5, 3.5)",
+		"ncr(3, 4)",
+		"ncr(2, 5)",
+	}
+	for _, in := range bad {
+		got := run(t, in+"\n")
+		if !strings.Contains(got, "error") {
+			t.Errorf("%s = %q, want a domain/arity error", in, got)
 		}
 	}
 }

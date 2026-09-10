@@ -127,6 +127,8 @@ var SupportedFunctions = map[string]int{
 	"prime":     1,
 	"nextprime": 1,
 	"divcount":  1,
+	"npr":       2, // permutations nPr(n, r)
+	"ncr":       2, // combinations nCr(n, r)
 	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic

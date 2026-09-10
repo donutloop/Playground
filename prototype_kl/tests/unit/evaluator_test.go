@@ -110,6 +110,15 @@ func TestEvaluator(t *testing.T) {
 		{"PercentAdd", "200% + 10", 12, false},
 		{"PercentNested", "100% * 2", 2, false},
 		{"Eln", "ln(e)", 1, false},
+		{"Npr", "npr(5, 2)", 20, false},
+		{"NprZero", "npr(5, 0)", 1, false},
+		{"NprFull", "npr(5, 5)", 120, false},
+		{"Ncr", "ncr(5, 2)", 10, false},
+		{"NcrSymmetric", "ncr(10, 5)", 252, false},
+		{"NcrZero", "ncr(10, 0)", 1, false},
+		{"NcrFull", "ncr(5, 5)", 1, false},
+		{"NprDomain", "npr(3, 5)", 0, true},
+		{"NcrDomain", "ncr(3, 4)", 0, true},
 	}
 
 	for _, tt := range tests {

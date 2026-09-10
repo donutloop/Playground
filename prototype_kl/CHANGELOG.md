@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [47] logical && and || operators
+- Added `&&` and `||` returning 1 (true) or 0 (false).
+- Precedence: ternary < logical < comparison < arithmetic.
+
 ## [46] == and != equality comparisons
 - Added `==` and `!=` with lexer peeking on '=' and '!'.
 - Factorial `!` preserved by peeking only when followed by '='.

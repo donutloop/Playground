@@ -18,6 +18,7 @@ update this file alongside code, tests, help, and verify coverage.
 | `<`, `>` | comparison, returns 1 (true) or 0 (false) |
 | `<=`, `>=` | comparison, returns 1 (true) or 0 (false) |
 | `==`, `!=` | equality, returns 1 (true) or 0 (false) |
+| `&&`, `||` | logical and/or, returns 1 (true) or 0 (false) |
 
 Parentheses `( )` group sub-expressions.
 

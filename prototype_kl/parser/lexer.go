@@ -31,6 +31,8 @@ const (
 	TokenGE
 	TokenEQ
 	TokenNE
+	TokenAND
+	TokenOR
 )
 
 // Token represents a single lexical unit.
@@ -72,6 +74,20 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 			tokens = append(tokens, Token{Type: TokenMultiply, Value: string(char), Pos: l.pos})
 		case OpDiv:
 			tokens = append(tokens, Token{Type: TokenDivide, Value: string(char), Pos: l.pos})
+		case OpAND:
+			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '&' {
+				tokens = append(tokens, Token{Type: TokenAND, Value: "&&", Pos: l.pos})
+				l.pos++
+			} else {
+				return nil, fmt.Errorf("unexpected character '&'")
+			}
+		case OpOR:
+			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '|' {
+				tokens = append(tokens, Token{Type: TokenOR, Value: "||", Pos: l.pos})
+				l.pos++
+			} else {
+				return nil, fmt.Errorf("unexpected character '|'")
+			}
 		case OpEQ:
 			if l.pos+1 < len(l.input) && l.input[l.pos+1] == '=' {
 				tokens = append(tokens, Token{Type: TokenEQ, Value: "==", Pos: l.pos})

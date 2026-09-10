@@ -314,3 +314,20 @@ func TestCompare3(t *testing.T) {
 		}
 	}
 }
+
+// TestLogical verifies && and || operators.
+func TestLogical(t *testing.T) {
+	cases := []struct{ expr string; want float64 }{
+		{"1==1 && 2==2", 1}, {"1==1 && 1==2", 0}, {"1==1 || 1==2", 1}, {"1==2 || 1==3", 0},
+		{"1==1 && 1==2 ? 5 : 9", 9},
+	}
+	for _, c := range cases {
+		res, err := parser.Evaluate(c.expr)
+		if err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if res != c.want {
+			t.Errorf("%s = %v, want %v", c.expr, res, c.want)
+		}
+	}
+}

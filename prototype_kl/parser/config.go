@@ -19,6 +19,10 @@ const (
 	OpGE        = 0x1F
 	OpEQ        = '='
 	OpNE        = '!'
+	OpAND       = '&'
+	OpOR        = '|'
+	OpANDAND    = 0x1C
+	OpOROR      = 0x1B
 	OpFactorial = '!'
 	OpPercent   = '%'
 	OpPower     = '^'

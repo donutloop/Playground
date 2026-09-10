@@ -34,6 +34,11 @@ func Demo(w io.Writer) {
 		"eng",
 		"12345",
 		"std",
+		"gcd(12, 18)",
+		"lgamma(5)",
+		"base hex",
+		"255",
+		"base dec",
 	}, "\n")
 
 	var out bytes.Buffer

@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [69] round(x, n) to n decimal places
+- `round(x, n)` rounds x to n decimal places; `round(x)` stays integer.
 ## [68] smoothstep(x, e0, e1) easing
 - Added `smoothstep(x, e0, e1)` Hermite easing via min/max clamp.
 ## [67] diff(a, b) and pct(x, total) utilities

@@ -708,3 +708,22 @@ func TestSmoothstep(t *testing.T) {
 		}
 	}
 }
+
+// TestRoundNDigits checks round(x, n) and round(x) coexistence.
+func TestRoundNDigits(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"round(3.14159, 2)", "3.14"},
+		{"round(3.14159)", "3"},
+		{"round(2.71828, 3)", "2.718"},
+		{"round(1.5, 0)", "2"},
+		{"round(123.456, 1)", "123.5"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

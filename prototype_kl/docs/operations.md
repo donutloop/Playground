@@ -60,6 +60,14 @@ Comparisons now parse inside parentheses and function arguments, so
 ## Step function
 ## Utilities
 ## Easing
+## Rounding
+
+`round(x)` rounds to the nearest integer; `round(x, n)` rounds to n decimal
+places.
+
+    round(3.14159)   # -> 3
+    round(3.14159, 2)  # -> 3.14
+
 
 `smoothstep(x, e0, e1)` applies Hermite easing between e0 and e1:
 clamp((x-e0)/(e1-e0), 0, 1), then t*t*(3-2*t).

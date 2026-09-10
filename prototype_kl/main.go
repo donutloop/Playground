@@ -156,7 +156,7 @@ func main() {
 				}
 				v, err := c.EvalExpr(e)
 				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+					fmt.Fprintf(os.Stderr, "error,%s,%s\n", e, err.Error())
 					os.Exit(1)
 				}
 				fmt.Printf("expr,%s,%s\n", e, c.FormatValue(v))

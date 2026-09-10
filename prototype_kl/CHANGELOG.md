@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [66] avg(...) variadic arithmetic mean
+- `avg` now accepts any number of values (>= 2), returning their mean.
 ## [65] parser: comparisons compose in sub-expressions
 - Comparisons now parse inside parentheses and function arguments.
 - Added `and(a, b)`, `or(a, b)`, `not(a)` boolean helpers.

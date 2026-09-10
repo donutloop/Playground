@@ -407,7 +407,14 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 	case "fix":
 		return fixDigits(args[0], args[1]), nil
 	case "avg":
-		return (args[0] + args[1]) / 2, nil
+		if len(args) == 0 {
+			return 0, nil
+		}
+		sum := 0.0
+		for _, a := range args {
+			sum += a
+		}
+		return sum / float64(len(args)), nil
 	case "sum":
 		return rangeSum(args[0], args[1]), nil
 	case "prod":

@@ -545,6 +545,9 @@ func TestAvg(t *testing.T) {
 		{"avg(1, 2)", "1.5"},
 		{"avg(10, 20)", "15"},
 		{"avg(-4, 4)", "0"},
+		{"avg(1, 2, 3, 4)", "2.5"},
+		{"avg(10, 20, 30)", "20"},
+		{"avg(2, 4, 6, 8)", "5"},
 	}
 	for _, tc := range cases {
 		got := run(t, tc.in+"\n")

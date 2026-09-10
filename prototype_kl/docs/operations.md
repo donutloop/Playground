@@ -79,10 +79,10 @@ Comparisons now parse inside parentheses and function arguments, so
     clamp(2, 1, 3)  # -> 2
 
 
-`avg(a, b)` returns the arithmetic mean of two numbers.
+`avg(...)` returns the arithmetic mean of any number of values (>= 2).
 
-    avg(4, 8)   # -> 6
-    avg(1, 2)   # -> 1.5
+    avg(4, 8)        # -> 6
+    avg(1, 2, 3, 4)  # -> 2.5
 
 
 `fix(x, n)` rounds x to n decimal places.

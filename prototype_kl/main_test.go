@@ -10,9 +10,9 @@ import (
 )
 
 // runMain executes main() with the given args and returns captured stdout.
-func runMain(args ...string) string {
+func runMain(statePath string, args ...string) string {
 	flag.CommandLine = flag.NewFlagSet("calculator-test", flag.ExitOnError)
-	os.Args = append([]string{"calculator"}, args...)
+	os.Args = append([]string{"calculator", "-state", statePath}, args...)
 
 	old := os.Stdout
 	r, w, err := os.Pipe()
@@ -29,14 +29,14 @@ func runMain(args ...string) string {
 }
 
 func TestMultiEvalSharesState(t *testing.T) {
-	got := runMain("-eval", "x=5", "-eval", "x*2")
+	got := runMain(t.TempDir()+"/s.json", "-eval", "x=5", "-eval", "x*2")
 	if !strings.Contains(got, "10") {
 		t.Errorf("repeatable --eval should share variables:\n%s", got)
 	}
 }
 
 func TestMultiEvalAnsChaining(t *testing.T) {
-	got := runMain("-eval", "1+1", "-eval", "ans*10")
+	got := runMain(t.TempDir()+"/s.json", "-eval", "1+1", "-eval", "ans*10")
 	if !strings.Contains(got, "20") {
 		t.Errorf("repeatable --eval should chain ans:\n%s", got)
 	}

@@ -165,6 +165,21 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		default:
 			return 0, nil
 		}
+	case "clamp":
+		x, lo, hi := args[0], args[1], args[2]
+		if lo > hi {
+			return math.NaN(), ErrDomain
+		}
+		if x < lo {
+			return lo, nil
+		}
+		if x > hi {
+			return hi, nil
+		}
+		return x, nil
+	case "lerp":
+		a, b, t := args[0], args[1], args[2]
+		return a + (b-a)*t, nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

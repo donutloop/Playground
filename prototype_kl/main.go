@@ -106,6 +106,7 @@ func main() {
 		if *state != "" {
 			_ = c.LoadState(*state)
 		}
+		c.SetQuietAssign(*quiet)
 		c.Run()
 		fmt.Print(out.String())
 		if *state != "" {
@@ -194,6 +195,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	c.SetQuietAssign(*quiet)
 	c.Run()
 }
 

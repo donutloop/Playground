@@ -49,3 +49,22 @@ func TestDisplayFlagsAfterLoad(t *testing.T) {
 		t.Errorf("--deg dropped by state load:\n%s", out2.String())
 	}
 }
+
+func TestBaseSettingPersists(t *testing.T) {
+	path := t.TempDir() + "/base.json"
+	var buf bytes.Buffer
+	c := New(strings.NewReader("base hex\n"), &buf)
+	c.Run()
+	if err := c.SaveState(path); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	d := New(strings.NewReader("255\n"), &out)
+	if err := d.LoadState(path); err != nil {
+		t.Fatal(err)
+	}
+	d.Run()
+	if !strings.Contains(out.String(), "0xff") {
+		t.Fatalf("base not persisted:\n%s", out.String())
+	}
+}

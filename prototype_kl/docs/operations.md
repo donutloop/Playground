@@ -58,6 +58,16 @@ Comparisons now parse inside parentheses and function arguments, so
 ## Clamping
 ## Interpolation
 ## Step function
+## Utilities
+
+`diff(a, b)` returns the absolute difference |a - b|.
+
+    diff(10, 3)  # -> 7
+
+`pct(x, total)` returns x as a percentage of total: (x / total) * 100.
+
+    pct(25, 100)  # -> 25
+
 
 `step(x, edge)` returns 1 when x >= edge, else 0.
 

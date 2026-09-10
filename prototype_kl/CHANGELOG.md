@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [67] diff(a, b) and pct(x, total) utilities
+- Added `diff(a, b)` = |a - b| and `pct(x, total)` = (x / total) * 100.
 ## [66] avg(...) variadic arithmetic mean
 - `avg` now accepts any number of values (>= 2), returning their mean.
 ## [65] parser: comparisons compose in sub-expressions

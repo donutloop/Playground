@@ -668,3 +668,23 @@ func TestParenComparisons(t *testing.T) {
 		}
 	}
 }
+
+// TestDiffPct checks diff(a,b) and pct(x,total) utilities.
+func TestDiffPct(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"diff(10, 3)", "7"},
+		{"diff(3, 10)", "7"},
+		{"diff(5, 5)", "0"},
+		{"pct(25, 100)", "25"},
+		{"pct(50, 200)", "25"},
+		{"pct(1, 4)", "25"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

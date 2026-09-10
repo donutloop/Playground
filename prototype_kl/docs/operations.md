@@ -15,6 +15,7 @@ update this file alongside code, tests, help, and verify coverage.
 | `!` | postfix factorial |
 | `%` | postfix percent (`x / 100`) |
 | `cond ? a : b` | ternary conditional (nonzero cond selects a) |
+| `<`, `>` | comparison, returns 1 (true) or 0 (false) |
 
 Parentheses `( )` group sub-expressions.
 

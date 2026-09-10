@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [44] comparison operators
+- Added `<` and `>` comparisons returning 1 (true) or 0 (false).
+- New tokens/ops, parseComparison precedence between ternary and arithmetic.
+
 ## [43] ternary conditional operator
 - Added `cond ? a : b` with lowest precedence; nonzero cond selects a.
 - New tokens `?` and `:`, `TernaryNode` AST, and evaluator support.

@@ -263,3 +263,20 @@ func TestTernary(t *testing.T) {
 		t.Errorf("0 ? 2 : 3 = %v, want 3", res)
 	}
 }
+
+// TestCompare verifies comparison operators return 1 (true) or 0 (false).
+func TestCompare(t *testing.T) {
+	cases := []struct{ expr string; want float64 }{
+		{"1<2", 1}, {"2>3", 0}, {"2>1", 1}, {"1<0", 0},
+		{"1<2 ? 10 : 20", 10}, {"2>3 ? 10 : 20", 20},
+	}
+	for _, c := range cases {
+		res, err := parser.Evaluate(c.expr)
+		if err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if res != c.want {
+			t.Errorf("%s = %v, want %v", c.expr, res, c.want)
+		}
+	}
+}

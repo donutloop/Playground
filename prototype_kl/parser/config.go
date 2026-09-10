@@ -13,6 +13,8 @@ const (
 	OpComma     = ','
 	OpQuestion  = '?'
 	OpColon     = ':'
+	OpLT        = '<'
+	OpGT        = '>'
 	OpFactorial = '!'
 	OpPercent   = '%'
 	OpPower     = '^'

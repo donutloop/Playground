@@ -25,6 +25,8 @@ const (
 	TokenEOF
 	TokenQuestion
 	TokenColon
+	TokenLT
+	TokenGT
 )
 
 // Token represents a single lexical unit.
@@ -82,6 +84,10 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 			tokens = append(tokens, Token{Type: TokenQuestion, Value: string(char), Pos: l.pos})
 		case OpColon:
 			tokens = append(tokens, Token{Type: TokenColon, Value: string(char), Pos: l.pos})
+		case OpLT:
+			tokens = append(tokens, Token{Type: TokenLT, Value: string(char), Pos: l.pos})
+		case OpGT:
+			tokens = append(tokens, Token{Type: TokenGT, Value: string(char), Pos: l.pos})
 		default:
 			if unicode.IsDigit(rune(char)) || char == '.' {
 				start := l.pos

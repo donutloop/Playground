@@ -117,10 +117,28 @@ func (p *Parser) parseExpression() (Node, error) {
 	return left, nil
 }
 
+// parseComparison parses a comparison: a < b or a > b, yielding 1 (true) or 0 (false).
+func (p *Parser) parseComparison() (Node, error) {
+	left, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	if p.current().Type != TokenLT && p.current().Type != TokenGT {
+		return left, nil
+	}
+	op := rune(p.current().Value[0])
+	p.consume()
+	right, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	return &BinaryOpNode{Op: op, Left: left, Right: right}, nil
+}
+
 // parseTernary parses a conditional expression: cond ? then : else.
 // It wraps parseExpression so ternary has the lowest precedence.
 func (p *Parser) parseTernary() (Node, error) {
-	cond, err := p.parseExpression()
+	cond, err := p.parseComparison()
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +146,7 @@ func (p *Parser) parseTernary() (Node, error) {
 		return cond, nil
 	}
 	p.consume() // '?'
-	then, err := p.parseExpression()
+	then, err := p.parseComparison()
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +158,7 @@ func (p *Parser) parseTernary() (Node, error) {
 		}
 	}
 	p.consume() // ':'
-	els, err := p.parseExpression()
+	els, err := p.parseComparison()
 	if err != nil {
 		return nil, err
 	}

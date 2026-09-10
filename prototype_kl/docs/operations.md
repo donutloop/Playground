@@ -77,6 +77,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `logistic(x)` | 1 | sigmoid 1/(1+e^-x) |
 | `softplus(x)` | 1 | ln(1+e^x) |
 | `softsign(x)` | 1 | x/(1+|x|) |
+| `swish(x)` | 1 | x/(1+e^-x) |
 | `sech(x)` | 1 | hyperbolic secant 1/cosh(x) |
 | `csch(x)` | 1 | hyperbolic cosecant 1/sinh(x) |
 | `coth(x)` | 1 | hyperbolic cotangent 1/tanh(x) |

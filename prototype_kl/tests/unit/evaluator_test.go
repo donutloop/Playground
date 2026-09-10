@@ -414,3 +414,22 @@ func TestISqrt(t *testing.T) {
 		t.Errorf("isqrt(-1) should error")
 	}
 }
+
+// TestSwish verifies the swish activation function.
+func TestSwish(t *testing.T) {
+	res, err := parser.Evaluate("swish(0)")
+	if err != nil {
+		t.Fatalf("swish(0): %v", err)
+	}
+	if res != 0 {
+		t.Errorf("swish(0) = %v, want 0", res)
+	}
+	res, err = parser.Evaluate("swish(1)")
+	if err != nil {
+		t.Fatalf("swish(1): %v", err)
+	}
+	want := 1 / (1 + math.Exp(-1))
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("swish(1) = %v, want %v", res, want)
+	}
+}

@@ -94,6 +94,7 @@ var SupportedFunctions = map[string]int{
 	"logistic":  1,
 	"softplus":  1,
 	"softsign":  1,
+	"swish":     1,
 	"sech":      1,
 	"csch":      1,
 	"coth":      1,

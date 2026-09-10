@@ -70,6 +70,8 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"softsign(-2)", "-0.666666666666667"},
 		{"isqrt(10)", "3"},
 		{"isqrt(9)", "3"},
+		{"swish(0)", "0"},
+		{"swish(1)", "0.731058578630005"},
 		{"gamma(5)", "24"},
 		{"mod(10, 3)", "1"},
 		{"sign(-7)", "-1"},

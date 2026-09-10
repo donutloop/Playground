@@ -73,6 +73,7 @@ var helpTopics = map[string]string{
 	"logistic":  "logistic(x): sigmoid 1/(1+e^-x)",
 	"softplus":  "softplus(x): ln(1+e^x)",
 	"softsign":  "softsign(x): x/(1+|x|)",
+	"swish":      "swish(x): x/(1+e^-x)",
 	"sech":      "sech(x): hyperbolic secant 1/cosh(x)",
 	"csch":      "csch(x): hyperbolic cosecant 1/sinh(x)",
 	"coth":      "coth(x): hyperbolic cotangent 1/tanh(x)",

@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [68] smoothstep(x, e0, e1) easing
+- Added `smoothstep(x, e0, e1)` Hermite easing via min/max clamp.
 ## [67] diff(a, b) and pct(x, total) utilities
 - Added `diff(a, b)` = |a - b| and `pct(x, total)` = (x / total) * 100.
 ## [66] avg(...) variadic arithmetic mean

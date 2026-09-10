@@ -72,6 +72,7 @@ x = 5
 | Interpolation    | `lerp(0, 10, 0.5)` -> 5                             |
 | Step             | `step(5, 3)` -> 1; `step(2, 3)` -> 0                |
 | Utilities        | `diff(10, 3)` -> 7; `pct(25, 100)` -> 25            |
+| Easing           | `smoothstep(0.5, 0, 1)` -> 0.5                      |
 | Booleans         | `and(5 > 2, 3 > 1)` -> 1; `not(0)` -> 1             |
 | Last result  | `ans` usable in later expressions          |
 | Statements   | separate with `;` — `y = 2; y * 3`         |

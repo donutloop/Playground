@@ -59,6 +59,15 @@ Comparisons now parse inside parentheses and function arguments, so
 ## Interpolation
 ## Step function
 ## Utilities
+## Easing
+
+`smoothstep(x, e0, e1)` applies Hermite easing between e0 and e1:
+clamp((x-e0)/(e1-e0), 0, 1), then t*t*(3-2*t).
+
+    smoothstep(0, 0, 1)     # -> 0
+    smoothstep(0.5, 0, 1)   # -> 0.5
+    smoothstep(1, 0, 1)     # -> 1
+
 
 `diff(a, b)` returns the absolute difference |a - b|.
 

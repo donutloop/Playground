@@ -688,3 +688,23 @@ func TestDiffPct(t *testing.T) {
 		}
 	}
 }
+
+// TestSmoothstep checks the smoothstep easing function.
+func TestSmoothstep(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"smoothstep(0, 0, 1)", "0"},
+		{"smoothstep(1, 0, 1)", "1"},
+		{"smoothstep(0.5, 0, 1)", "0.5"},
+		{"smoothstep(-1, 0, 1)", "0"},
+		{"smoothstep(2, 0, 1)", "1"},
+		{"smoothstep(0.25, 0, 1)", "0.15625"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

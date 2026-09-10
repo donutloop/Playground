@@ -406,6 +406,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return factorial(args[0])
 	case "fix":
 		return fixDigits(args[0], args[1]), nil
+	case "avg":
+		return (args[0] + args[1]) / 2, nil
 	case "sum":
 		return rangeSum(args[0], args[1]), nil
 	case "prod":

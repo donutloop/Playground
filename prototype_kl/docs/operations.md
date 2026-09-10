@@ -42,6 +42,13 @@ redefined. Definitions persist across saves like variables.
 ## Range loops
 ## Conditionals
 ## Formatting
+## Statistics
+
+`avg(a, b)` returns the arithmetic mean of two numbers.
+
+    avg(4, 8)   # -> 6
+    avg(1, 2)   # -> 1.5
+
 
 `fix(x, n)` rounds x to n decimal places.
 

@@ -535,3 +535,21 @@ func TestFixDigits(t *testing.T) {
 		}
 	}
 }
+
+// TestAvg checks the arithmetic mean function.
+func TestAvg(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"avg(4, 8)", "6"},
+		{"avg(1, 2)", "1.5"},
+		{"avg(10, 20)", "15"},
+		{"avg(-4, 4)", "0"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

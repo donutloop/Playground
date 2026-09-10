@@ -727,3 +727,22 @@ func TestRoundNDigits(t *testing.T) {
 		}
 	}
 }
+
+// TestRemap checks value remapping between ranges.
+func TestRemap(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"remap(0, 0, 10, 0, 100)", "0"},
+		{"remap(5, 0, 10, 0, 100)", "50"},
+		{"remap(10, 0, 10, 0, 100)", "100"},
+		{"remap(1, 0, 1, 0, 2)", "2"},
+		{"remap(2, 0, 4, 10, 20)", "15"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

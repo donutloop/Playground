@@ -61,6 +61,14 @@ Comparisons now parse inside parentheses and function arguments, so
 ## Utilities
 ## Easing
 ## Rounding
+## Remapping
+
+`remap(x, lo, hi, nlo, nhi)` maps x from [lo, hi] to [nlo, nhi]:
+`nlo + (x - lo) * (nhi - nlo) / (hi - lo)`.
+
+    remap(5, 0, 10, 0, 100)  # -> 50
+    remap(1, 0, 1, 0, 2)     # -> 2
+
 
 `round(x)` rounds to the nearest integer; `round(x, n)` rounds to n decimal
 places.

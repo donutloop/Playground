@@ -38,3 +38,12 @@ func TestQuietReplCommand(t *testing.T) {
 		t.Fatalf("result missing:\n%s", out.String())
 	}
 }
+
+func TestJSONReplToggle(t *testing.T) {
+	var out bytes.Buffer
+	c := New(strings.NewReader("json\n1+1\n"), &out)
+	c.Run()
+	if !strings.Contains(out.String(), `{"value": 2}`) {
+		t.Fatalf("json toggle should emit JSON value:\n%s", out.String())
+	}
+}

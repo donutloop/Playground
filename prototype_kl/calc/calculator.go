@@ -33,6 +33,7 @@ type Calculator struct {
 	redoStack   []state
 	quiet       bool
 	quietAssign bool
+	jsonMode    bool
 	lastExpr    string
 	eng         bool
 	errCount    int
@@ -257,6 +258,10 @@ func (c *Calculator) handle(line string) (bool, error) {
 		c.eng = false
 		fmt.Fprintln(c.out, "standard notation")
 		return false, nil
+	case "json":
+		c.jsonMode = !c.jsonMode
+		fmt.Fprintf(c.out, "json = %v\n", c.jsonMode)
+		return false, nil
 	case "quiet":
 		c.quietAssign = !c.quietAssign
 		fmt.Fprintf(c.out, "quiet = %v\n", c.quietAssign)
@@ -301,7 +306,11 @@ func (c *Calculator) process(stmt string) (bool, error) {
 	c.hasAns = true
 	c.lastExpr = stmt
 	c.results = append(c.results, c.format(v))
-	fmt.Fprintln(c.out, c.format(v))
+	if c.jsonMode {
+		fmt.Fprintf(c.out, "{\"value\": %s}\n", c.format(v))
+	} else {
+		fmt.Fprintln(c.out, c.format(v))
+	}
 	return false, nil
 }
 

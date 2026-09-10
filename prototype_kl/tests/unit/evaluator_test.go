@@ -54,6 +54,8 @@ func TestEvaluator(t *testing.T) {
 		{"Sign", "sign(-7)", -1, false},
 		{"Clamp", "clamp(5, 0, 3)", 3, false},
 		{"Lerp", "lerp(0, 10, 0.5)", 5, false},
+		{"Fma", "fma(2, 3, 4)", 10, false},
+		{"Copysign", "copysign(5, -2)", -5, false},
 		{"Exp", "exp(0)", 1, false},
 		{"Pow", "pow(2, 10)", 1024, false},
 		{"Hypot", "hypot(3, 4)", 5, false},

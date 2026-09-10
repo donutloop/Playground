@@ -180,6 +180,11 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 	case "lerp":
 		a, b, t := args[0], args[1], args[2]
 		return a + (b-a)*t, nil
+	case "fma":
+		a, b, c := args[0], args[1], args[2]
+		return math.FMA(a, b, c), nil
+	case "copysign":
+		return math.Copysign(args[0], args[1]), nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

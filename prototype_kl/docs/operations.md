@@ -79,6 +79,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `softsign(x)` | 1 | x/(1+|x|) |
 | `swish(x)` | 1 | x/(1+e^-x) |
 | `isfinite(x)` | 1 | 1 if finite, 0 if infinite/NaN |
+| `mish(x)` | 1 | x·tanh(ln(1+e^x)) |
 | `sech(x)` | 1 | hyperbolic secant 1/cosh(x) |
 | `csch(x)` | 1 | hyperbolic cosecant 1/sinh(x) |
 | `coth(x)` | 1 | hyperbolic cotangent 1/tanh(x) |

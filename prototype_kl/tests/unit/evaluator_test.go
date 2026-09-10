@@ -444,3 +444,22 @@ func TestIsFinite(t *testing.T) {
 		t.Errorf("isfinite(1) = %v, want 1", res)
 	}
 }
+
+// TestMish verifies the mish activation function.
+func TestMish(t *testing.T) {
+	res, err := parser.Evaluate("mish(0)")
+	if err != nil {
+		t.Fatalf("mish(0): %v", err)
+	}
+	if res != 0 {
+		t.Errorf("mish(0) = %v, want 0", res)
+	}
+	res, err = parser.Evaluate("mish(1)")
+	if err != nil {
+		t.Fatalf("mish(1): %v", err)
+	}
+	want := 1 * math.Tanh(math.Log(1+math.Exp(1)))
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("mish(1) = %v, want %v", res, want)
+	}
+}

@@ -340,6 +340,9 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 			return 0, nil
 		}
 		return 1, nil
+	case "mish":
+		sp := math.Log(1 + math.Exp(args[0]))
+		return args[0] * math.Tanh(sp), nil
 	case "sech":
 		return 1 / math.Cosh(args[0]), nil
 	case "csch":

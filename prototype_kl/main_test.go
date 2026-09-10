@@ -50,7 +50,7 @@ func TestStdinEvalMode(t *testing.T) {
 	}
 	os.Stdin = r
 	flag.CommandLine = flag.NewFlagSet("calculator-test2", flag.ExitOnError)
-	os.Args = []string{"calculator", "--eval", "-"}
+	os.Args = []string{"calculator", "-state", t.TempDir() + "/stdin.json", "--eval", "-"}
 	io.WriteString(w, "1+1\nans*10\nquit\n")
 	w.Close()
 	oldOut := os.Stdout

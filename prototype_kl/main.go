@@ -27,6 +27,7 @@ const Version = "1.0.0"
 
 func main() {
 	var evals []string
+	quiet := flag.Bool("quiet", false, "suppress assignment echoes")
 	json := flag.Bool("json", false, "emit JSON results for --eval")
 	vars := flag.Bool("vars", false, "list defined variables after evaluation")
 	base := flag.Int("base", 0, "output radix for integral results (2, 8, 16, or 0=decimal)")
@@ -132,6 +133,7 @@ func main() {
 				os.Exit(1)
 			}
 		}
+		c.SetQuietAssign(*quiet)
 		if *json {
 			for _, e := range evals {
 				if strings.Contains(e, "=") {

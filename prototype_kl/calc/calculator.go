@@ -18,26 +18,27 @@ import (
 // package evaluates them. This keeps the parser's own lexer untouched while
 // giving the calculator first-class variables.
 type Calculator struct {
-	vars      map[string]float64
-	ans       float64
-	hasAns    bool
-	memory    float64
-	hasMem    bool
-	history   []string
-	results   []string
-	statePath string
-	degMode   bool
-	sci       bool
-	prec      int
-	undoStack []state
-	redoStack []state
-	quiet     bool
-	lastExpr  string
-	eng       bool
-	errCount  int
-	base      int
-	in        *bufio.Reader
-	out       io.Writer
+	vars        map[string]float64
+	ans         float64
+	hasAns      bool
+	memory      float64
+	hasMem      bool
+	history     []string
+	results     []string
+	statePath   string
+	degMode     bool
+	sci         bool
+	prec        int
+	undoStack   []state
+	redoStack   []state
+	quiet       bool
+	quietAssign bool
+	lastExpr    string
+	eng         bool
+	errCount    int
+	base        int
+	in          *bufio.Reader
+	out         io.Writer
 }
 
 // New returns a Calculator reading lines from reader and writing to writer.
@@ -358,7 +359,9 @@ func (c *Calculator) assign(name, expr string) error {
 	}
 	c.vars[name] = v
 	c.results = append(c.results, name+" = "+c.format(v))
-	fmt.Fprintf(c.out, "%s = %s\n", name, c.format(v))
+	if !c.quietAssign {
+		fmt.Fprintf(c.out, "%s = %s\n", name, c.format(v))
+	}
 	return nil
 }
 
@@ -492,6 +495,11 @@ history      @N recalls entry N; undo / redo revert and restore
 display      deg/rad, sci/fix, eng/std, prec <n>, base hex|dec|oct|bin, status, last
 memory       ms, m+, m-, mr, mc
 commands     help, vars, history, status, reset, clear, quit/exit`)
+}
+
+// SetQuietAssign toggles whether assignment statements echo "name = value".
+func (c *Calculator) SetQuietAssign(quietAssign bool) {
+	c.quietAssign = quietAssign
 }
 
 // FormatValue renders a numeric value with the active precision and radix.

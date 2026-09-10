@@ -142,6 +142,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "warning: could not load state %s: %v\n", *state, err)
 		c = calc.New(os.Stdin, os.Stdout)
 	}
+	if *base != 0 {
+		if err := c.SetBase(*base); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	}
 	c.Run()
 }
 

@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [78] range-loop step parameter
+- `sum(a, b)`, `prod(a, b)`, `count(a, b)` now accept an optional step:
+  `sum(1, 10, 2)` sums every 2nd integer (25).
+
 ## [77] mode(a, b, ...) most frequent value
 - Added `mode(a, b, ...)` returning the most frequent value (first on a tie),
   completing the statistics family (avg, var, stddev, median, mode).

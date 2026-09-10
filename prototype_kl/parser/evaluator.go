@@ -468,11 +468,20 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		}
 		return best, nil
 	case "sum":
-		return rangeSum(args[0], args[1]), nil
+		if len(args) == 2 {
+			return rangeSum(args[0], args[1], 1), nil
+		}
+		return rangeSum(args[0], args[1], args[2]), nil
 	case "prod":
-		return rangeProd(args[0], args[1]), nil
+		if len(args) == 2 {
+			return rangeProd(args[0], args[1], 1), nil
+		}
+		return rangeProd(args[0], args[1], args[2]), nil
 	case "count":
-		return rangeCount(args[0], args[1]), nil
+		if len(args) == 2 {
+			return rangeCount(args[0], args[1], 1), nil
+		}
+		return rangeCount(args[0], args[1], args[2]), nil
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unsupported function %s", n.Name), Message: "function evaluation failed"}
 	}
@@ -528,44 +537,53 @@ func fixDigits(x, n float64) float64 {
 }
 
 // rangeSum sums the integers from floor(a) to floor(b) inclusive.
-func rangeSum(a, b float64) float64 {
+func rangeSum(a, b, step float64) float64 {
 	lo, hi := math.Floor(a), math.Floor(b)
-	if hi < lo {
+	if hi < lo || step <= 0 {
 		return 0
 	}
-	// Guard against overflow for large ranges.
-	if hi-lo > 2e6 {
-		return 0
+	step = math.Floor(step)
+	if step < 1 {
+		step = 1
 	}
-	s := 0.0
-	for i := lo; i <= hi; i++ {
-		s += i
+	sum := 0.0
+	for i := lo; i <= hi; i += step {
+		sum += i
 	}
-	return s
+	return sum
 }
 
 // rangeProd multiplies the integers from floor(a) to floor(b) inclusive.
-func rangeProd(a, b float64) float64 {
+func rangeProd(a, b, step float64) float64 {
 	lo, hi := math.Floor(a), math.Floor(b)
-	if hi < lo {
+	if hi < lo || step <= 0 {
 		return 1
 	}
-	if hi-lo > 170 {
-		return 0 // product overflows float64 quickly
+	step = math.Floor(step)
+	if step < 1 {
+		step = 1
 	}
-	p := 1.0
-	for i := lo; i <= hi; i++ {
-		p *= i
+	prod := 1.0
+	for i := lo; i <= hi; i += step {
+		prod *= i
 	}
-	return p
+	return prod
 }
 
 // rangeCount returns the number of integers from floor(a) to floor(b)
 // inclusive (0 when b < a).
-func rangeCount(a, b float64) float64 {
+func rangeCount(a, b, step float64) float64 {
 	lo, hi := math.Floor(a), math.Floor(b)
-	if hi < lo {
+	if hi < lo || step <= 0 {
 		return 0
 	}
-	return hi - lo + 1
+	step = math.Floor(step)
+	if step < 1 {
+		step = 1
+	}
+	cnt := 0
+	for i := lo; i <= hi; i += step {
+		cnt++
+	}
+	return float64(cnt)
 }

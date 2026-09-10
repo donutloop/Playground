@@ -111,15 +111,15 @@ var SupportedFunctions = map[string]int{
 	"pow":       2,  // pow(x, y)
 	"hypot":     2,  // hypot(x, y)
 	"root":      2,
-	"sum":       2,
-	"count":     2, // integer count in a range
+	"sum":       -1, // sum(a, b) or sum(a, b, step)
+	"count":     -1, // count(a, b) or count(a, b, step)
 	"avg":       -1, // variadic
 	"var":       -1, // variadic: population variance
 	"stddev":    -1, // variadic: population standard deviation
 	"median":    -1, // variadic: median of values
 	"mode":      -1, // variadic: most frequent value
 	"fix":       2,
-	"prod":      2,
+	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic
 }

@@ -159,7 +159,8 @@ The ternary `cond ? then : else` is also available.
 
 
 `sum(a, b)` sums the integers from floor(a) to floor(b) inclusive;
-`prod(a, b)` multiplies them. `count(a, b)` is the number of integers from floor(a) to floor(b) (0 when b < a).
+`prod(a, b)` multiplies them. `count(a, b)` is the number of integers from floor(a) to floor(b) (0 when b < a). All three accept an optional step: `sum(1, 10, 2)` sums every
+2nd integer (1+3+5+7+9 = 25).
 
     sum(1, 10)   # -> 55
     sum(1, 100)  # -> 5050

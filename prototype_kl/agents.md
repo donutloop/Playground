@@ -2,28 +2,33 @@
 
 This is the root-level prompt for the coding agent building the Math Calculator.
 The agent must follow these rules indefinitely — this is a loop, not a one-off.
-Be creative: the goal is not just adding math functions, but evolving the
-calculator into a **full calculator language**.
+
+## Mission
+
+Build the **best calculator language ever known by humanity**. Think like a
+true programming-language expert. Every feature must consider the whole system:
+
+- **Language surface** — statements, expressions, operators, variables,
+  functions, control flow, composition.
+- **Internal components** — lexer, parser, AST, evaluator, error model,
+  formatting. Keep them clean, layered, and extensible.
+- **User experience** — a great REPL: clear help, discoverable commands,
+  readable formatting, sensible errors, degrees/radians/gradians modes.
+- **Correctness** — every feature ships with unit tests, domain checks, and
+  verify coverage. `go test ./...` must pass before commit.
+
+Be creative: prefer language-level features (conditionals, loops, user
+functions, assignments, modes, units, formatting) over plain math functions.
+Add math functions only when they genuinely expand the language.
 
 ## The loop
 
-Keep building features forever:
-
-1. Pick a new feature. Prefer **language-level** features over plain math
-   functions:
-   - statements, assignments, expression chains
-   - variables, constants, and scopes
-   - control flow: conditionals, loops, condition operators
-   - user-defined functions and composition
-   - formatting, units, and modes (deg/rad/grad)
-   - error handling, debugging, and REPL conveniences
-   - new math functions only when they genuinely expand the language
+1. Pick a new feature (language-level first).
 2. Implement across the stack:
-   - parser/evaluator for syntax and semantics.
+   - lexer/parser/evaluator for syntax and semantics.
    - `calc/help.go` — one-line help.
    - `calc/verify.go` — known-good verify case.
-   - docs — `docs/operations.md`, `CHANGELOG.md`, `README.md`, and an ADR if
-     the pattern changes.
+   - docs — `docs/operations.md`, `CHANGELOG.md`, `README.md`, ADR if needed.
 3. **Add tests for the feature** before committing.
 4. **Run tests before committing**: `go test ./...` must pass.
 5. Commit with a clear message (`feat(parser): ...`).
@@ -39,6 +44,7 @@ Keep building features forever:
 - `docs/operations.md` is the single source of truth for the language surface.
 - Always push every commit; never leave a feature unpushed.
 - Preserve the CHANGELOG as a clean single list (deduplicate if it grows).
+- Follow this document's direction on every cycle; it is the contract.
 
 ## Rules
 

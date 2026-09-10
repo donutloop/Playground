@@ -84,3 +84,10 @@ func TestNoStateDisablesPersistence(t *testing.T) {
 		t.Errorf("state file should not exist with --no-state")
 	}
 }
+
+func TestJSONEvalOutput(t *testing.T) {
+	got := runMain(t.TempDir()+"/j.json", "-eval", "1+1", "-eval", "gcd(12,18)", "--json", "--no-state")
+	if !strings.Contains(got, `"value": 2`) || !strings.Contains(got, `"value": 6`) {
+		t.Errorf("JSON eval output missing values:\n%s", got)
+	}
+}

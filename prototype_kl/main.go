@@ -27,6 +27,7 @@ const Version = "1.0.0"
 
 func main() {
 	var evals []string
+	json := flag.Bool("json", false, "emit JSON results for --eval")
 	vars := flag.Bool("vars", false, "list defined variables after evaluation")
 	base := flag.Int("base", 0, "output radix for integral results (2, 8, 16, or 0=decimal)")
 	flag.Var(&multiFlag{&evals}, "eval", "evaluate an expression and print the result; may be given multiple times")
@@ -126,6 +127,17 @@ func main() {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
+		}
+		if *json {
+			for _, e := range evals {
+				v, err := c.EvalExpr(e)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "{\"expr\": %q, \"error\": %q}\n", e, err.Error())
+					os.Exit(1)
+				}
+				fmt.Printf("{\"expr\": %q, \"value\": %v}\n", e, v)
+			}
+			return
 		}
 		c.Run()
 		if strings.TrimSpace(out.String()) == "" {

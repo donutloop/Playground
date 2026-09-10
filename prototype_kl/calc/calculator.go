@@ -347,6 +347,12 @@ func (c *Calculator) assign(name, expr string) error {
 }
 
 // eval evaluates a single expression string after substituting variables.
+// EvalExpr evaluates a single expression (variables and ans substituted)
+// and returns its numeric value.
+func (c *Calculator) EvalExpr(expr string) (float64, error) {
+	return c.eval(expr)
+}
+
 func (c *Calculator) eval(line string) (float64, error) {
 	if !c.hasAns && hasIdent(line, "ans") {
 		return 0, fmt.Errorf("no previous result yet")

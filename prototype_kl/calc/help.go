@@ -87,7 +87,7 @@ var helpTopics = map[string]string{
 	"acoth":     "acoth(x): inverse hyperbolic cotangent atanh(1/x) (|x|>1)",
 	"pi":        "pi: the constant pi",
 	"e":         "e: the constant e",
-	"commands":  "commands: help, vars, history, status, last, reset, clear, undo, redo, deg, rad, sci, fix, eng, std, prec, mem, ms, m+, m-, mr, mc, quit",
+	"commands":  "commands: help, vars, history, status, last, reset, clear, undo, redo, deg, rad, grad, sci, fix, eng, std, prec, mem, ms, m+, m-, mr, mc, quit",
 	"operators": "operators: + - * / ^ ( ) postfix ! factorial and % percent",
 	"deg":       "deg: switch trig functions to degrees",
 	"func":     "func: define a user function as f(x) = expr; call it as f(2)",

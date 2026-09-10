@@ -15,6 +15,7 @@ type state struct {
 	HasAns  bool               `json:"has_ans"`
 	History []string           `json:"history"`
 	DegMode bool               `json:"deg_mode"`
+	GradMode bool              `json:"grad_mode"`
 	Sci     bool               `json:"sci"`
 	Eng     bool               `json:"eng"`
 	Prec    int                `json:"prec"`
@@ -35,6 +36,7 @@ func (c *Calculator) saveState(path string) error {
 		HasAns:  c.hasAns,
 		History: c.history,
 		DegMode: c.degMode,
+		GradMode: c.gradMode,
 		Sci:     c.sci,
 		Eng:     c.eng,
 		Prec:    c.prec,
@@ -74,6 +76,7 @@ func (c *Calculator) loadState(path string) error {
 	c.hasAns = st.HasAns
 	c.history = st.History
 	c.degMode = st.DegMode
+	c.gradMode = st.GradMode
 	c.sci = st.Sci
 	c.eng = st.Eng
 	if st.Prec >= 1 && st.Prec <= 17 {

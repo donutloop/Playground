@@ -195,6 +195,48 @@ func TestNestedDegree(t *testing.T) {
 	}
 }
 
+func TestGradianMode(t *testing.T) {
+	got := run(t, "grad\nsin(100)\ntan(50)\n")
+	// sin(100 grad) = sin(100*pi/200) = sin(pi/2) = 1; tan(50 grad) = 1
+	if !strings.Contains(got, "1") || strings.Contains(got, "error") {
+		t.Errorf("gradian trig wrong:\n%s", got)
+	}
+}
+
+func TestGradianPromptAndStatus(t *testing.T) {
+	got := run(t, "grad\nstatus\n")
+	if !strings.Contains(got, "grad") || !strings.Contains(got, "gradians") {
+		t.Errorf("gradian mode not shown:\n%s", got)
+	}
+}
+
+func TestGradianReserved(t *testing.T) {
+	got := run(t, "grad\ndeg\nstatus\n")
+	// switching to deg clears gradian mode: status shows degrees, not gradians
+	if strings.Contains(got, "trig: gradians") {
+		t.Errorf("gradian mode not cleared by deg:\n%s", got)
+	}
+	if !strings.Contains(got, "trig: degrees") {
+		t.Errorf("degrees mode not shown after deg:\n%s", got)
+	}
+}
+
+func TestSetGrad(t *testing.T) {
+	c := New(strings.NewReader(""), os.Stdout)
+	c.SetGrad()
+	if !c.gradMode || c.degMode {
+		t.Errorf("SetGrad not applied")
+	}
+	c.SetDeg()
+	if !c.degMode || c.gradMode {
+		t.Errorf("SetDeg did not clear gradian mode")
+	}
+	c.SetRad()
+	if c.degMode || c.gradMode {
+		t.Errorf("SetRad did not clear both modes")
+	}
+}
+
 func TestHistoryRecall(t *testing.T) {
 	got := run(t, "1 + 1\n2 + 2\n@2\n")
 	// @2 recalls history entry 2 (1 + 1) -> 2

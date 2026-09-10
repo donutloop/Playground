@@ -55,7 +55,9 @@ x = 5
 - Unary functions: `sqrt cbrt abs floor ceil round trunc sin cos tan asin
   acos atan sinh cosh tanh ln log exp fact`.
 - Binary/variadic: `pow(x, y)`, `hypot(x, y)`, `min(a, ...)`, `max(a, ...)`.
-- Trig functions use radians.
+- Trig functions use radians by default; `deg` switches to degrees (180 in a
+  full circle), `grad` switches to gradians (200 in a full circle), `rad`
+  returns to radians.
 
 ## Calculator shell features
 
@@ -85,7 +87,7 @@ x = 5
 | Persistence  | state saved to `.calc-state.json` across sessions |
 | Recall/undo  | `@N` re-evaluates history entry N; `undo` / `redo` |
 | Formatting   | `sci`, `fix`, `prec <n>`, `status`, `last` |
-| Batch/CLI    | `--eval`, `--deg`, `--prec`, `--sci`, `--file`, `--demo`, `--version` |
+| Batch/CLI    | `--eval`, `--deg`, `--grad`, `--rad`, `--prec`, `--sci`, `--file`, `--demo`, `--version` |
 | Engineering  | `eng`/`std` notation; `history` shows results |
 | Operators    | `^` exponent; `!` factorial; `%` percent |
 | Scripting    | `--state` sharing, `--verify`, `make bench` |

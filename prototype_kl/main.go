@@ -44,6 +44,7 @@ func main() {
 	eng := flag.Bool("eng", false, "engineering notation for output")
 	verify := flag.Bool("verify", false, "run the self-test battery")
 	rad := flag.Bool("rad", false, "trig in radians (default)")
+	grad := flag.Bool("grad", false, "trig in gradians")
 	flag.Parse()
 	if *prec < 1 || *prec > 17 {
 		fmt.Fprintln(os.Stderr, "error: --prec must be 1..17")
@@ -84,6 +85,11 @@ func main() {
 			_ = c.LoadState(*state)
 		}
 		c.SetDisplay(*prec, *sci, *deg)
+		if *rad {
+			c.SetRad()
+		} else if *grad {
+			c.SetGrad()
+		}
 		if *eng {
 			c.Eng()
 		}
@@ -110,6 +116,8 @@ func main() {
 		}
 		if *rad {
 			c.SetRad()
+		} else if *grad {
+			c.SetGrad()
 		}
 		if *state != "" {
 			_ = c.LoadState(*state)
@@ -132,6 +140,8 @@ func main() {
 		c.SetDisplay(*prec, *sci, *deg)
 		if *rad {
 			c.SetRad()
+		} else if *grad {
+			c.SetGrad()
 		}
 		if *eng {
 			c.Eng()

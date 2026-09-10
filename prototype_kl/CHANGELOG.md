@@ -4,6 +4,14 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [73] gradians trig mode
+- Added a `grad` command and `--grad` CLI flag for gradian trig mode (200 in a
+  full circle), completing the degrees/radians/gradians triad.
+- Trig conversion generalized in degrees.go to `applyTrig(expr, factor)` for
+  degrees (180) and gradians (200).
+- New `SetGrad()` API; `deg`/`rad`/`grad` commands and prompt/status reflect
+  the active mode; gradian mode persists across sessions.
+
 ## [72] statistics functions
 - Added `var(a, b, ...)` population variance, `stddev(a, b, ...)` population
   standard deviation, and `median(a, b, ...)` middle value, all variadic with

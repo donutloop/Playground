@@ -27,6 +27,7 @@ type Calculator struct {
 	results     []string
 	statePath   string
 	degMode     bool
+	gradMode    bool
 	sci         bool
 	prec        int
 	undoStack   []state
@@ -210,11 +211,18 @@ func (c *Calculator) handle(line string) (bool, error) {
 		return false, c.memoryCommand(strings.ToLower(line))
 	case "deg":
 		c.degMode = true
+		c.gradMode = false
 		fmt.Fprintln(c.out, "trig in degrees")
 		return false, nil
 	case "rad":
 		c.degMode = false
+		c.gradMode = false
 		fmt.Fprintln(c.out, "trig in radians")
+		return false, nil
+	case "grad":
+		c.degMode = false
+		c.gradMode = true
+		fmt.Fprintln(c.out, "trig in gradians")
 		return false, nil
 	case "last":
 		if c.lastExpr == "" {
@@ -411,6 +419,8 @@ func (c *Calculator) eval(line string) (float64, error) {
 	line = expanded
 	if c.degMode {
 		line = applyDeg(line)
+	} else if c.gradMode {
+		line = applyGrad(line)
 	}
 	return parser.Evaluate(line)
 }
@@ -454,6 +464,8 @@ func (c *Calculator) prompt() string {
 	var b strings.Builder
 	if c.degMode {
 		b.WriteString("deg")
+	} else if c.gradMode {
+		b.WriteString("grad")
 	}
 	if c.sci {
 		b.WriteString(" sci")
@@ -464,7 +476,13 @@ func (c *Calculator) prompt() string {
 
 // status prints the current calculator configuration.
 func (c *Calculator) status() {
-	fmt.Fprintf(c.out, "trig: %s\n", modeName(c.degMode, "degrees", "radians"))
+	if c.degMode {
+		fmt.Fprintf(c.out, "trig: degrees\n")
+	} else if c.gradMode {
+		fmt.Fprintf(c.out, "trig: gradians\n")
+	} else {
+		fmt.Fprintf(c.out, "trig: radians\n")
+	}
 	fmt.Fprintf(c.out, "notation: %s\n", c.displayMode())
 	fmt.Fprintf(c.out, "precision: %d\n", c.prec)
 	fmt.Fprintf(c.out, "memory: %s\n", memName(c))
@@ -485,13 +503,6 @@ func (c *Calculator) displayMode() string {
 		return "scientific"
 	}
 	return "fixed"
-}
-
-func modeName(on bool, yes, no string) string {
-	if on {
-		return yes
-	}
-	return no
 }
 
 func memName(c *Calculator) string {
@@ -578,6 +589,9 @@ func (c *Calculator) SetDisplay(prec int, sci, deg bool) {
 	}
 	c.sci = sci
 	c.degMode = deg
+	if deg {
+		c.gradMode = false
+	}
 }
 
 // Eng enables engineering notation for batch/one-shot evaluation.
@@ -589,4 +603,17 @@ func (c *Calculator) Eng() {
 // SetRad forces radians mode (degree mode off) for batch evaluation.
 func (c *Calculator) SetRad() {
 	c.degMode = false
+	c.gradMode = false
+}
+
+// SetDeg forces degree mode (gradian mode off) for batch evaluation.
+func (c *Calculator) SetDeg() {
+	c.degMode = true
+	c.gradMode = false
+}
+
+// SetGrad forces gradian mode (degree mode off) for batch evaluation.
+func (c *Calculator) SetGrad() {
+	c.degMode = false
+	c.gradMode = true
 }

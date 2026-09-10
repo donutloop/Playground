@@ -28,6 +28,8 @@ func Demo(w io.Writer) {
 		"ms",
 		"deg",
 		"sin(30)",
+		"grad",
+		"sin(100)",
 		"rad",
 		"# display controls",
 		"12345",

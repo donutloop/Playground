@@ -300,6 +300,13 @@ func TestHelpAsech(t *testing.T) {
 	}
 }
 
+func TestHelpLogistic(t *testing.T) {
+	got := run(t, "help logistic\n")
+	if !strings.Contains(got, "logistic(x)") {
+		t.Errorf("logistic help missing:\n%s", got)
+	}
+}
+
 func TestHelpUnknown(t *testing.T) {
 	got := run(t, "help nope\n")
 	if !strings.Contains(got, "no help") {

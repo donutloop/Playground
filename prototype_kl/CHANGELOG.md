@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [41] logistic sigmoid
+- Added `logistic(x)` = 1/(1+e^-x), the sigmoid function.
+- Prompts relocated from setup/prompts to root agents.md with new requirements.
+
 ## [40] asech/acsch/acoth inverse hyperbolic reciprocal
 - Added `asech(x)` = acosh(1/x), `acsch(x)` = asinh(1/x), `acoth(x)` = atanh(1/x).
 - Domain errors for out-of-range inputs.

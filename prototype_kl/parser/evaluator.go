@@ -267,6 +267,8 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Cosh(args[0]), nil
 	case "tanh":
 		return math.Tanh(args[0]), nil
+	case "logistic":
+		return 1 / (1 + math.Exp(-args[0])), nil
 	case "sech":
 		return 1 / math.Cosh(args[0]), nil
 	case "csch":

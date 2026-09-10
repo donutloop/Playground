@@ -71,6 +71,7 @@ func TestEvaluator(t *testing.T) {
 		{"AsechDomain", "asech(2)", 0, true},
 		{"AcschDomain", "acsch(0)", 0, true},
 		{"AcothDomain", "acoth(1)", 0, true},
+		{"Logistic", "logistic(0)", 0.5, false},
 		{"Gamma", "gamma(5)", 24, false},
 		{"Mod", "mod(10, 3)", 1, false},
 		{"Sign", "sign(-7)", -1, false},
@@ -217,5 +218,17 @@ func TestAcoth(t *testing.T) {
 	want := math.Atanh(0.5)
 	if math.Abs(res-want) > 1e-15 {
 		t.Errorf("acoth(2) = %g, want %g", res, want)
+	}
+}
+
+// TestLogisticPos verifies logistic(1) within tolerance.
+func TestLogisticPos(t *testing.T) {
+	res, err := parser.Evaluate("logistic(1)")
+	if err != nil {
+		t.Fatalf("logistic(1): %v", err)
+	}
+	want := 1 / (1 + math.Exp(-1))
+	if math.Abs(res-want) > 1e-15 {
+		t.Errorf("logistic(1) = %g, want %g", res, want)
 	}
 }

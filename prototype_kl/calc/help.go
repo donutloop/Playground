@@ -69,6 +69,7 @@ var helpTopics = map[string]string{
 	"sinh":      "sinh(x): hyperbolic sine",
 	"cosh":      "cosh(x): hyperbolic cosine",
 	"tanh":      "tanh(x): hyperbolic tangent",
+	"logistic":  "logistic(x): sigmoid 1/(1+e^-x)",
 	"sech":      "sech(x): hyperbolic secant 1/cosh(x)",
 	"csch":      "csch(x): hyperbolic cosecant 1/sinh(x)",
 	"coth":      "coth(x): hyperbolic cotangent 1/tanh(x)",

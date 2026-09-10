@@ -65,6 +65,7 @@ Arity 1 (unary), unless noted. Trig functions take radians.
 | `sinh(x)` | 1 | hyperbolic sine |
 | `cosh(x)` | 1 | hyperbolic cosine |
 | `tanh(x)` | 1 | hyperbolic tangent |
+| `logistic(x)` | 1 | sigmoid 1/(1+e^-x) |
 | `sech(x)` | 1 | hyperbolic secant 1/cosh(x) |
 | `csch(x)` | 1 | hyperbolic cosecant 1/sinh(x) |
 | `coth(x)` | 1 | hyperbolic cotangent 1/tanh(x) |
@@ -114,3 +115,4 @@ also reported as errors rather than silent infinities.
 | `feat(parser): asec/acsc/acot inverse reciprocal trig` | `asec`, `acsc`, `acot` |
 | `feat(parser): sech/csch/coth hyperbolic reciprocal` | `sech`, `csch`, `coth` |
 | `feat(parser): asech/acsch/acoth inverse hyperbolic` | `asech`, `acsch`, `acoth` |
+| `feat(parser): logistic sigmoid` | `logistic(x)` |

@@ -1,8 +1,8 @@
 # Agent Workflow
 
 This file records the exact operating rules for the coding agent working on the
-Math Calculator. The agent must follow these rules indefinitely — this is a
-loop, not a one-off task.
+Math Calculator. It is the root-level prompt (formerly `setup/prompts/`) and
+the agent must follow these rules indefinitely — this is a loop, not a one-off.
 
 ## The loop
 
@@ -25,12 +25,18 @@ Keep building features forever:
 7. If the remote has diverged, `git pull --rebase origin HEAD` then push again.
 8. Return to step 1 and repeat — never stop adding features.
 
+## New requirements (added after prompt relocation)
+
+- Keep `agents.md` at the repo root; do not store prompts under `setup/prompts/`.
+- Every feature commit must update the supported-operations doc
+  (`docs/operations.md`), `CHANGELOG.md`, `README.md`, and the ADR if relevant.
+- Keep the docs/operations.md file as the single source of truth for what the
+  calculator supports.
+- Always push every commit; never leave a feature unpushed.
+- Preserve the CHANGELOG as a clean single list (deduplicate if it grows).
+
 ## Rules
 
 - One commit per feature; do not bundle unrelated features.
 - Never commit failing tests; fix or drop them first.
-- Update docs (operations list, changelog, ADR, README) in the same commit.
-- Keep the supported-operations doc (`docs/operations.md`) as the single
-  source of truth for what the calculator supports.
-- Preserve the CHANGELOG as a clean single list (deduplicate if it grows).
 - Continue the loop even after pushes; there is no terminal state.

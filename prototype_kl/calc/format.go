@@ -20,10 +20,10 @@ func (c *Calculator) SetBase(base int) error {
 }
 
 // formatBase renders an integral value in the requested radix with a prefix.
-func formatBase(v float64, base int) string {
+func formatBase(v float64, base, prec int, sci bool) string {
 	if v != math.Trunc(v) || math.IsNaN(v) || math.IsInf(v, 0) {
-		// Non-integral values fall back to decimal formatting.
-		return formatPrec(v, 15, false)
+		// Non-integral values fall back to decimal formatting with active precision.
+		return formatPrec(v, prec, sci)
 	}
 	var prefix string
 	switch base {
@@ -69,7 +69,7 @@ func Format(v float64) string {
 // format renders v according to the calculator's display settings.
 func (c *Calculator) format(v float64) string {
 	if c.base != 0 {
-		return formatBase(v, c.base)
+		return formatBase(v, c.base, c.prec, c.sci)
 	}
 	if c.eng {
 		return formatEng(v, c.prec)

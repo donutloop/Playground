@@ -136,7 +136,7 @@ func main() {
 						fmt.Fprintf(os.Stderr, "{\"expr\": %q, \"error\": %q}\n", e, err.Error())
 						os.Exit(1)
 					}
-					fmt.Printf("{\"expr\": %q, \"assign\": %q, \"value\": %v}\n", e, name, v)
+					fmt.Printf("{\"expr\": %q, \"assign\": %q, \"value\": %s}\n", e, name, c.FormatValue(v))
 					continue
 				}
 				v, err := c.EvalExpr(e)
@@ -144,7 +144,7 @@ func main() {
 					fmt.Fprintf(os.Stderr, "{\"expr\": %q, \"error\": %q}\n", e, err.Error())
 					os.Exit(1)
 				}
-				fmt.Printf("{\"expr\": %q, \"value\": %v}\n", e, v)
+				fmt.Printf("{\"expr\": %q, \"value\": %s}\n", e, c.FormatValue(v))
 			}
 			return
 		}

@@ -490,6 +490,11 @@ memory       ms, m+, m-, mr, mc
 commands     help, vars, history, status, reset, clear, quit/exit`)
 }
 
+// FormatValue renders a numeric value with the active precision and radix.
+func (c *Calculator) FormatValue(v float64) string {
+	return c.format(v)
+}
+
 // PrintVars writes each defined variable to the output writer.
 func (c *Calculator) PrintVars() {
 	c.printVars()

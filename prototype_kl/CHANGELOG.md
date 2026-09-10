@@ -4,6 +4,8 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [62] clamp(x, lo, hi)
+- Added `clamp(x, lo, hi)` bounding x into [lo, hi] via min/max.
 ## [61] avg(a, b) arithmetic mean
 - Added `avg(a, b)` returning (a + b) / 2.
 ## [60] fix(x, n) decimal rounding

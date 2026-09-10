@@ -43,6 +43,14 @@ redefined. Definitions persist across saves like variables.
 ## Conditionals
 ## Formatting
 ## Statistics
+## Clamping
+
+`clamp(x, lo, hi)` bounds x into [lo, hi], expanding to `min(max(x, lo), hi)`.
+
+    clamp(5, 1, 3)  # -> 3
+    clamp(0, 1, 3)  # -> 1
+    clamp(2, 1, 3)  # -> 2
+
 
 `avg(a, b)` returns the arithmetic mean of two numbers.
 

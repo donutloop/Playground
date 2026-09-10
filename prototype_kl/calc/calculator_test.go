@@ -553,3 +553,27 @@ func TestAvg(t *testing.T) {
 		}
 	}
 }
+
+// TestClamp checks clamp(x, lo, hi) bounds a value into [lo, hi].
+func TestClamp(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"clamp(5, 1, 3)", "3"},
+		{"clamp(0, 1, 3)", "1"},
+		{"clamp(2, 1, 3)", "2"},
+		{"clamp(1+2, 1, 3)", "3"},
+		{"clamp(avg(2, 4), 1, 3)", "3"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+	// clamp is reserved.
+	got := run(t, "clamp(x) = x\n")
+	if !strings.Contains(got, "cannot define function") {
+		t.Errorf("clamp redefinition not rejected:\n%s", got)
+	}
+}

@@ -86,6 +86,13 @@ func main() {
 		if *eng {
 			c.Eng()
 		}
+		if *base != 0 {
+			if err := c.SetBase(*base); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+		}
+		c.SetQuietAssign(*quiet)
 		c.Run()
 		if *state != "" {
 			_ = c.SaveState(*state)

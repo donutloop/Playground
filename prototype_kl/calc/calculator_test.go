@@ -1023,6 +1023,11 @@ func TestNumberTheoryFunctions(t *testing.T) {
 		{"ispal(1221)", "1"},
 		{"ispal(123)", "0"},
 		{"ispal(0)", "1"},
+		{"fib(0)", "0"},
+		{"fib(1)", "1"},
+		{"fib(10)", "55"},
+		{"fib(20)", "6765"},
+		{"fib(30)", "832040"},
 	}
 	for _, tc := range cases {
 		got := run(t, tc.in+"\n")

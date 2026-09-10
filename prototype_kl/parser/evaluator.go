@@ -362,6 +362,20 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		}
 		return float64(reverseDigits(n)), nil
 
+	case "fib":
+		// Fibonacci number: fib(0)=0, fib(1)=1, fib(10)=55. Exact for n <= 97.
+		if len(args) != 1 {
+			return 0, &EvalError{Err: ErrBadArity, Message: "fib expects 1 argument"}
+		}
+		n, err := checkIntArg(args[0])
+		if err != nil {
+			return 0, err
+		}
+		if n > 97 {
+			return 0, &EvalError{Err: ErrDomain, Message: fmt.Sprintf("fib requires n <= 97, got %d", n)}
+		}
+		return float64(fib(n)), nil
+
 	case "ispal":
 		// palindrome check: 1 if n reads the same forward and backward, else 0.
 		if len(args) != 1 {
@@ -641,6 +655,19 @@ func reverseDigits(n int64) int64 {
 		n /= 10
 	}
 	return rev
+}
+
+// fib returns the n-th Fibonacci number (fib(0)=0, fib(1)=1) computed
+// iteratively. Results are exact for n <= 97 (fib(97) < 2^63).
+func fib(n int64) int64 {
+	if n == 0 {
+		return 0
+	}
+	a, b := int64(0), int64(1)
+	for i := int64(1); i < n; i++ {
+		a, b = b, a+b
+	}
+	return b
 }
 
 func factorial(x float64) (float64, error) {

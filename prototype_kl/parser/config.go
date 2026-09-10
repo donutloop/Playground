@@ -132,6 +132,7 @@ var SupportedFunctions = map[string]int{
 	"sumdigits": 1, // sum of decimal digits
 	"rev":       1, // reverse decimal digits
 	"ispal":     1, // palindrome check
+	"fib":       1, // Fibonacci number
 	"prod":      -1,
 	"min":       -1, // variadic
 	"max":       -1, // variadic

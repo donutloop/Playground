@@ -1,3 +1,10 @@
+## [88] Fibonacci: fib
+
+- `fib(n)` returns the n-th Fibonacci number (fib(0)=0, fib(1)=1,
+  fib(10)=55, fib(30)=832040), computed iteratively.
+- Exact for n <= 97 (fib(97) < 2^63); larger n is rejected as a typed
+  domain error, as is any negative or non-integer input.
+
 ## [87] digit functions: sumdigits / rev / ispal
 
 - `sumdigits(n)` returns the sum of the decimal digits of n (sumdigits(1234)=10).

@@ -128,6 +128,13 @@ func TestEvaluator(t *testing.T) {
 		{"SumDigitsDomain", "sumdigits(2.5)", 0, true},
 		{"RevDomain", "rev(-5)", 0, true},
 		{"IspalDomain", "ispal(1.5)", 0, true},
+		{"Fib0", "fib(0)", 0, false},
+		{"Fib1", "fib(1)", 1, false},
+		{"Fib10", "fib(10)", 55, false},
+		{"Fib30", "fib(30)", 832040, false},
+		{"FibDomain", "fib(2.5)", 0, true},
+		{"FibNegative", "fib(-1)", 0, true},
+		{"FibTooBig", "fib(100)", 0, true},
 	}
 
 	for _, tt := range tests {

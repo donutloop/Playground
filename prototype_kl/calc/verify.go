@@ -37,6 +37,9 @@ func Verify(w io.Writer) (passed, failed int) {
 		{"lerp(0, 10, 0.5)", "5"},
 		{"fma(2, 3, 4)", "10"},
 		{"copysign(5, -2)", "-5"},
+		{"erf(1)", "0.842700792949715"},
+		{"erfc(0)", "1"},
+		{"beta(1, 2)", "0.5"},
 	}
 	for _, c := range cases {
 		v, err := parser.Evaluate(c.expr)

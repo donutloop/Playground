@@ -404,6 +404,10 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return m, nil
 	case "fact":
 		return factorial(args[0])
+	case "sum":
+		return rangeSum(args[0], args[1]), nil
+	case "prod":
+		return rangeProd(args[0], args[1]), nil
 	default:
 		return 0, &EvalError{Err: fmt.Errorf("unsupported function %s", n.Name), Message: "function evaluation failed"}
 	}
@@ -450,4 +454,37 @@ func factorial(x float64) (float64, error) {
 		res *= i
 	}
 	return res, nil
+}
+
+// rangeSum sums the integers from floor(a) to floor(b) inclusive.
+func rangeSum(a, b float64) float64 {
+	lo, hi := math.Floor(a), math.Floor(b)
+	if hi < lo {
+		return 0
+	}
+	// Guard against overflow for large ranges.
+	if hi-lo > 2e6 {
+		return 0
+	}
+	s := 0.0
+	for i := lo; i <= hi; i++ {
+		s += i
+	}
+	return s
+}
+
+// rangeProd multiplies the integers from floor(a) to floor(b) inclusive.
+func rangeProd(a, b float64) float64 {
+	lo, hi := math.Floor(a), math.Floor(b)
+	if hi < lo {
+		return 1
+	}
+	if hi-lo > 170 {
+		return 0 // product overflows float64 quickly
+	}
+	p := 1.0
+	for i := lo; i <= hi; i++ {
+		p *= i
+	}
+	return p
 }

@@ -111,6 +111,8 @@ var SupportedFunctions = map[string]int{
 	"pow":       2,  // pow(x, y)
 	"hypot":     2,  // hypot(x, y)
 	"root":      2,
+	"sum":       2,
+	"prod":      2,
 	"min":       -1, // variadic
 	"max":       -1, // variadic
 }

@@ -456,3 +456,25 @@ func TestConvertReserved(t *testing.T) {
 		t.Errorf("convert redefinition not rejected:\n%s", got)
 	}
 }
+
+// TestRangeLoops checks integer range sum and product loops.
+func TestRangeLoops(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"sum(1, 10)", "55"},
+		{"sum(1, 100)", "5050"},
+		{"sum(5, 5)", "5"},
+		{"prod(1, 5)", "120"},
+		{"prod(1, 10)", "3628800"},
+		{"prod(5, 5)", "5"},
+		{"sum(5, 1)", "0"},
+		{"prod(5, 1)", "1"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}

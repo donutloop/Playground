@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [58] range loops (sum/prod)
+- Added `sum(a, b)` and `prod(a, b)` integer range loops (floor(a) to floor(b)).
+- Reversed ranges yield 0 (sum) and 1 (prod).
 ## [57] unit conversion
 - Added `convert(value, from, to)` for length, mass, and time units.
 - Supported units: m km cm mm nm mi ft in yd; kg g mg lb oz; s min h hr day.

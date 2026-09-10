@@ -39,6 +39,18 @@ reserved names (built-in functions, `pi`, `e`, `ans`, `mem`) cannot be
 redefined. Definitions persist across saves like variables.
 
 ## Units & conversion
+## Range loops
+
+`sum(a, b)` sums the integers from floor(a) to floor(b) inclusive;
+`prod(a, b)` multiplies them.
+
+    sum(1, 10)   # -> 55
+    sum(1, 100)  # -> 5050
+    prod(1, 5)   # -> 120
+    prod(1, 10)  # -> 3628800
+
+A reversed range (b < a) yields the sum identity 0 and the product identity 1.
+
 
 Convert a value between units of the same physical dimension with
 `convert(value, from, to)`. Supported dimensions: length (base meter), mass

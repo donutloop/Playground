@@ -191,6 +191,10 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Erfc(args[0]), nil
 	case "beta":
 		return math.Gamma(args[0]) * math.Gamma(args[1]) / math.Gamma(args[0]+args[1]), nil
+	case "logb":
+		return math.Logb(args[0]), nil
+	case "nextafter":
+		return math.Nextafter(args[0], args[1]), nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

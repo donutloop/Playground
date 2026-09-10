@@ -59,6 +59,8 @@ func TestEvaluator(t *testing.T) {
 		{"Erf", "erf(1)", 0.8427007929497149, false},
 		{"Erfc", "erfc(0)", 1, false},
 		{"Beta", "beta(1, 2)", 0.5, false},
+		{"Logb", "logb(8)", 3, false},
+		{"Nextafter", "nextafter(1, 2)", 1.0000000000000002, false},
 		{"Exp", "exp(0)", 1, false},
 		{"Pow", "pow(2, 10)", 1024, false},
 		{"Hypot", "hypot(3, 4)", 5, false},

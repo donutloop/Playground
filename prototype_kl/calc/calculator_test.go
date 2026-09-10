@@ -478,3 +478,41 @@ func TestRangeLoops(t *testing.T) {
 		}
 	}
 }
+
+// TestIfConditional checks the if(cond, then, else) conditional.
+func TestIfConditional(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"if(1, 100, 42)", "100"},
+		{"if(0, 100, 42)", "42"},
+		{"if(5 > 2, 100, 1)", "100"},
+		{"if(2 > 5, 100, 1)", "1"},
+		{"if(5 > 2, sum(1, 3), 0)", "6"},
+		{"if(1, convert(5, km, m), 0)", "5000"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s = %q, want to contain %q", tc.in, got, tc.want)
+		}
+	}
+}
+
+// TestIfArityError checks wrong-arity and reserved-name handling.
+func TestIfArityError(t *testing.T) {
+	cases := []string{
+		"if(1, 2)\n",
+		"if(1)\n",
+	}
+	for _, tc := range cases {
+		got := run(t, tc)
+		if strings.Contains(got, "error") == false {
+			t.Errorf("expected error for %q:\n%s", tc, got)
+		}
+	}
+	got := run(t, "if(x) = x\n")
+	if !strings.Contains(got, "cannot define function") {
+		t.Errorf("if redefinition not rejected:\n%s", got)
+	}
+}

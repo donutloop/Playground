@@ -65,6 +65,7 @@ x = 5
 | User functions | `f(x) = x^2 + 1` then call `f(3)`        |
 | Unit conversion  | `convert(5, km, m)` -> 5000; `convert(60, min, s)` -> 3600 |
 | Range loops      | `sum(1, 100)` -> 5050; `prod(1, 10)` -> 3628800      |
+| Conditional      | `if(5 > 2, 100, 1)` -> 100; `if(0, 100, 42)` -> 42  |
 | Last result  | `ans` usable in later expressions          |
 | Statements   | separate with `;` — `y = 2; y * 3`         |
 | Commands     | `help`, `vars`, `history`, `clear`, `quit` |

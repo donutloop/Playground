@@ -40,6 +40,17 @@ redefined. Definitions persist across saves like variables.
 
 ## Units & conversion
 ## Range loops
+## Conditionals
+
+`if(cond, then, else)` evaluates `then` when cond is nonzero, otherwise
+`else`. Only the selected branch is computed (lazy evaluation).
+
+    if(5 > 2, 100, 1)    # -> 100
+    if(0, 100, 42)       # -> 42
+    if(1, sum(1, 3), 0)  # -> 6
+
+The ternary `cond ? then : else` is also available.
+
 
 `sum(a, b)` sums the integers from floor(a) to floor(b) inclusive;
 `prod(a, b)` multiplies them.

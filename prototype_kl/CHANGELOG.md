@@ -4,6 +4,9 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [59] if conditional
+- Added `if(cond, then, else)` with lazy evaluation of the selected branch.
+- Nonzero cond selects then; zero selects else.
 ## [58] range loops (sum/prod)
 - Added `sum(a, b)` and `prod(a, b)` integer range loops (floor(a) to floor(b)).
 - Reversed ranges yield 0 (sum) and 1 (prod).

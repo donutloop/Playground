@@ -197,6 +197,13 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 		return math.Nextafter(args[0], args[1]), nil
 	case "ldexp":
 		return math.Ldexp(args[0], int(args[1])), nil
+	case "dim":
+		return math.Dim(args[0], args[1]), nil
+	case "signbit":
+		if math.Signbit(args[0]) {
+			return 1, nil
+		}
+		return 0, nil
 	case "lcm":
 		return lcm(args[0], args[1]), nil
 	case "sinh":

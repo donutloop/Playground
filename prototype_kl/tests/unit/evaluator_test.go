@@ -62,6 +62,8 @@ func TestEvaluator(t *testing.T) {
 		{"Logb", "logb(8)", 3, false},
 		{"Nextafter", "nextafter(1, 2)", 1.0000000000000002, false},
 		{"Ldexp", "ldexp(1, 3)", 8, false},
+		{"Dim", "dim(5, 3)", 2, false},
+		{"Signbit", "signbit(-0.0)", 1, false},
 		{"Exp", "exp(0)", 1, false},
 		{"Pow", "pow(2, 10)", 1024, false},
 		{"Hypot", "hypot(3, 4)", 5, false},

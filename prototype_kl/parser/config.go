@@ -58,6 +58,8 @@ var SupportedFunctions = map[string]int{
 	"logb":      1,
 	"nextafter": 2,
 	"ldexp":     2,
+	"dim":       2,
+	"signbit":   1,
 	"sinh":      1,
 	"cosh":      1,
 	"tanh":      1,

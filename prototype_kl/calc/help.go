@@ -50,6 +50,7 @@ var helpTopics = map[string]string{
 	"exp10":     "exp10(x): 10 raised to x",
 	"gamma":     "gamma(x): gamma function (not defined at non-positive integers)",
 	"mod":       "mod(a, b): remainder of a divided by b",
+	"%%":       "%% binary modulo: 7 %% 3 -> 1 (also works in countif/sumif)",
 	"sign":      "sign(x): -1, 0, or 1",
 	"clamp":     "clamp(x, lo, hi): bound x between lo and hi",
 	"lerp":      "lerp(a, b, t): linear interpolation a + (b-a)*t",

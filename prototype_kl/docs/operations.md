@@ -76,7 +76,7 @@ All accept two or more arguments.
 `sumif(cond, lo, hi)` sums the values of `x` that satisfy `cond`.
 
     countif(x > 3, 1, 10)           # -> 7
-    countif(mod(x, 2) == 0, 1, 10)  # -> 5
+    countif(x % 2 == 0, 1, 10)    # -> 5
     sumif(x > 3, 1, 10)             # -> 49
     sumif(x >= 5, 1, 10)            # -> 45
 

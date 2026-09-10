@@ -53,6 +53,11 @@ func (e *Evaluator) Evaluate(node Node) (float64, error) {
 			return left / right, nil
 		case OpPower:
 			return math.Pow(left, right), nil
+		case OpMod:
+			if right == 0 {
+				return 0, &EvalError{Err: ErrDivisionByZero, Message: "modulo by zero"}
+			}
+			return math.Mod(left, right), nil
 		case OpLT:
 			if left < right {
 				return 1, nil

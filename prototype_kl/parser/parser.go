@@ -209,14 +209,18 @@ func (p *Parser) parseTerm() (Node, error) {
 		return nil, err
 	}
 
-	for p.current().Type == TokenMultiply || p.current().Type == TokenDivide {
+	for p.current().Type == TokenMultiply || p.current().Type == TokenDivide || p.current().Type == TokenModulo {
 		token := p.consume()
+		op := rune(token.Value[0])
+		if token.Type == TokenModulo {
+			op = OpMod
+		}
 		right, err := p.parseExponent()
 		if err != nil {
 			return nil, err
 		}
 		left = &BinaryOpNode{
-			Op:    rune(token.Value[0]),
+			Op:    op,
 			Left:  left,
 			Right: right,
 		}

@@ -21,6 +21,7 @@ const (
 	TokenConstant
 	TokenFactorial
 	TokenPercent
+	TokenModulo
 	TokenPower
 	TokenEOF
 	TokenQuestion
@@ -103,6 +104,20 @@ func (l *Lexer) Tokenize() ([]Token, error) {
 				tokens = append(tokens, Token{Type: TokenFactorial, Value: string(char), Pos: l.pos})
 			}
 		case OpPercent:
+			// Binary modulo (7 % 3) vs postfix percent (50%). A modulo needs an
+			// operand following (skip whitespace): digit, letter, or '('.
+			j := l.pos + 1
+			for j < len(l.input) && unicode.IsSpace(rune(l.input[j])) {
+				j++
+			}
+			if j < len(l.input) {
+				n := l.input[j]
+				if unicode.IsDigit(rune(n)) || unicode.IsLetter(rune(n)) || n == '(' {
+					tokens = append(tokens, Token{Type: TokenModulo, Value: string(char), Pos: l.pos})
+					l.pos++
+					continue
+				}
+			}
 			tokens = append(tokens, Token{Type: TokenPercent, Value: string(char), Pos: l.pos})
 		case OpPower:
 			tokens = append(tokens, Token{Type: TokenPower, Value: string(char), Pos: l.pos})

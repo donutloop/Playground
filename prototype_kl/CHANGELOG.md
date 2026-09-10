@@ -4,6 +4,12 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [80] binary %% modulo operator
+- New binary modulo operator `%%` (e.g. `7 %% 3` -> 1), same precedence as `*` and `/`.
+- Postfix percent (e.g. `50%%` -> 0.5) still works; `%%` is treated as modulo when an operand follows.
+- `%%` works inside countif/sumif conditions: `countif(x %% 2 == 0, 1, 10)` counts evens.
+- Added OpMod evaluation (math.Mod), lexer disambiguation, parser mapping, and tests.
+
 ## [79] conditional countif / sumif range loops
 - New `countif(cond, lo, hi)` counts integers `x` in `[lo, hi]` satisfying `cond`.
 - New `sumif(cond, lo, hi)` sums those `x` values.

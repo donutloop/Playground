@@ -881,3 +881,22 @@ func TestCountIfReserved(t *testing.T) {
 		t.Errorf("countif should be a reserved name: %q", got)
 	}
 }
+
+func TestModuloOperator(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"7 % 3", "1"},
+		{"10 % 3", "1"},
+		{"100 % 7", "2"},
+		{"7 % 3 + 10 % 3", "2"},
+		{"7 % (3)", "1"},
+		{"50%", "0.5"},
+		{"countif(x % 2 == 0, 1, 10)", "5"},
+		{"sumif(x % 2 == 0, 1, 10)", "30"},
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, tc.want) || strings.Contains(got, "error") {
+			t.Errorf("%s = %q, want to contain %s", tc.in, got, tc.want)
+		}
+	}
+}

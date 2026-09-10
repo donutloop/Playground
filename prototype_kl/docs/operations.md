@@ -91,7 +91,7 @@ an even count). All accept two or more arguments.
     remap(1, 0, 1, 0, 2)     # -> 2
 
 
-`round(x)` rounds to the nearest integer; `round(x, n)` rounds to n decimal
+`round(x)` is the nearest integer; `round(x, n)` rounds to n decimal places.
 places.
 
     round(3.14159)   # -> 3

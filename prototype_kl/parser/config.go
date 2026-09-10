@@ -42,7 +42,7 @@ var SupportedFunctions = map[string]int{
 	"floor":     1,
 	"fract":     1,
 	"ceil":      1,
-	"round":     1,
+	"round":     -1, // round(x) or round(x, n) to n decimals
 	"trunc":     1,
 	"sin":       1,
 	"sinc":      1,

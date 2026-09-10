@@ -13,7 +13,7 @@ var helpTopics = map[string]string{
 	"abs":       "abs(x): absolute value of x",
 	"floor":     "floor(x): largest integer <= x",
 	"ceil":      "ceil(x): smallest integer >= x",
-	"round":     "round(x): round to nearest integer",
+	"round":     "round(x): nearest integer; round(x, n): to n decimals",
 	"trunc":     "trunc(x): truncate toward zero",
 	"sin":       "sin(x): sine of x (radians)",
 	"sinc":      "sinc(x): cardinal sine sin(x)/x, sinc(0)=1",
@@ -35,6 +35,7 @@ var helpTopics = map[string]string{
 	"gcd":       "gcd(a, b): greatest common divisor",
 	"var":       "var(a, b, ...): population variance of the values",
 	"count":     "count(a, b): number of integers from floor(a) to floor(b)",
+
 	"stddev":    "stddev(a, b, ...): population standard deviation (sqrt of variance)",
 	"median":    "median(a, b, ...): middle value of the sorted values",
 	"lcm":       "lcm(a, b): least common multiple",

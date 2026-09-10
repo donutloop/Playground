@@ -372,7 +372,7 @@ func (p *Parser) parsePrimary() (Node, error) {
 				Message: fmt.Sprintf("%s expects 2 arguments, got %d", funcName, want),
 			}
 		}
-		if arity == -1 && want < 2 {
+		if arity == -1 && want < 2 && funcName != "round" {
 			return nil, &ParseError{
 				Err:     ErrBadArity,
 				Pos:     token.Pos,

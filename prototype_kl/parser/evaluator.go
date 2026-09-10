@@ -166,7 +166,11 @@ func (e *Evaluator) callFunction(n *FunctionNode) (float64, error) {
 	case "ceil":
 		return math.Ceil(args[0]), nil
 	case "round":
-		return math.Round(args[0]), nil
+		if len(args) == 1 {
+			return math.Round(args[0]), nil
+		}
+		scale := math.Pow(10, args[1])
+		return math.Round(args[0]*scale) / scale, nil
 	case "trunc":
 		return math.Trunc(args[0]), nil
 	case "sin":

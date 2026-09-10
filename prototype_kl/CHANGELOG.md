@@ -4,6 +4,10 @@ All notable changes to the Math Calculator. Entries are grouped per commit,
 newest first. Each feature ships code, tests, help text, verify coverage, and
 docs updates.
 
+## [76] round(x, n) decimal precision
+- Made `round` variadic: `round(x)` nearest integer, `round(x, n)` rounds to n
+  decimal places (e.g. `round(2.5678, 2)` -> 2.57).
+
 ## [75] count range loop
 - Added `count(a, b)` returning the number of integers from floor(a) to floor(b)
   (0 when b < a), completing the integer-range loop family (sum, prod, count).

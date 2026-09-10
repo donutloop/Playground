@@ -203,6 +203,27 @@ The ternary `cond ? then : else` is also available.
 
 A reversed range (b < a) yields the sum identity 0 and the product identity 1.
 
+### Generalized range loops (for-loop over integers)
+
+With a loop variable, `sum`, `prod`, and `count` take a body expression evaluated
+at each integer in the range:
+
+    sum(i, lo, hi[, step], expr)   # sum expr over integer i in [lo, hi]
+    prod(i, lo, hi[, step], expr)  # product of expr over integer i in [lo, hi]
+    count(i, lo, hi[, step], cond) # count i where cond is nonzero
+
+The 4-argument form uses step 1; the 5-argument form takes an explicit step.
+The loop variable must be an identifier; bounds, step, and body may reference
+user variables, ans, or other functions. count accumulates the condition values
+directly (comparisons already yield 1/0). Examples:
+
+    sum(i, 1, 10, i^2)          # -> 385
+    prod(i, 1, 6, i)            # -> 720  (6!)
+    sum(i, 1, 10, 2, i)         # -> 25   (1+3+5+7+9)
+    count(i, 1, 10, i % 2 == 0) # -> 5
+
+A reversed range yields the sum identity 0 and the product identity 1.
+
 
 Convert a value between units of the same physical dimension with
 `convert(value, from, to)`. Supported dimensions: length (base meter), mass

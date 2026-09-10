@@ -392,6 +392,26 @@ func (c *Calculator) expand(s string) (string, error) {
 			i = end + 1
 			continue
 		}
+		if k < n && s[k] == '(' && (ident == "sum" || ident == "prod" || ident == "count") {
+			end := findMatchingParen(s, k)
+			if end < 0 {
+				return "", fmt.Errorf("unmatched '(' in call to %s", ident)
+			}
+			args := splitArgs(s[k+1 : end])
+			if len(args) >= 4 {
+				// Generalized range loop: sum(i, lo, hi[, step], expr) etc.
+				kind := ident
+				expanded, err := c.expandRangeLoop(s[k+1:end], kind)
+				if err != nil {
+					return "", err
+				}
+				b.WriteString(expanded)
+				i = end + 1
+				continue
+			}
+			// 2- or 3-argument numeric form: fall through to the parser's
+			// built-in sum/prod/count.
+		}
 		if k < n && s[k] == '(' && (ident == "countif" || ident == "sumif") {
 			end := findMatchingParen(s, k)
 			if end < 0 {

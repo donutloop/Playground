@@ -1,3 +1,15 @@
+## [84] generalized range loops (for-loop over integers)
+
+- `sum(i, lo, hi, expr)` sums `expr` over integer `i` in [lo, hi].
+- `sum(i, lo, hi, step, expr)` same, stepping by `step`.
+- `prod(i, lo, hi[, step], expr)` product of `expr` over integer `i`.
+- `count(i, lo, hi[, step], cond)` counts `i` where `cond` is nonzero.
+- The loop variable is a real identifier; bounds, step, and body may reference
+  user variables, ans, or other functions. Implemented as a calc-level macro
+  expansion (generalizes the plain numeric sum/prod/count forms).
+- Examples: `sum(i, 1, 10, i^2)` = 385, `prod(i, 1, 6, i)` = 6! = 720,
+  `sum(i, 1, 10, 2, i)` = 25, `count(i, 1, 10, i % 2 == 0)` = 5.
+
 # Changelog
 
 All notable changes to the Math Calculator. Entries are grouped per commit,

@@ -958,3 +958,35 @@ func TestBitwiseOps(t *testing.T) {
 		}
 	}
 }
+
+func TestRangeLoopExpressions(t *testing.T) {
+	// Generalized loop forms: sum(i, lo, hi[, step], expr), prod(...), count(...).
+	cases := []struct{ in, want string }{
+		{"sum(i, 1, 10, i)", "55"},
+		{"sum(i, 1, 10, i^2)", "385"},      // sum of squares = 1+4+...+100
+		{"sum(i, 1, 10, 2, i)", "25"},      // 1+3+5+7+9
+		{"prod(i, 1, 5, 2^i)", "32768"},    // 2^1 * ... * 2^5 = 2^15
+		{"prod(i, 1, 6, i)", "720"},        // 6!
+		{"count(i, 1, 10, i % 2 == 0)", "5"},
+		{"sum(i, 3, 1, i)", "0"},           // reversed range: sum identity
+		{"prod(i, 3, 1, i)", "1"},          // reversed range: product identity
+	}
+	for _, tc := range cases {
+		got := run(t, tc.in+"\n")
+		if !strings.Contains(got, "> "+tc.want+"\n") {
+			t.Errorf("%s = %q, want to contain %s", tc.in, got, tc.want)
+		}
+	}
+}
+
+func TestRangeLoopWithVariables(t *testing.T) {
+	// The loop variable and bounds may reference user variables / ans.
+	got := run(t, "x = 5\nsum(i, 1, x, i)\n")
+	if !strings.Contains(got, "> 15\n") {
+		t.Errorf("sum(i, 1, x, i) with x=5 = %q, want 15", got)
+	}
+	got = run(t, "sum(i, 1, 3, i*i) + sum(i, 1, 3, i)\n")
+	if !strings.Contains(got, "> 20\n") {
+		t.Errorf("combined loops = %q, want 20", got)
+	}
+}

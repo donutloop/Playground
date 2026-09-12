@@ -172,6 +172,46 @@ When stuck, agents must prioritize reading these primary sources:
 - **GDScript Reference**: [https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 - **Shader Reference**: [https://docs.godotengine.org/en/stable/tutorials/shaders/index.html](https://docs.godotengine.org/en/stable/tutorials/shaders/index.html)
 
+## 8. The Development Loop (Never Stop Evolving)
+
+Agents must treat work on this repository as a **continuous loop, not a one-off task**. There is no terminal state — after finishing one feature or fix, an agent immediately begins the next.
+
+### 8.1 The loop
+
+1. Pick a new feature, enemy type, shader effect, wave tweak, or fix (e.g. a new enemy archetype, a new post-process effect, boss-phase logic, HUD polish).
+2. Implement it across the stack:
+   - `scripts/` — the gameplay/logic change (player, spawner, enemy, HUD, or `enemy_manager.gd`).
+   - `shaders/` — any new or updated `.gdshader` effect, following the shader rules in Section 3.
+   - Scene files (`.tscn`) — wire up new nodes following the conventions in Section 6.2.
+   - `README.md` — document the new feature/enemy/effect for humans.
+3. **Validate before committing**: run the headless check —
+```bash
+   $GODOT --path project/ --headless --quit
+```
+   Fix all parse/script errors before proceeding.
+4. **Manually verify gameplay-affecting changes** by launching the game (`$GODOT --path project/`) and confirming the invulnerability, collision, and wave-gating rules in Sections 4 and 6.3 still hold.
+5. Commit with a clear message (`feat(enemy): add tier-3 hunter`, `fix(shader): remove return from crt.gdshader fragment`).
+6. **Always push the commit**: `git push origin HEAD`.
+7. If the remote has diverged, `git pull --rebase origin HEAD`, resolve, then push again.
+8. Return to step 1 and repeat — never stop iterating on the game.
+
+### 8.2 Iteration contract (never stop)
+
+- Keep executing forever: after each feature/fix is done, immediately begin the next one — new enemy tiers, boss phases, shader/post-process effects, HUD/UX polish, or remaining gaps against Sections 3–6.
+- **Push every completed change to the remote before starting the next one**:
+  `git add -A && git commit -m "<change>" && git push origin HEAD`.
+- If the push fails or the remote diverged, `git pull --rebase origin HEAD` and push again.
+- There is no terminal state; the loop continues indefinitely.
+- Do **not** stop after a single feature or after step 8 — the loop must keep running.
+- Every cycle must keep this document's invariants honest: invulnerability checks, `mouse_filter` on overlays, layer ordering, and shader `return` rules must never regress as new content is added.
+
+### 8.3 Rules for the loop
+
+- One commit per feature/fix; do not bundle unrelated changes.
+- Never commit a change that fails the headless validation in step 8.1.3.
+- Continue the loop even after a successful push — do not treat a push as a stopping point.
+
 ---
+
 
 *Last updated from docs.godotengine.org/en/stable.*
